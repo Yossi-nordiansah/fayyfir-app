@@ -84,10 +84,38 @@ while ($op = $query_op->fetch_assoc()) {
   $operasional_per_bulan[$periode_key] = ($operasional_per_bulan[$periode_key] ?? 0) + $jumlah;
 }
 
-// Laba bersih
-foreach ($laba_kotor_per_bulan as $periode_key => $laba_kotor) {
-  $operasional = $operasional_per_bulan[$periode_key] ?? 0;
-  $laba_bersih_per_bulan[$periode_key] = $laba_kotor - $operasional;
+// Ambil filter tahun dari GET, default ke tahun ini
+$filter_tahun = isset($_GET['tahun']) && $_GET['tahun'] !== '' ? intval($_GET['tahun']) : intval(date('Y'));
+
+// Kumpulkan semua tahun yang ada dari data
+$semua_tahun = [];
+foreach (array_keys($pendapatan_per_bulan) as $k) {
+  $semua_tahun[substr($k, 0, 4)] = true;
+}
+foreach (array_keys($operasional_per_bulan) as $k) {
+  $semua_tahun[substr($k, 0, 4)] = true;
+}
+krsort($semua_tahun); // urutkan tahun DESC
+
+// Filter data berdasarkan tahun yang dipilih
+$filtered_pendapatan = [];
+foreach ($pendapatan_per_bulan as $k => $v) {
+  if (substr($k, 0, 4) == $filter_tahun) $filtered_pendapatan[$k] = $v;
+}
+
+// Urutkan bulan secara DESC (terbaru ke terlama)
+krsort($filtered_pendapatan);
+
+// Rebuild filtered arrays based on filtered_pendapatan
+$filtered_bpp = [];
+$filtered_laba_kotor = [];
+$filtered_operasional = [];
+$filtered_laba_bersih = [];
+foreach ($filtered_pendapatan as $k => $v) {
+  $filtered_bpp[$k]        = $bpp_per_bulan[$k] ?? 0;
+  $filtered_laba_kotor[$k] = $laba_kotor_per_bulan[$k] ?? 0;
+  $filtered_operasional[$k]= $operasional_per_bulan[$k] ?? 0;
+  $filtered_laba_bersih[$k]= $laba_bersih_per_bulan[$k] ?? 0;
 }
 ?>
 
@@ -107,17 +135,28 @@ foreach ($laba_kotor_per_bulan as $periode_key => $laba_kotor) {
         <span class="material-symbols-outlined text-base">chevron_left</span>
         <span class="hidden lg:inline">Kembali</span>
       </a>
-      <h1 class="text-lg font-semibold">Laba Rugi</h1>
+      <h1 class="text-lg font-semibold">Laba Rugis</h1>
     </div>
   </header>
 
   <main class="pt-24 pb-32 px-4 max-w-6xl mx-auto space-y-6">
     <div class="overflow-auto bg-white shadow rounded-lg p-4">
-      <div class="flex justify-start gap-2 mb-4">
-        <button id="openModal" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
-          <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">picture_as_pdf</span>
-          <span class="ml-2">Export PDF +</span>
-        </button>
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+        <div class="flex gap-2">
+          <button id="openModal" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
+            <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">picture_as_pdf</span>
+            <span class="ml-2">Export PDF +</span>
+          </button>
+        </div>
+        <!-- Filter Tahun -->
+        <form method="get" class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-600">Tahun:</label>
+          <select name="tahun" onchange="this.form.submit()" class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:ring-yellow-300">
+            <?php foreach (array_keys($semua_tahun) as $thn): ?>
+              <option value="<?= $thn ?>" <?= $thn == $filter_tahun ? 'selected' : '' ?>><?= $thn ?></option>
+            <?php endforeach; ?>
+          </select>
+        </form>
       </div>
 
       <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -134,12 +173,12 @@ foreach ($laba_kotor_per_bulan as $periode_key => $laba_kotor) {
         </thead>
         <tbody class="divide-y divide-gray-200 text-gray-800">
           <?php
-          if (!empty($pendapatan_per_bulan)) {
-            foreach ($pendapatan_per_bulan as $periode => $pendapatan) {
-              $bpp = $bpp_per_bulan[$periode] ?? 0;
-              $laba_kotor = $laba_kotor_per_bulan[$periode] ?? 0;
-              $operasional = $operasional_per_bulan[$periode] ?? 0;
-              $laba_bersih = $laba_bersih_per_bulan[$periode] ?? 0;
+          if (!empty($filtered_pendapatan)) {
+            foreach ($filtered_pendapatan as $periode => $pendapatan) {
+              $bpp         = $filtered_bpp[$periode] ?? 0;
+              $laba_kotor  = $filtered_laba_kotor[$periode] ?? 0;
+              $operasional = $filtered_operasional[$periode] ?? 0;
+              $laba_bersih = $filtered_laba_bersih[$periode] ?? 0;
 
               $bulanTahun = DateTime::createFromFormat('Y-m', $periode)->format('F Y');
 
@@ -163,7 +202,7 @@ foreach ($laba_kotor_per_bulan as $periode_key => $laba_kotor) {
             }
           } else {
             echo "<tr>
-              <td colspan='7' class='text-center py-4'>Belum ada data</td>
+              <td colspan='7' class='text-center py-4'>Belum ada data untuk tahun {$filter_tahun}</td>
             </tr>";
           }
           ?>

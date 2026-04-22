@@ -94,14 +94,21 @@ $html = '
     <td></td>
     <td class="garis" style="background-color: #eee;"><strong>ADDRESS :</strong></td>
     <td class="garis" style="background-color: #eee;">' . nl2br(htmlspecialchars($invoice["address"])) . '</td>
-    <td class="garis" style="background-color: #eee;"><strong>INVOICE NO :</strong></td>
-    <td class="garis" style="background-color: #eee;">' . nl2br(htmlspecialchars($invoice["invoice_no"])) . '</td>
+    <td class="garis" style="background-color: #eee;"><strong>CLOSING DATE :</strong></td>
+    <td class="garis" style="background-color: #eee;">' . (!empty($container["verified_at"]) ? date("d/m/Y", strtotime($container["verified_at"])) : "-") . '</td>
   </tr>
   <tr>
     <td></td>
     <td class="garis" style="background-color: #fff;"><strong>CONTANER :</strong></td>
     <td class="garis" style="background-color: #fff;">' . nl2br(htmlspecialchars($invoice["containers"])) . '</td>
-    <td class="garis" style="background-color: #fff;"><strong>DATE :</strong></td>
+    <td class="garis" style="background-color: #eee;"><strong>INVOICE NO :</strong></td>
+    <td class="garis" style="background-color: #eee;">' . nl2br(htmlspecialchars($invoice["invoice_no"])) . '</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td class="garis" style="background-color: #eee;"></td>
+    <td class="garis" style="background-color: #eee;"></td>
+    <td class="garis" style="background-color: #fff;"><strong>INVOICE DATE :</strong></td>
     <td class="garis" style="background-color: #fff;">' . date("d/m/Y", strtotime($invoice["invoice_date"])) . '</td>
   </tr>
 </table>

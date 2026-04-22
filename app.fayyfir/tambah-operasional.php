@@ -10,7 +10,7 @@ if (!isset($_SESSION["user_id"])) {
 
 // Cek apakah form disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $tanggal = $_POST["tanggal"];
+  $tanggal = str_replace('T', ' ', $_POST["tanggal"]);
   $nama_biaya = $_POST["nama_biaya"];
   $kategori = $_POST["kategori"];
   $deskripsi = $_POST["deskripsi"];
@@ -58,9 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       
       <div>
         <label class="block text-sm font-medium">Tanggal Biaya</label>
-        <input type="date" name="tanggal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none" value="<?= date(
-        "Y-m-d"
-      ) ?>" />
+        <input type="datetime-local" name="tanggal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none" value="<?= date('Y-m-d\TH:i') ?>" />
       </div>
 
       <div>

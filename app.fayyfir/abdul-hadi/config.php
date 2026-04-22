@@ -5,19 +5,19 @@ date_default_timezone_set('Asia/Jakarta');
 // Konfigurasi database utama
 $config1 = [
   "DB_HOST" => "127.0.0.1",
-  "DB_PORT" => "3306",
+  "DB_PORT" => "3308",
   "DB_NAME" => "alsz2632_db",
-  "DB_USER" => "alsz2632_user",
-  "DB_PASS" => "RahasiaBanget123",
+  "DB_USER" => "root",
+  "DB_PASS" => "",
 ];
 
 // Konfigurasi database kedua
 $config2 = [
   "DB_HOST" => "127.0.0.1",
-  "DB_PORT" => "3306",
+  "DB_PORT" => "3308",
   "DB_NAME" => "alsz2632_ahadi",
-  "DB_USER" => "alsz2632_user",
-  "DB_PASS" => "RahasiaBanget123",
+  "DB_USER" => "root",
+  "DB_PASS" => "",
 ];
 
 // Koneksi MySQLi
