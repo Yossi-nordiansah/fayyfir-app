@@ -1,0 +1,37 @@
+# Aktifkan modul rewrite
+RewriteEngine On
+
+# Pastikan URL bukan folder
+
+# Pastikan URL tanpa ekstensi, tapi file .php-nya ada
+
+# Rewrite URL ke file .php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.+?)/?$ $1.php [L]
+
+# [OPSIONAL] Blok akses langsung ke .php dari URL
+# Uncomment baris ini jika kamu ingin cegah akses manual ke login.php, dsb.
+# Tapi pastikan kamu tidak butuh akses langsung POST ke file tersebut
+
+# <FilesMatch "\.php$">
+#   Order allow,deny
+#   Deny from all
+# </FilesMatch>
+
+# [OPSIONAL] Redirect ke HTTPS (jika SSL aktif)
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# [OPSIONAL] Paksa trailing slash di URL (tidak wajib)
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_URI} !(.*)/$
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1/ [L,R=301]
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# This domain inherits the “PHP” package.
+# php -- END cPanel-generated handler, do not edit
+RewriteCond %{HTTP_HOST} ^app\.fayyfir\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.app\.fayyfir\.com$
+RewriteRule ^/?$ "https\:\/\/www\.app\.fayyfir\.com\/" [R=301,L]
+

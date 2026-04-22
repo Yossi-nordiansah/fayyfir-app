@@ -1,0 +1,1048 @@
+[28-Oct-2025 13:44:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 20:44:11 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 13:45:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 20:45:05 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 13:45:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 13:47:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 13:47:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 13:47:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 13:47:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 13:47:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/config.php on line 2
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Warning:  include(../../../partials/header.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/header.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Warning:  include(../../../partials/sidebar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/sidebar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Warning:  include(../../../partials/navbar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/navbar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[28-Oct-2025 20:47:55 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 57
+[28-Oct-2025 13:48:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 20:48:00 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 13:48:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/config.php on line 2
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Warning:  include(../../../partials/header.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/header.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Warning:  include(../../../partials/sidebar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/sidebar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Warning:  include(../../../partials/navbar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/navbar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[28-Oct-2025 20:48:01 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 57
+[28-Oct-2025 13:48:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 13:48:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 20:48:14 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 13:48:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 20:48:34 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 22:37:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 22:38:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 22:38:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:38:35 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 22:39:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 22:39:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:39:02 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 22:43:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:43:06 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/list-pembelian.php on line 156
+[28-Oct-2025 22:43:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/config.php on line 2
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Warning:  include(../../../partials/header.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/header.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Warning:  include(../../../partials/sidebar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/sidebar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Warning:  include(../../../partials/navbar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/navbar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[29-Oct-2025 05:43:11 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 57
+[28-Oct-2025 22:43:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Oct-2025 22:44:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:44:41 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 156
+[28-Oct-2025 22:48:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:48:03 Asia/Jakarta] PHP Notice:  Trying to get property 'num_rows' of non-object in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 156
+[29-Oct-2025 03:11:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 67
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: tanggal in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 70
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: nama_bahan in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 72
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 73
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 67
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: tanggal in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 70
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: nama_bahan in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 72
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 73
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 67
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: tanggal in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 70
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: nama_bahan in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 72
+[29-Oct-2025 10:11:13 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 73
+[29-Oct-2025 03:19:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 68
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: tanggal in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 71
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 74
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 68
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: tanggal in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 71
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 74
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 68
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: tanggal in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 71
+[29-Oct-2025 10:19:27 Asia/Jakarta] PHP Notice:  Undefined index: berat_kg in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 74
+[29-Oct-2025 03:29:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:29:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:29:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:29:41 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/detail-pembelian.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/detail-pembelian.php on line 23
+[29-Oct-2025 03:30:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:30:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:32:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:37:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:37:26 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/detail-pembelian.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/detail-pembelian.php on line 23
+[29-Oct-2025 03:53:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:53:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:53:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:54:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:54:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:54:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:54:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:54:45 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:22
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 22
+[29-Oct-2025 03:56:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:59:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 03:59:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:01:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:01:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 11:01:18 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:22
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 22
+[29-Oct-2025 04:32:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:33:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:33:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:33:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:44:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 04:44:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:23:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:23:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 05:23:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 06:02:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 06:13:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 06:14:22 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 06:14:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 06:32:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 07:17:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 07:18:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 07:18:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/config.php on line 2
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Warning:  include(../../../partials/header.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/header.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 37
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Warning:  include(../../../partials/sidebar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/sidebar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Warning:  include(../../../partials/navbar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/navbar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[29-Oct-2025 14:18:50 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 57
+[29-Oct-2025 07:21:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/config.php on line 2
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Warning:  include(../../../partials/header.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/header.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 38
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Warning:  include(../../../partials/sidebar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/sidebar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 39
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Warning:  include(../../../partials/navbar.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 40
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../../partials/navbar.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 40
+[29-Oct-2025 14:21:35 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:89
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 89
+[29-Oct-2025 07:22:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 14:22:55 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:91
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 91
+[29-Oct-2025 07:22:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 14:22:58 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php:91
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 91
+[29-Oct-2025 07:25:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 14:25:42 Asia/Jakarta] PHP Warning:  include(../../partials/footer.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 186
+[29-Oct-2025 14:25:42 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../partials/footer.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 186
+[29-Oct-2025 07:40:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 07:41:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 07:41:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 14:41:27 Asia/Jakarta] PHP Warning:  include(../../partials/footer.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 223
+[29-Oct-2025 14:41:27 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../partials/footer.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 223
+[29-Oct-2025 07:41:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 14:41:52 Asia/Jakarta] PHP Warning:  include(../../partials/footer.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 223
+[29-Oct-2025 14:41:52 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../partials/footer.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 223
+[29-Oct-2025 07:42:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 14:42:00 Asia/Jakarta] PHP Warning:  include(../../partials/footer.php): failed to open stream: No such file or directory in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 223
+[29-Oct-2025 14:42:00 Asia/Jakarta] PHP Warning:  include(): Failed opening '../../partials/footer.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/input-pembelian.php on line 223
+[29-Oct-2025 07:44:21 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 07:44:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:25:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:25:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:25:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:27:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:27:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:31:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:31:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:32:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:32:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:33:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:33:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:35:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:35:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:37:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:38:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:38:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:39:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:39:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:40:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:42:07 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:43:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:47:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:47:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:47:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:47:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:47:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:47:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:48:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:56:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 08:57:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 09:55:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 09:57:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 09:58:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 09:59:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 16:59:53 Asia/Jakarta] PHP Notice:  Undefined index: tanggal_mulai in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 72
+[29-Oct-2025 16:59:53 Asia/Jakarta] PHP Notice:  Undefined index: tanggal_mulai in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 72
+[29-Oct-2025 16:59:53 Asia/Jakarta] PHP Notice:  Undefined index: tanggal_mulai in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 72
+[29-Oct-2025 10:00:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:00:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 10:01:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 23:13:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 23:27:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 23:35:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 23:44:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Oct-2025 23:56:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:29:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:44:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:44:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:47:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:47:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:48:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:48:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:48:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:48:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:48:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 01:52:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 05:36:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 05:36:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 08:29:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 09:45:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:37:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:40:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:42:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:42:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:53:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:54:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:54:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:54:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:56:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:57:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:59:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:59:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:59:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 11:59:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:00:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:00:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:00:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:01:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:01:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:01:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:02:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:05:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:42:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:42:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:42:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 12:43:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 13:15:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 13:16:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 14:59:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 14:59:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 14:59:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:00:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:01:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:01:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:01:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:03:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:03:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:05:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:06:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Oct-2025 15:07:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:22:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:23:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:23:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:35:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:35:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:36:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 00:37:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 01:54:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:21:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:21:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:21:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:21:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:21:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:22:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:22:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:23:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:23:43 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:24:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:28:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:36:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:36:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:36:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:37:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[31-Oct-2025 06:38:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:02:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:02:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:03:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:07:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:09:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:09:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:09:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:12:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:12:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:13:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:13:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:13:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:13:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:13:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:13:43 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:14:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:14:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:15:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:16:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:17:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:17:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:18:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:18:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:18:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:18:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Nov-2025 09:18:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[02-Nov-2025 02:33:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:47:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:47:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:48:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:48:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:48:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:49:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:49:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:49:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:49:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:50:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:50:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:50:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:50:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:51:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:51:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:51:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 13:51:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 14:06:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 14:06:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Nov-2025 14:06:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Nov-2025 05:35:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Nov-2025 05:35:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Nov-2025 05:36:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Nov-2025 05:36:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Nov-2025 05:36:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:10:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:10:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:10:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:10:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:16:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:21:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 03:23:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Nov-2025 06:57:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:38:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:38:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:39:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:39:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:39:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:39:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:39:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 12:39:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Nov-2025 13:51:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[08-Nov-2025 04:13:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[08-Nov-2025 09:57:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:39:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:40:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:51:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 10:51:09 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php:109
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 109
+[10-Nov-2025 03:51:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 10:51:18 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php:109
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 109
+[10-Nov-2025 03:52:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 10:52:13 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php:109
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 109
+[10-Nov-2025 03:52:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 10:52:48 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php:109
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 109
+[10-Nov-2025 03:57:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:57:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:58:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:59:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 03:59:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Nov-2025 06:25:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:14:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:16:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:18:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:18:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:18:07 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:23:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:23:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:24:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 03:26:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 10:26:10 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 116
+[11-Nov-2025 03:26:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 10:26:41 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 116
+[11-Nov-2025 03:27:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 10:27:56 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 03:28:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 10:28:19 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 03:37:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 10:37:36 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 03:44:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 10:44:50 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 03:45:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 05:21:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 12:31:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 19:31:30 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 12:40:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 19:40:28 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 12:46:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 19:46:32 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 12:48:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 12:52:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 19:52:46 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 12:53:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 12:53:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 12:53:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 19:53:33 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 12:53:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 12:53:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[11-Nov-2025 19:53:58 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[11-Nov-2025 12:54:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[13-Nov-2025 03:31:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[13-Nov-2025 10:31:15 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[13-Nov-2025 03:50:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[13-Nov-2025 10:50:10 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[13-Nov-2025 03:50:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[13-Nov-2025 10:50:12 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[13-Nov-2025 03:50:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[13-Nov-2025 10:50:18 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[13-Nov-2025 04:04:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[13-Nov-2025 11:04:55 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 01:26:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 08:26:01 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 01:26:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 01:29:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 01:29:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 08:29:30 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 01:29:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 11:09:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 18:09:45 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 15:14:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 22:14:09 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 15:14:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 22:14:28 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 15:14:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 15:14:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 22:14:34 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 15:14:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 15:15:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 15:15:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[14-Nov-2025 22:15:17 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[14-Nov-2025 15:15:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:10:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:10:39 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:10:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:11:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:11:29 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:11:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:11:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:11:44 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:11:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:11:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:11:49 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:11:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:11:50 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:11:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:11:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:11:56 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:11:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:12:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:12:03 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:12:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:12:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:12:11 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:12:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 07:12:11 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 00:12:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:27:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 00:27:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:14:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:14:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:22:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:22:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:23:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:23:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 21:23:57 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 14:24:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 14:24:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:53:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:53:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:54:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:54:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:55:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:55:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Nov-2025 03:55:02 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[15-Nov-2025 20:55:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:55:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Nov-2025 20:55:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Nov-2025 03:55:11 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[16-Nov-2025 17:02:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 00:02:05 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 75
+[16-Nov-2025 17:02:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 00:49:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 05:02:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 05:05:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 05:05:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 10:52:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 10:56:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 10:56:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 10:57:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 17:57:04 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 141
+[17-Nov-2025 17:57:04 Asia/Jakarta] PHP Notice:  Undefined variable: grand_total in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 144
+[17-Nov-2025 10:57:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 17:57:08 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 141
+[17-Nov-2025 17:57:08 Asia/Jakarta] PHP Notice:  Undefined variable: grand_total in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 144
+[17-Nov-2025 10:59:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 17:59:38 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 147
+[17-Nov-2025 17:59:38 Asia/Jakarta] PHP Notice:  Undefined variable: grand_total in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 150
+[17-Nov-2025 10:59:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 17:59:40 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 147
+[17-Nov-2025 17:59:40 Asia/Jakarta] PHP Notice:  Undefined variable: grand_total in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 150
+[17-Nov-2025 10:59:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 17:59:50 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 147
+[17-Nov-2025 17:59:50 Asia/Jakarta] PHP Notice:  Undefined variable: grand_total in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 150
+[17-Nov-2025 11:00:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 11:00:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 11:01:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 11:01:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 18:01:16 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[17-Nov-2025 11:01:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 11:01:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 18:01:42 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[17-Nov-2025 11:01:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 11:01:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 18:01:57 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[17-Nov-2025 11:02:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Nov-2025 11:31:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:16:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:16:22 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:45:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:45:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:46:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:46:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 20:46:37 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[18-Nov-2025 13:46:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 13:49:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Nov-2025 16:23:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 00:06:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 11:53:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 18:53:17 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 11:53:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 18:53:59 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 11:54:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 11:54:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 18:54:23 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 11:55:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 12:02:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 12:02:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 12:08:07 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 12:08:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 12:08:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 12:08:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 19:08:29 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 12:12:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 19:12:44 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 12:13:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 19:13:17 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 12:15:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 19:15:59 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 12:24:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 19:24:46 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:25:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:25:32 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:27:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:27:15 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:27:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:27:54 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:28:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 13:28:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:28:19 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:34:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:34:45 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:49:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:49:55 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[19-Nov-2025 13:50:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Nov-2025 20:50:36 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 01:10:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 08:10:13 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 03:51:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 10:51:14 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 12:47:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 19:47:04 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 12:47:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 12:48:22 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 12:48:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 19:48:23 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 12:48:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 12:51:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 19:51:45 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 13:04:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 20:04:24 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 14:23:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 21:23:05 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:14:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:14:46 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:15:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:21:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:21:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:23:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:23:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:24:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:24:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:24:04 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:24:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:24:51 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:24:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:26:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:26:20 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:29:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:29:51 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:29:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:29:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:29:56 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:31:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:31:30 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:34:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:34:17 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:34:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:34:30 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:36:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:36:11 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:36:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 15:37:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:37:00 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:44:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:44:09 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:44:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:44:11 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:44:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:44:18 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 15:44:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 22:44:36 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 16:15:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 23:15:37 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 16:36:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 23:36:54 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[20-Nov-2025 16:38:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[20-Nov-2025 23:38:47 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[21-Nov-2025 04:56:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 11:56:14 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[21-Nov-2025 05:06:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 12:06:23 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[21-Nov-2025 05:07:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 05:08:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 05:09:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 05:09:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 12:09:50 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[21-Nov-2025 05:09:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 05:14:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 12:14:58 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[21-Nov-2025 05:15:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 05:15:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 05:15:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 12:15:05 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[21-Nov-2025 06:09:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Nov-2025 13:09:09 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[24-Nov-2025 17:02:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[25-Nov-2025 00:02:16 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[25-Nov-2025 01:40:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[25-Nov-2025 08:40:31 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 09:43:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 16:43:49 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 09:44:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 09:45:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 09:46:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 16:46:00 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 09:46:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 11:03:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 18:03:33 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 11:06:21 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 18:06:21 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 11:10:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 18:10:05 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 11:10:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 18:10:44 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 12:20:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 19:20:28 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 12:20:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:21:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:21:07 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 19:21:07 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 12:22:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 19:22:34 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 12:23:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 19:23:13 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 12:29:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:34:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:50:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 19:50:16 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 12:50:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:50:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:51:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 12:51:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Nov-2025 19:51:02 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[27-Nov-2025 14:57:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Nov-2025 08:32:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Nov-2025 15:32:40 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[28-Nov-2025 08:32:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Nov-2025 16:29:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Nov-2025 23:29:54 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[28-Nov-2025 16:30:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Nov-2025 20:46:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Nov-2025 03:46:49 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[29-Nov-2025 20:47:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Nov-2025 03:47:05 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[29-Nov-2025 20:47:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[29-Nov-2025 20:48:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Nov-2025 03:48:36 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[30-Nov-2025 07:05:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Nov-2025 14:05:39 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[30-Nov-2025 07:08:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Nov-2025 14:08:49 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[30-Nov-2025 07:09:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[30-Nov-2025 14:09:37 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[03-Dec-2025 00:49:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 07:49:32 Asia/Jakarta] PHP Notice:  Undefined variable: total_berat in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/index.php on line 89
+[03-Dec-2025 04:35:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:29:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:30:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:32:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:32:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:32:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:34:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:34:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:35:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:35:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:36:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:37:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:37:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:37:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:38:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:38:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:40:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:40:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:40:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:40:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:41:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:41:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:41:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:42:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:43:21 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:43:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:44:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:44:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:45:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:45:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:46:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:47:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:48:50 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:49:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:49:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:52:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 12:52:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:01:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:01:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:03:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:04:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:05:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:06:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:06:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:12:29 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:13:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:14:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:14:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:14:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:15:10 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:15:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:16:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:16:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:16:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:16:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:17:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:17:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:17:43 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:18:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:18:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:50:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:50:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:50:22 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 13:51:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 14:02:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 14:02:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 14:04:23 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 14:04:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[03-Dec-2025 15:17:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:30:51 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:31:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:31:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:31:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:31:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 19:31:49 Asia/Jakarta] PHP Warning:  mysqli_stmt::bind_param(): Number of elements in type definition string doesn't match number of bind variables in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/load-bahan.php on line 69
+[04-Dec-2025 12:31:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:31:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:33:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:33:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:33:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:33:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:33:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:34:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 19:34:03 Asia/Jakarta] PHP Warning:  mysqli_stmt::bind_param(): Number of elements in type definition string doesn't match number of bind variables in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/load-bahan.php on line 69
+[04-Dec-2025 12:35:43 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:35:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:36:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[04-Dec-2025 12:36:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Dec-2025 11:25:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Dec-2025 13:38:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Dec-2025 13:39:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Dec-2025 13:39:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Dec-2025 02:17:43 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Dec-2025 04:44:47 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Dec-2025 12:53:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:05:38 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:05:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:05:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:06:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:06:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:07:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:07:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:09:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:09:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:09:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:10:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:12:16 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:12:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:12:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:12:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:14:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:14:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:14:07 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:14:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:15:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:15:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:15:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:16:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:16:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:17:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:17:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 11:17:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[07-Dec-2025 14:42:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[08-Dec-2025 09:15:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[08-Dec-2025 09:15:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[08-Dec-2025 17:00:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Dec-2025 17:16:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Dec-2025 17:47:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[12-Dec-2025 06:15:52 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Dec-2025 06:24:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Dec-2025 06:28:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Dec-2025 06:28:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Dec-2025 09:01:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Dec-2025 09:24:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[15-Dec-2025 12:36:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Dec-2025 14:16:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Dec-2025 15:28:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[18-Dec-2025 15:28:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[10-Jan-2026 08:20:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Feb-2026 18:27:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[21-Feb-2026 18:30:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[22-Feb-2026 08:14:26 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:12:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:12:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:13:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:13:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:13:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:13:22 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:13:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[27-Feb-2026 22:13:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Feb-2026 05:13:45 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[27-Feb-2026 22:13:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Feb-2026 05:13:58 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[27-Feb-2026 22:14:04 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Feb-2026 05:14:04 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[27-Feb-2026 22:14:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Feb-2026 05:14:27 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[27-Feb-2026 22:14:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[28-Feb-2026 05:14:40 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[01-Mar-2026 16:16:32 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:16:45 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:16:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:18:33 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:54:57 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:55:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:55:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[01-Mar-2026 16:58:35 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:10:08 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:10:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:10:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:11:40 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:12:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:12:17 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:12:42 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:12:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:12:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:13:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:13:05 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:13:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 14:13:09 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[05-Mar-2026 07:13:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:13:34 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:14:07 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 14:14:07 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[05-Mar-2026 07:17:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:18:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:19:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:19:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:19:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:19:48 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:20:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:20:31 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:20:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:21:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:21:28 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:21:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:22:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:22:13 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:22:20 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:22:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:22:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 14:22:41 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[05-Mar-2026 07:23:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:23:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:25:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:34:54 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 07:35:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 13:23:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 13:23:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 13:37:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[05-Mar-2026 14:54:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:41:01 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:41:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:41:59 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:42:09 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:42:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:43:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:43:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:43:27 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:43:30 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:43:39 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:43:56 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:44:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:44:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:45:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:45:36 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:45:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:46:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:46:11 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:46:14 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:48:49 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:49:58 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:50:12 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:56:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:56:37 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 06:56:41 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:17:02 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:17:19 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:17:24 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:17:53 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:18:03 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:18:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:18:18 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:21:06 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:21:44 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 07:21:55 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 09:30:00 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 09:30:15 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 09:30:25 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[17-Mar-2026 12:32:46 UTC] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Apr-2026 18:44:42 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Apr-2026 18:44:45 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[06-Apr-2026 18:44:58 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:01:13 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:01:31 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:05:30 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:05:52 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:06:41 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:06:45 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:06:50 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:06:56 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:07:03 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:07:07 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:07:09 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:07:09 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function bind_param() on bool in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/proses-ke-tahap.php on line 40
+[16-Apr-2026 14:07:14 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[16-Apr-2026 14:11:11 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Apr-2026 14:54:42 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2
+[19-Apr-2026 14:55:28 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/alsz2632/public_html/fayyfir.com/app.fayyfir/abdul-hadi/config.php on line 2

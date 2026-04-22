@@ -1,0 +1,210 @@
+<?php
+session_start();
+require "config.php";
+
+if (!isset($_SESSION["user_id"])) {
+  header("Location: login");
+  exit();
+}
+
+$id = (int) $_GET["id"];
+
+// get supplier data
+$query = "SELECT s.*, p.name AS province_name, r.name AS regency_name, d.name AS district_name, v.name AS village_name
+          FROM suppliers s
+          LEFT JOIN reg_provinces p ON s.province_id = p.id
+          LEFT JOIN reg_regencies r ON s.regency_id = r.id
+          LEFT JOIN reg_districts d ON s.district_id = d.id
+          LEFT JOIN reg_villages v ON s.village_id = v.id
+          WHERE s.id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$supplier = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$supplier) {
+  echo "Data tidak ditemukan.";
+  exit();
+}
+
+// get manual DP
+$query1 = "SELECT id, deposit_date AS created_at, description, debit, credit
+           FROM deposits_supplier
+           WHERE supplier_id = ?
+           ORDER BY deposit_date ASC, id ASC";
+$stmt1 = $conn->prepare($query1);
+$stmt1->bind_param("i", $id);
+$stmt1->execute();
+$result1 = $stmt1->get_result();
+
+$combined = [];
+while ($row = $result1->fetch_assoc()) {
+    $row['source'] = 'manual';
+    $combined[] = $row;
+}
+$stmt1->close();
+
+// get container transaction
+$sql = "SELECT t.id, t.created_at, t.container_id, c.container_number, t.total_price
+        FROM transactions t
+        JOIN containers c ON t.container_id = c.id
+        WHERE t.supplier_id = ?
+        ORDER BY t.created_at ASC, t.id ASC";
+$stmt2 = $conn->prepare($sql);
+$stmt2->bind_param("i", $id);
+$stmt2->execute();
+$result2 = $stmt2->get_result();
+
+while ($row = $result2->fetch_assoc()) {
+    $combined[] = [
+        'id' => $row['id'],
+        'created_at' => $row['created_at'],
+        'description' => 'Pengisian ('.$row['container_number'].')',
+        'debit' => 0,
+        'credit' => (float)$row['total_price'],
+        'source' => 'kontainer',
+        'container_id' => $row['container_id']
+    ];
+}
+$stmt2->close();
+
+// gabungkan dan urutkan ASC by tanggal
+usort($combined, function($a,$b){
+    return strtotime($a['created_at']) <=> strtotime($b['created_at']);
+});
+
+// hitung saldo
+$runningSaldo = 0;
+foreach ($combined as $k => $item) {
+    $debit  = (int)$item['debit'];
+    $credit = (int)$item['credit'];
+    if ($k === 0) {
+        $runningSaldo = $debit - $credit;
+    } else {
+        $runningSaldo = $runningSaldo + $debit - $credit;
+    }
+    $combined[$k]['saldo'] = $runningSaldo;
+}
+
+// tampil
+function formatRupiah($angka) {
+  return "Rp " . number_format($angka, 0, ",", ".");
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rincian DP Supplier</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+  <header class="bg-gray-900 text-white py-4 px-6 fixed top-0 left-0 right-0 z-40">
+    <div class="flex justify-between items-center">
+      <a href="riwayat-dp-supplier.php" class="flex items-center space-x-1 text-yellow-400 hover:underline text-sm">
+        <span class="material-symbols-outlined text-base">chevron_left</span>
+        <span class="hidden lg:inline">Kembali</span>
+      </a>
+      <h1 class="text-lg font-semibold">Rincian DP Supplier</h1>
+    </div>
+  </header>
+
+  <main class="pt-24 px-4 pb-32 max-w-6xl mx-auto space-y-6">
+    <section class="bg-white p-4 rounded-lg shadow">
+      <h2 class="text-md font-semibold mb-2">Ringkasan DP</h2>
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <tbody class="text-gray-800 divide-y divide-gray-200">
+          <tr><td class="pr-4 py-2 font-semibold">Nama</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["name"]) ?></td></tr>
+          <tr><td class="pr-4 py-2 font-semibold">Nomor HP</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["phone"]) ?></td></tr>
+          <tr><td class="pr-4 py-2 font-semibold">Alamat</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["address"]) ?>, <?= $supplier["village_name"] ?>, <?= $supplier["district_name"] ?>, <?= $supplier["regency_name"] ?>, <?= $supplier["province_name"] ?></td></tr>
+          <tr><td class="pr-4 py-2 font-semibold">Sisa DP</td><td>:</td><td class="pl-2 font-semibold text-green-700"><?= formatRupiah($runningSaldo) ?></td></tr>
+        </tbody>
+      </table>
+      <div class="mt-6 flex justify-end space-x-3">
+        <a href="edit-supplier?id=<?= $id ?>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Edit Supplier</a>
+        <form method="POST" action="hapus-supplier.php" onsubmit="return confirm('Yakin ingin menghapus supplier ini?')">
+          <input type="hidden" name="id" value="<?= $id ?>"/>
+          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm">Hapus Supplier</button>
+        </form>
+      </div>
+    </section>
+    <section>
+      <div class="flex justify-end gap-2 mb-4">
+        <a href="tambah-dp?supplier_id=<?= $id ?>" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
+          <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">add_circle</span>
+          <span class="ml-2">TopUp</span>
+        </a>
+        <a href="refund-dp?supplier_id=<?= $id ?>" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
+          <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">refresh</span>
+          <span class="ml-2">Refund</span>
+        </a>
+        <a href="rincian-dp-supplier-pdf.php?id=<?= $id ?>" target="_blank" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
+          <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">picture_as_pdf</span>
+          <span class="ml-2">PDF</span>
+        </a>
+      </div>
+      <h2 class="text-md mb-2 font-semibold">Riwayat Transaksi DP</h2>
+      <div class="overflow-auto bg-white shadow rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-100 text-gray-600">
+            <tr>
+              <th class="px-4 py-2 text-center">Tanggal</th>
+              <th class="px-4 py-2 text-center">Deskripsi</th>
+              <th class="px-4 py-2 text-center">Debit</th>
+              <th class="px-4 py-2 text-center">Kredit</th>
+              <th class="px-4 py-2 text-center">Sisa DP</th>
+              <th class="px-4 py-2 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-800 divide-y divide-gray-200">
+            <?php
+              $totalDebit = 0;
+              $totalCredit = 0;
+            ?>
+            <?php
+              foreach ($combined as $t):
+                $totalDebit += $t['debit'];
+                $totalCredit += $t['credit'];
+            ?>
+              <tr>
+                <td class="px-4 py-2"><?= date("d/m/Y", strtotime($t['created_at'])) ?></td>
+                <td class="px-4 py-2"><?= htmlspecialchars($t['description']) ?></td>
+                <td class="px-4 py-2 text-right"><?= $t['debit'] ? number_format($t['debit'], 0, ",", ".") : "-" ?></td>
+                <td class="px-4 py-2 text-right"><?= $t['credit'] ? number_format($t['credit'], 0, ",", ".") : "-" ?></td>
+                <td class="px-4 py-2 text-right font-semibold"><?= number_format($t['saldo'], 0, ",", ".") ?></td>
+                <td class="px-4 py-2 text-center whitespace-nowrap">
+                  <?php if ($t['source'] === 'manual'): ?>
+                    <a href="edit-dp.php?id=<?= $t['id'] ?>&supplier_id=<?= $id ?>" class="inline-block text-blue-500 hover:text-blue-700 mr-2 text-sm" title="Edit">
+                      <span class="material-symbols-outlined text-base">edit</span>
+                    </a>
+                    <a href="hapus-dp.php?id=<?= $t['id'] ?>&supplier_id=<?= $id ?>" onclick="return confirm('Yakin ingin menghapus data ini?')" class="inline-block text-red-500 hover:text-red-700 text-sm" title="Hapus">
+                      <span class="material-symbols-outlined text-base">delete</span>
+                    </a>
+                  <?php elseif ($t['source'] === 'kontainer' && isset($t['container_id'])): ?>
+                    <a href="rincian-kontainer.php?id=<?= $t['container_id'] ?>" class="inline-block text-blue-500 hover:text-blue-700 text-sm" title="Lihat Detail Kontainer">
+                      <span class="material-symbols-outlined text-base">visibility</span>
+                    </a>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+            <tr class="bg-gray-100 font-semibold">
+              <td class="px-4 py-2 text-right" colspan="2">Total</td>
+              <td class="px-4 py-2 text-right"><?= number_format($totalDebit, 0, ",", ".") ?></td>
+              <td class="px-4 py-2 text-right"><?= number_format($totalCredit, 0, ",", ".") ?></td>
+              <td class="px-4 py-2 text-right"><?= number_format($runningSaldo, 0, ",", ".") ?></td>
+              <td class="px-4 py-2 text-right"></td>
+            </tr>
+            <?php if (empty($combined)): ?>
+              <tr><td colspan="5" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi.</td></tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
