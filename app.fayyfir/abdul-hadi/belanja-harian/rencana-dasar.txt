@@ -1,0 +1,200 @@
+Sangat jelas 👌 berarti kita akan menambahkan aplikasi baru “Input Data Belanja Bahan Harian” ke dalam struktur proyek utama abdul-hadi, dan fokus pengembangan dimulai di dalam folder:
+
+/belanja-harian
+
+Sebelum kita mulai membuat UI/UX desain, berikut ini adalah struktur foldering dan root file lengkap (sudah disusun agar modular dan siap integrasi dengan project utama).
+
+
+---
+
+📁 STRUKTUR FOLDER & FILE PROJECT
+
+> Lokasi utama: /abdul-hadi/belanja-harian/
+
+
+
+abdul-hadi
+    ├── ajax
+    ├── assets
+    ├── belanja-harian
+      │
+      ├── dashboard.php                  → halaman utama dashboard belanja bahan
+      │
+      ├── data-bahan/                    → Master Data Bahan
+      │   ├── index.php                  → daftar bahan (view utama)
+      │   ├── tambah-bahan.php           → form tambah bahan
+      │   ├── edit-bahan.php             → form edit bahan
+      │   ├── hapus-bahan.php            → aksi hapus
+      │   └── detail-bahan.php           → detail bahan (opsional)
+      │
+      ├── data-supplier/                 → Master Data Supplier
+      │   ├── index.php
+      │   ├── tambah-supplier.php
+      │   ├── edit-supplier.php
+      │   ├── hapus-supplier.php
+      │   └── detail-supplier.php
+      │
+      ├── data-buyer/                    → Master Data Buyer
+      │   ├── index.php
+      │   ├── tambah-buyer.php
+      │   ├── edit-buyer.php
+      │   ├── hapus-buyer.php
+      │   └── detail-buyer.php
+      │
+      ├── pembelian-awal/                → Tahap 1
+      │   ├── input-pembelian.php        → form input pembelian awal
+      │   ├── detail-pembelian.php       → detail pembelian (berat awal, modal awal, HPP awal)
+      │   ├── list-pembelian.php         → daftar batch pembelian
+      │   ├── hapus-pembelian.php
+      │   └── proses-ke-tahap.php        → aksi lanjut ke proses produksi
+      │
+      ├── proses-produksi/               → Tahap 2-4
+      │   ├── jemur/
+      │   │   ├── input-jemur.php
+      │   │   ├── list-jemur.php
+      │   │   ├── detail-jemur.php
+      │   │   └── hapus-jemur.php
+      │   │
+      │   ├── kupas/
+      │   │   ├── input-kupas.php
+      │   │   ├── list-kupas.php
+      │   │   ├── detail-kupas.php
+      │   │   └── hapus-kupas.php
+      │   │
+      │   ├── sortir-simpan/
+      │   │   ├── input-sortir.php
+      │   │   ├── list-sortir.php
+      │   │   ├── detail-sortir.php
+      │   │   └── hapus-sortir.php
+      │
+      ├── penjualan/                     → Tahap 5
+      │   ├── penentuan-harga.php        → kalkulasi harga jual otomatis (margin / harga pasar)
+      │   ├── input-penjualan.php        → form input data jual ke buyer
+      │   ├── list-penjualan.php         → daftar penjualan
+      │   ├── detail-penjualan.php
+      │   └── hapus-penjualan.php
+      │
+      ├── laporan/                       → Output Data
+      │   ├── ringkasan-modal-hpp.php
+      │   ├── penyusutan-tahap.php
+      │   ├── laba-rugi.php
+      │   ├── export-excel.php           → export laporan Excel
+      │   └── export-pdf.php             → export laporan PDF
+      │
+      ├── partials/                      → komponen layout
+      │   ├── header.php
+      │   ├── sidebar.php
+      │   ├── navbar.php
+      │   └── footer.php
+      │
+      ├── includes/                      → helper & function internal
+      │   ├── functions.php              → perhitungan HPP, penyusutan, margin
+      │   ├── helpers.php                → format rupiah, tanggal, konversi persen
+      │   ├── queries.php                → query SQL modular
+      │   └── validation.php             → validasi input form
+      │
+      └── assets/                        → aset pendukung UI
+          ├── css/
+          │   ├── style.css
+          │   ├── form.css
+          │   └── table.css
+          ├── js/
+          │   ├── main.js
+          │   ├── form.js
+          │   ├── ajax-handler.js
+          │   └── chart.js               → grafik laporan (Chart.js)
+          ├── icons/
+          │   └── (file svg icons kustom)
+          └── img/
+              └── (gambar bahan, ilustrasi, dll)
+    ├── config.php
+    ├── index.php
+    └── ....    (file dan folder lainnya)
+
+
+---
+
+🧩 KETERANGAN PENTING STRUKTURAL
+
+📌 1. Modular per Tahap
+
+Setiap proses (pembelian, jemur, kupas, sortir, jual) punya folder tersendiri dengan empat jenis file utama:
+
+input- → form data baru
+
+list- → daftar batch / transaksi
+
+detail- → hasil perhitungan otomatis
+
+hapus- → aksi delete
+
+
+Struktur ini memudahkan kita untuk ekspansi tahap baru di masa depan tanpa merombak struktur dasar.
+
+
+---
+
+📌 2. Reusable Component
+
+Folder /partials/ digunakan untuk komponen layout yang sama di semua halaman — header, sidebar, navbar, dan footer.
+Nantinya kita tinggal include seperti:
+
+<?php include '../partials/header.php'; ?>
+<?php include '../partials/sidebar.php'; ?>
+
+
+---
+
+📌 3. Logic Helper & Hitungan Otomatis
+
+Semua rumus perhitungan otomatis (seperti HPP, penyusutan, margin, laba bersih) akan dikelola di:
+
+includes/functions.php
+
+Contoh fungsi:
+
+function hitung_penyusutan($berat_awal, $persen_susut) {
+  return $berat_awal * (1 - $persen_susut / 100);
+}
+
+
+---
+
+📌 4. Koneksi Database & Konfigurasi Global
+
+Tidak perlu membuat ulang config.php karena project ini akan menggunakan koneksi utama dari folder root:
+
+/abdul-hadi/config.php
+
+Jadi semua halaman di dalam belanja-harian cukup include:
+
+require "../../config.php";
+
+
+---
+
+📌 5. Integrasi AJAX
+
+Folder /abdul-hadi/ajax/ tetap digunakan untuk operasi dinamis seperti:
+
+Fetch data supplier/buyer secara live
+
+Hitung otomatis HPP sebelum simpan
+
+Load data batch berdasarkan tahap
+
+
+
+---
+
+🚀 Langkah Berikutnya
+
+Kalau kamu setuju dengan struktur folder di atas, kita bisa lanjut ke langkah berikut:
+
+> 🔹 Membuat struktur file dasar (HTML + PHP skeleton) untuk halaman pertama:
+/belanja-harian/pembelian-awal/input-pembelian.php
+lengkap dengan form input, tampilan kalkulasi otomatis, dan UI wireframe-nya.
+
+
+
+Apakah mau aku lanjutkan langsung ke pembuatan struktur file dan tampilan awal “Input Pembelian Awal” sekarang?

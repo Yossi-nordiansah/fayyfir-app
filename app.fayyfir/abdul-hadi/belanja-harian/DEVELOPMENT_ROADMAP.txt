@@ -1,0 +1,497 @@
+🗺️ DEVELOPMENT ROADMAP — PROYEK “BELANJA HARIAN”
+
+
+---
+
+🔹 FASE 1 — Persiapan & Struktur Dasar (Setup Awal)
+
+Tujuan: Menyiapkan pondasi proyek agar seluruh halaman dan komponen modular berjalan stabil.
+
+✅ Langkah-langkah:
+
+1. Buat folder utama di CPanel File Manager:
+
+/abdul-hadi/belanja-harian/
+
+
+2. Tambahkan subfolder sesuai struktur final (kosong dulu):
+
+/data-bahan/
+
+/data-supplier/
+
+/data-buyer/
+
+/pembelian-awal/
+
+/proses-produksi/jemur/
+
+/proses-produksi/kupas/
+
+/proses-produksi/sortir-simpan/
+
+/penjualan/
+
+/laporan/
+
+/partials/
+
+/includes/
+
+/assets/css/
+
+/assets/js/
+
+/assets/icons/
+
+/assets/img/
+
+
+
+3. Buat file kosong dasar:
+
+/dashboard.php
+
+/partials/{header,sidebar,navbar,footer}.php
+
+/includes/{functions,helpers,queries,validation}.php
+
+/assets/css/{style,form,table}.css
+
+/assets/js/{main,form,ajax-handler,chart}.js
+
+
+
+4. Cek koneksi database:
+
+Semua file akan menggunakan koneksi aktif:
+
+require "../../config.php";
+$conn = $conn2; // gunakan DB alsz2632_ahadi
+
+
+
+
+
+---
+
+🔹 FASE 2 — Desain Database (MySQL alsz2632_ahadi)
+
+Tujuan: Membuat seluruh tabel baru yang diperlukan untuk siklus pembelian → produksi → penjualan → laporan.
+
+
+---
+
+📘 TABEL MASTER
+
+CREATE TABLE bahan_master (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_bahan VARCHAR(100) NOT NULL,
+  satuan VARCHAR(20) NOT NULL,
+  keterangan TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE supplier (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_supplier VARCHAR(100) NOT NULL,
+  kontak VARCHAR(50),
+  alamat TEXT,
+  catatan TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE buyer (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_buyer VARCHAR(100) NOT NULL,
+  kontak VARCHAR(50),
+  alamat TEXT,
+  catatan TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+---
+
+📘 TABEL PEMBELIAN AWAL
+
+CREATE TABLE pembelian_awal (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  kode_batch VARCHAR(30) UNIQUE,
+  tanggal_pembelian DATE NOT NULL,
+  id_bahan INT,
+  id_supplier INT,
+  berat_awal DECIMAL(10,2),
+  harga_per_kg DECIMAL(12,2),
+  total_modal DECIMAL(14,2),
+  catatan TEXT,
+  status VARCHAR(20) DEFAULT 'proses',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_bahan) REFERENCES bahan_master(id),
+  FOREIGN KEY (id_supplier) REFERENCES supplier(id)
+);
+
+
+---
+
+📘 TABEL PROSES PRODUKSI
+
+CREATE TABLE proses_jemur (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_pembelian INT,
+  tanggal_mulai DATE,
+  tanggal_selesai DATE,
+  berat_setelah_jemur DECIMAL(10,2),
+  penyusutan_jemur DECIMAL(5,2),
+  keterangan TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_pembelian) REFERENCES pembelian_awal(id)
+);
+
+CREATE TABLE proses_kupas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_pembelian INT,
+  berat_setelah_kupas DECIMAL(10,2),
+  penyusutan_kupas DECIMAL(5,2),
+  tanggal_proses DATE,
+  keterangan TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_pembelian) REFERENCES pembelian_awal(id)
+);
+
+CREATE TABLE proses_sortir (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_pembelian INT,
+  berat_akhir DECIMAL(10,2),
+  penyusutan_total DECIMAL(5,2),
+  tanggal_simpan DATE,
+  lokasi_simpan VARCHAR(100),
+  catatan TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_pembelian) REFERENCES pembelian_awal(id)
+);
+
+
+---
+
+📘 TABEL PENJUALAN
+
+CREATE TABLE penjualan (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_pembelian INT,
+  id_buyer INT,
+  tanggal_jual DATE,
+  berat_jual DECIMAL(10,2),
+  harga_jual_per_kg DECIMAL(12,2),
+  total_penjualan DECIMAL(14,2),
+  laba_bersih DECIMAL(14,2),
+  keterangan TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_pembelian) REFERENCES pembelian_awal(id),
+  FOREIGN KEY (id_buyer) REFERENCES buyer(id)
+);
+
+
+---
+
+📘 VIEW & LAPORAN OTOMATIS (opsional)
+
+1. View Ringkasan Modal & HPP
+
+CREATE VIEW v_hpp_awal AS
+SELECT
+  p.id,
+  b.nama_bahan,
+  s.nama_supplier,
+  p.tanggal_pembelian,
+  p.berat_awal,
+  p.harga_per_kg,
+  p.total_modal,
+  (p.total_modal / NULLIF(p.berat_awal, 0)) AS hpp_per_kg
+FROM pembelian_awal p
+JOIN bahan_master b ON p.id_bahan = b.id
+JOIN supplier s ON p.id_supplier = s.id;
+
+
+2. View Penyusutan per Tahap
+
+CREATE VIEW v_penyusutan_tahap AS
+SELECT
+  pa.id AS id_pembelian,
+  pa.kode_batch,
+  pj.penyusutan_jemur,
+  pk.penyusutan_kupas,
+  ps.penyusutan_total
+FROM pembelian_awal pa
+LEFT JOIN proses_jemur pj ON pa.id = pj.id_pembelian
+LEFT JOIN proses_kupas pk ON pa.id = pk.id_pembelian
+LEFT JOIN proses_sortir ps ON pa.id = ps.id_pembelian;
+
+
+
+
+---
+
+🔹 FASE 3 — Layout & Komponen UI
+
+Tujuan: Menyiapkan tampilan standar agar semua halaman konsisten.
+
+✅ Langkah-langkah:
+
+1. Buat layout utama di /partials/:
+
+header.php → meta, link CSS, judul.
+
+navbar.php → nama modul aktif & tombol logout.
+
+sidebar.php → menu navigasi (Data Bahan, Supplier, Pembelian, Produksi, Penjualan, Laporan).
+
+footer.php → copyright.
+
+
+
+2. Buat /assets/css/style.css untuk layout dasar (grid dashboard, tombol, tabel, card info).
+
+
+3. Buat /assets/js/main.js untuk interaksi navigasi sidebar.
+
+
+
+
+---
+
+🔹 FASE 4 — Modul Master Data
+
+1. Data Bahan
+
+CRUD lengkap (index, tambah, edit, hapus, detail).
+
+
+
+2. Data Supplier
+
+CRUD lengkap.
+
+
+
+3. Data Buyer
+
+CRUD lengkap.
+
+
+
+
+💡 Semua form input menggunakan validasi client (JS) dan server (PHP).
+
+
+---
+
+🔹 FASE 5 — Modul Pembelian Awal
+
+1. input-pembelian.php
+
+Input bahan, supplier, berat, harga/kg.
+
+Hitung total otomatis via JS.
+
+
+
+2. detail-pembelian.php
+
+Menampilkan HPP awal (otomatis).
+
+
+
+3. list-pembelian.php
+
+Daftar semua batch.
+
+
+
+4. proses-ke-tahap.php
+
+Tombol lanjut ke produksi.
+
+
+
+
+
+---
+
+🔹 FASE 6 — Modul Proses Produksi
+
+Setiap subproses memiliki form input, daftar, dan detail:
+
+1. Penjemuran
+
+Input berat hasil, otomatis hitung penyusutan %.
+
+
+
+2. Pengupasan
+
+Input berat setelah kupas.
+
+
+
+3. Sortasi & Penyimpanan
+
+Input berat akhir, lokasi simpan, dan total penyusutan.
+
+
+
+
+
+---
+
+🔹 FASE 7 — Modul Penjualan
+
+1. penentuan-harga.php
+
+Kalkulasi harga jual berdasarkan HPP + margin.
+
+
+
+2. input-penjualan.php
+
+Input transaksi ke buyer.
+
+
+
+3. list-penjualan.php
+
+Daftar transaksi jual lengkap.
+
+
+
+4. detail-penjualan.php
+
+Menampilkan laba bersih per batch.
+
+
+
+
+
+---
+
+🔹 FASE 8 — Modul Laporan
+
+1. ringkasan-modal-hpp.php
+
+Ringkasan batch, modal, dan HPP.
+
+
+
+2. penyusutan-tahap.php
+
+Menampilkan total susut jemur–kupas–sortir.
+
+
+
+3. laba-rugi.php
+
+Laba kotor & bersih tiap batch dan buyer.
+
+
+
+4. export-excel.php / export-pdf.php
+
+Ekspor laporan akhir.
+
+
+
+
+
+---
+
+🔹 FASE 9 — Helper & Utility
+
+/includes/functions.php
+
+> Rumus HPP, penyusutan, margin otomatis.
+
+
+
+/includes/helpers.php
+
+> Format rupiah, persen, tanggal.
+
+
+
+/includes/queries.php
+
+> Query SQL modular untuk semua tabel.
+
+
+
+/includes/validation.php
+
+> Validasi input server-side (required, numeric, dll).
+
+
+
+
+
+---
+
+🔹 FASE 10 — Testing & Integrasi Akhir
+
+1. Uji semua form CRUD & perhitungan otomatis.
+
+
+2. Validasi data antar tahap (batch harus urut).
+
+
+3. Cek laporan akhir dan ekspor file.
+
+
+4. Integrasikan modul ke dashboard utama (/abdul-hadi/index.php):
+
+<li><a href="belanja-harian/dashboard.php">📦 Belanja Harian</a></li>
+
+
+5. Finalisasi permission user bila ada multi-level akses.
+
+
+
+
+---
+
+🔹 FASE 11 — Deployment & Dokumentasi
+
+1. Upload semua file ke CPanel.
+
+
+2. Import SQL tabel ke database alsz2632_ahadi.
+
+
+3. Cek koneksi database (menggunakan $conn2).
+
+
+4. Tambahkan dokumentasi singkat (README.txt) berisi:
+
+Struktur folder.
+
+Cara ekspor laporan.
+
+Tabel yang digunakan.
+
+
+
+
+
+---
+
+✅ HASIL AKHIR
+
+Setelah roadmap ini selesai, kamu akan memiliki:
+
+Sistem belanja bahan dari pembelian → produksi → penjualan → laporan akhir.
+
+Terintegrasi penuh di sistem abdul-hadi tanpa perlu login terpisah.
+
+Database modular dan siap dikembangkan untuk bahan lain (gabah, kakao, cabai, dll).
+
+
+
+---

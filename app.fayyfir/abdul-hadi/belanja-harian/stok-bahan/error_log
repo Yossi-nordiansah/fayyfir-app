@@ -1,0 +1,2 @@
+[01-May-2026 16:04:42 Asia/Jakarta] PHP Warning:  mysqli::__construct(): (HY000/2002): Connection refused in /home/yossinor/public_html/app.fayyfir/abdul-hadi/config.php on line 32
+[01-May-2026 16:04:42 Asia/Jakarta] PHP Warning:  mysqli::query(): Couldn't fetch mysqli in /home/yossinor/public_html/app.fayyfir/abdul-hadi/belanja-harian/stok-bahan/index.php on line 14

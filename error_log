@@ -1,0 +1,6 @@
+[14-Oct-2025 00:26:28 UTC] PHP Fatal error:  Cannot redeclare Fitur_model::bannerkategori() in /home/alsz2632/public_html/fayyfir.com/application/models/Fitur_model.php on line 43
+[14-Oct-2025 00:26:48 UTC] PHP Fatal error:  Cannot redeclare Fitur_model::bannerkategori() in /home/alsz2632/public_html/fayyfir.com/application/models/Fitur_model.php on line 43
+[14-Oct-2025 00:28:10 UTC] PHP Fatal error:  Cannot redeclare Fitur_model::bannerkategori() in /home/alsz2632/public_html/fayyfir.com/application/models/Fitur_model.php on line 43
+[29-Apr-2026 15:26:49 Asia/Jakarta] PHP Notice:  session_start(): A session had already been started - ignoring in /home/yossinor/public_html/application/config/config.php on line 2
+[29-Apr-2026 15:26:49 Asia/Jakarta] PHP Warning:  mysqli::__construct(): (HY000/2002): Connection refused in /home/yossinor/public_html/application/config/config.php on line 26
+[29-Apr-2026 15:26:49 Asia/Jakarta] PHP Warning:  mysqli::__construct(): (HY000/2002): Connection refused in /home/yossinor/public_html/application/config/config.php on line 31

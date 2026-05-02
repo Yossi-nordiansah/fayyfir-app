@@ -1,0 +1,10 @@
+# 1. PENGATURAN VERSI PHP (Bawaan Hosting)
+# 2. PENGATURAN URL CLEANER (Bawaan CodeIgniter)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+# COMMENT BAGIAN INI:
+# <IfModule mime_module>
+#   AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
+# </IfModule>

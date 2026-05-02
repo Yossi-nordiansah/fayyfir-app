@@ -1,0 +1,11 @@
+materials
+material_stocks
+units
+material_purchases
+stock_movements
+productions
+product_stocks
+production_expenses
+production_materials
+buyer_products
+selling_products
