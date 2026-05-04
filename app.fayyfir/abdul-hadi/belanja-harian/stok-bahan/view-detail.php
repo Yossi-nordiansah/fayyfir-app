@@ -1,8 +1,9 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2(); // Lazy loader — tidak buka koneksi ganda
 require "../includes/helpers.php";
+
 
 if (!isset($_SESSION["user_id"])) {
   header("Location: ../../login.php");
@@ -35,7 +36,7 @@ $query_mandiri = "
     LEFT JOIN (
         SELECT id_pembelian, SUM(berat_masuk) AS terpakai_produksi
         FROM bb_proses_detail
-        WHERE tahap_ke = 0 AND status = 'aktif' AND id_penampungan IS NULL
+        WHERE tahap_ke = 0 AND id_penampungan IS NULL
         GROUP BY id_pembelian
     ) pd_agg ON pd_agg.id_pembelian = pa.id
     LEFT JOIN (
@@ -69,7 +70,7 @@ $query_gabungan = "
     LEFT JOIN (
         SELECT id_penampungan, SUM(berat_masuk) as terpakai
         FROM bb_proses_detail
-        WHERE tahap_ke = 0 AND status = 'aktif'
+        WHERE tahap_ke = 0
         GROUP BY id_penampungan
     ) pd_agg ON pd_agg.id_penampungan = pn.id
     WHERE pn.id_bahan = ?
@@ -288,7 +289,7 @@ $stmt_pn = $conn->prepare("
         pn.id, 
         pn.nama_penampungan,
         COALESCE((SELECT SUM(pnd.berat_masuk) FROM bb_penampungan_detail pnd WHERE pnd.id_penampungan = pn.id), 0) as total_masuk,
-        COALESCE((SELECT SUM(pd.berat_masuk) FROM bb_proses_detail pd WHERE pd.id_penampungan = pn.id AND pd.tahap_ke = 0 AND pd.status = 'aktif'), 0) as terpakai
+        COALESCE((SELECT SUM(pd.berat_masuk) FROM bb_proses_detail pd WHERE pd.id_penampungan = pn.id AND pd.tahap_ke = 0), 0) as terpakai
     FROM bb_penampungan pn 
     WHERE pn.id_bahan = ? 
     HAVING (total_masuk - terpakai) > 0
@@ -369,9 +370,11 @@ function addGabungRow() {
                 ${options}
             </select>
         </div>
-        <div class="w-32">
-            <input type="number" name="qty[]" step="0.01" placeholder="Qty" required
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs outline-none">
+        <div class="w-36">
+            <input type="text" name="qty[]" placeholder="Qty" required
+                inputmode="numeric"
+                oninput="formatQtyInput(this)"
+                class="qty-input w-full border border-gray-300 rounded-lg px-3 py-2 text-xs outline-none text-right">
         </div>
         <button type="button" onclick="removeGabungRow(this)" class="text-red-500 hover:bg-red-50 p-1 rounded-lg flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -438,9 +441,23 @@ function updateMaxQty(select) {
     const row = select.closest('.gabung-row');
     if (!row) return;
     const qtyInput = row.querySelector('input[name="qty[]"]');
-    const max = select.options[select.selectedIndex]?.dataset.max || 0;
-    qtyInput.max = max;
+    const max = parseFloat(select.options[select.selectedIndex]?.dataset.max || 0);
+    qtyInput.dataset.max = max;
     qtyInput.placeholder = max > 0 ? `Max: ${Number(max).toLocaleString('id-ID')}` : 'Qty';
+}
+
+// Format ribuan saat user mengetik di input qty
+function formatQtyInput(input) {
+    // Simpan posisi kursor
+    let raw = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+    if (raw === '') { input.value = ''; return; }
+    const num = parseInt(raw, 10);
+    input.value = num.toLocaleString('id-ID');
+}
+
+// Hapus separator sebelum parse (untuk validasi JS)
+function unformatQty(str) {
+    return parseFloat(String(str).replace(/\./g, '').replace(',', '.')) || 0;
 }
 
 function submitGabung() {
@@ -465,8 +482,8 @@ function submitGabung() {
 
     itemIds.forEach((el, idx) => {
         if (!el.value) return;
-        const qty = parseFloat(itemQtys[idx].value);
-        const max = parseFloat(el.options[el.selectedIndex]?.dataset.max || 0);
+        const qty = unformatQty(itemQtys[idx].value);  // unformat separator ribuan
+        const max = parseFloat(el.options[el.selectedIndex]?.dataset.max || itemQtys[idx].dataset?.max || 0);
         const supplierName = el.options[el.selectedIndex]?.text?.split(' (')[0] || 'Supplier';
 
         if (!qty || qty <= 0) return;

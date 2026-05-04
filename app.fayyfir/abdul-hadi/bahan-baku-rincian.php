@@ -268,7 +268,8 @@ $log_material = $stmt3->get_result()->fetch_all(MYSQLI_ASSOC);
               <th class="px-4 py-2 text-center border-r border-gray-700">Type</th>
               <th class="px-4 py-2 text-center border-r border-gray-700">Qty (gram)</th>    
               <th class="px-4 py-2 text-center border-r border-gray-700">Harga/gram</th>    
-              <th class="px-4 py-2 text-center whitespace-nowrap">Jumlah</th>    
+              <th class="px-4 py-2 text-center border-r border-gray-700 whitespace-nowrap">Jumlah</th>    
+              <th class="px-4 py-2 text-center whitespace-nowrap">Aksi</th>    
             </tr>    
           </thead>    
           <tbody id="logMaterialTable" class="text-gray-800 divide-y divide-gray-200">    
@@ -281,6 +282,11 @@ $log_material = $stmt3->get_result()->fetch_all(MYSQLI_ASSOC);
                 <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($lm['quantity'], 0, ',', '.') ?></td>    
                 <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($lm['unit_price'], 0, ',', '.') ?></td>    
                 <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($lm['amount'], 0, ',', '.') ?></td>    
+                <td class="px-4 py-2 text-center whitespace-nowrap">
+                  <a href="bahan-baku-log-batal.php?id=<?= $lm['id'] ?>&material_id=<?= $id ?>" onclick="return confirm('Yakin ingin membatalkan/undo aksi ini? Stok akan dikembalikan seperti semula.')" class="inline-block text-red-500 hover:text-red-700 text-sm" title="Batal/Undo">    
+                    <span class="material-symbols-outlined text-base">undo</span>    
+                  </a>
+                </td>
               </tr>    
             <?php endforeach; ?>    
           <?php else: ?>    

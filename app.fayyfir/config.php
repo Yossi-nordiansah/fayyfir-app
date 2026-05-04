@@ -35,6 +35,27 @@ if ($db_to_use === "db1") {
 
 $conn = $conn_active;
 
+/**
+ * Lazy loader untuk koneksi ke yossinor_ahadi (db2).
+ * Gunakan fungsi ini di halaman yang SELALU butuh db2,
+ * tanpa membuka koneksi kedua jika db2 sudah tersedia.
+ *
+ * Ini menghindari DOUBLE DB CONNECTION bottleneck.
+ */
+function get_conn2(): mysqli {
+    global $conn2, $config2;
+    if (!$conn2 || $conn2->connect_error) {
+        $conn2 = new mysqli(
+            $config2["DB_HOST"],
+            $config2["DB_USER"],
+            $config2["DB_PASS"],
+            $config2["DB_NAME"],
+            $config2["DB_PORT"]
+        );
+    }
+    return $conn2;
+}
+
 // Validasi Token
 if (isset($_SESSION["user_id"], $_SESSION["session_token"])) {
     $user_id = $_SESSION["user_id"];

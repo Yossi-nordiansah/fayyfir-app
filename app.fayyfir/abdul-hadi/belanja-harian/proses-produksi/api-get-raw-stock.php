@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2(); // Lazy loader — tidak buka koneksi ganda
 
 header('Content-Type: application/json');
 
@@ -34,7 +34,7 @@ $query_mandiri = "
     LEFT JOIN (
         SELECT id_pembelian, SUM(berat_masuk) as terpakai_produksi
         FROM bb_proses_detail
-        WHERE tahap_ke = 0 AND status = 'aktif'
+        WHERE tahap_ke = 0
         GROUP BY id_pembelian
     ) pd_agg ON pd_agg.id_pembelian = pa.id
     LEFT JOIN (
@@ -86,7 +86,7 @@ $query_gabungan = "
     LEFT JOIN (
         SELECT id_penampungan, SUM(berat_masuk) as terpakai
         FROM bb_proses_detail
-        WHERE tahap_ke = 0 AND status = 'aktif'
+        WHERE tahap_ke = 0
         GROUP BY id_penampungan
     ) pd_agg ON pd_agg.id_penampungan = pn.id
     WHERE pn.id_bahan = ?

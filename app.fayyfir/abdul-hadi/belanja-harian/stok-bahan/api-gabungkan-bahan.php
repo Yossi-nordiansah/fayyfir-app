@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2(); // Lazy loader — tidak buka koneksi ganda
 
 header('Content-Type: application/json');
 
@@ -37,7 +37,7 @@ try {
         SELECT 
             pa.berat_awal,
             s.nama_supplier,
-            COALESCE((SELECT SUM(pd.berat_masuk) FROM bb_proses_detail pd WHERE pd.id_pembelian = pa.id AND pd.tahap_ke = 0 AND pd.status = 'aktif'), 0) as terpakai_produksi,
+            COALESCE((SELECT SUM(pd.berat_masuk) FROM bb_proses_detail pd WHERE pd.id_pembelian = pa.id AND pd.tahap_ke = 0), 0) as terpakai_produksi,
             COALESCE((SELECT SUM(pnd.berat_masuk) FROM bb_penampungan_detail pnd WHERE pnd.id_pembelian = pa.id), 0) as terpakai_penampungan
         FROM bb_pembelian_awal pa
         JOIN bb_supplier s ON pa.id_supplier = s.id

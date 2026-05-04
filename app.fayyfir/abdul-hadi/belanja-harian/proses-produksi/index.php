@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2(); // Lazy loader — tidak buka koneksi ganda
 require "../includes/helpers.php";
 
 // Pastikan user login
@@ -63,7 +63,7 @@ function calc_remaining_for_next_stage($conn, $idPembelian, $nextStage) {
     if ($nextStage === $min_urutan) {
         $sql2 = "SELECT COALESCE(SUM(pd.berat_masuk),0) AS processed FROM bb_proses_detail pd
                  JOIN bb_proses_master pm ON pm.id = pd.id_proses_master
-                 WHERE pd.id_pembelian = ? AND pm.urutan_tahap = ? AND pd.status = 'aktif'";
+                 WHERE pd.id_pembelian = ? AND pm.urutan_tahap = ?";
         $stmt = $conn->prepare($sql2);
         $stmt->bind_param("ii", $idPembelian, $nextStage);
         $stmt->execute();
@@ -75,7 +75,7 @@ function calc_remaining_for_next_stage($conn, $idPembelian, $nextStage) {
 
         $sqlPrevOut = "SELECT COALESCE(SUM(pd.berat_keluar),0) AS prev_out FROM bb_proses_detail pd
                        JOIN bb_proses_master pm ON pm.id = pd.id_proses_master
-                       WHERE pd.id_pembelian = ? AND pm.urutan_tahap = ? AND pd.status = 'aktif'";
+                       WHERE pd.id_pembelian = ? AND pm.urutan_tahap = ?";
         $stmt = $conn->prepare($sqlPrevOut);
         $stmt->bind_param("ii", $idPembelian, $prev);
         $stmt->execute();
@@ -83,7 +83,7 @@ function calc_remaining_for_next_stage($conn, $idPembelian, $nextStage) {
 
         $sqlConsumed = "SELECT COALESCE(SUM(pd.berat_masuk),0) AS consumed FROM bb_proses_detail pd
                          JOIN bb_proses_master pm ON pm.id = pd.id_proses_master
-                         WHERE pd.id_pembelian = ? AND pm.urutan_tahap = ? AND pd.status = 'aktif'";
+                         WHERE pd.id_pembelian = ? AND pm.urutan_tahap = ?";
         $stmt = $conn->prepare($sqlConsumed);
         $stmt->bind_param("ii", $idPembelian, $nextStage);
         $stmt->execute();
@@ -118,10 +118,9 @@ $queryProduksi = "
         SELECT COALESCE(pd3.kode_produksi, CONCAT('SINGLE-', pd3.id_pembelian)) as bk3, COALESCE(MAX(pm3.urutan_tahap), 0) as max_urutan
         FROM bb_proses_detail pd3
         LEFT JOIN bb_proses_master pm3 ON pm3.id = pd3.id_proses_master
-        WHERE pd3.status = 'aktif'
         GROUP BY bk3
     ) last_stage ON COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian)) = last_stage.bk3
-    WHERE pa.status != 'selesai_siap_jual' AND pd.status = 'aktif'
+    WHERE pa.status != 'selesai_siap_jual'
     GROUP BY batch_key
     ORDER BY MAX(pd.created_at) DESC
 ";

@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2(); // Lazy loader — tidak buka koneksi ganda
 
 if (!isset($_SESSION["user_id"]) || $_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: index.php");

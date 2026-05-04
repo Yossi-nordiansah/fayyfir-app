@@ -1,7 +1,8 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2; 
+$conn = get_conn2(); // Lazy loader — tidak buka koneksi ganda
+
 
 // Pastikan user sudah login
 if (!isset($_SESSION["user_id"])) {

@@ -6,24 +6,24 @@ if (!isset($activeMenu)) {
 
 // Daftar menu utama (Laporan dibuat khusus karena memiliki submenu)
 $menus = [
-  "dashboard" => ["icon" => "home", "label" => "Dashboard", "url" => "/abdul-hadi/belanja-harian/dashboard.php"],
-  "materials" => ["icon" => "package", "label" => "Data Bahan", "url" => "/abdul-hadi/belanja-harian/data-bahan/"],
-  "stok-bahan" => ["icon" => "archive", "label" => "Stok Bahan",  "url" => "/abdul-hadi/belanja-harian/stok-bahan"],
-  "suppliers" => ["icon" => "users", "label" => "Supplier", "url" => "/abdul-hadi/belanja-harian/data-supplier/"],
+  "dashboard" => ["icon" => "home", "label" => "Dashboard", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/dashboard.php"],
+  "materials" => ["icon" => "package", "label" => "Data Bahan", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/data-bahan/"],
+  "stok-bahan" => ["icon" => "archive", "label" => "Stok Bahan",  "url" => "/app.fayyfir/abdul-hadi/belanja-harian/stok-bahan"],
+  "suppliers" => ["icon" => "users", "label" => "Supplier", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/data-supplier/"],
 
   // ✅ Tambahan menu baru — Buyer
-  "buyers" => ["icon" => "user-check", "label" => "Buyer", "url" => "/abdul-hadi/belanja-harian/data-buyer/"],
+  "buyers" => ["icon" => "user-check", "label" => "Buyer", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/data-buyer/"],
 
-  "purchases" => ["icon" => "shopping-cart", "label" => "Pembelian", "url" => "/abdul-hadi/belanja-harian/pembelian-awal/"],
-  "productions" => ["icon" => "factory", "label" => "Produksi", "url" => "/abdul-hadi/belanja-harian/proses-produksi/"],
-  "sales" => ["icon" => "chart-bar", "label" => "Penjualan", "url" => "/abdul-hadi/belanja-harian/penjualan/"],
+  "purchases" => ["icon" => "shopping-cart", "label" => "Pembelian", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/pembelian-awal/"],
+  "productions" => ["icon" => "factory", "label" => "Produksi", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/proses-produksi/"],
+  "sales" => ["icon" => "chart-bar", "label" => "Penjualan", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/penjualan/"],
 ];
 
 // Submenu untuk laporan
 $reportSubmenu = [
-  "laba-rugi" => ["label" => "Laba Rugi", "url" => "/abdul-hadi/belanja-harian/laporan/laba-rugi.php"],
-  "penyusutan" => ["label" => "Penyusutan", "url" => "/abdul-hadi/belanja-harian/laporan/penyusutan-tahap.php"],
-  "ringkasan-hpp" => ["label" => "Ringkasan Modal HPP", "url" => "/abdul-hadi/belanja-harian/laporan/ringkasan-modal-hpp.php"],
+  "laba-rugi" => ["label" => "Laba Rugi", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/laporan/laba-rugi.php"],
+  "penyusutan" => ["label" => "Penyusutan", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/laporan/penyusutan-tahap.php"],
+  "ringkasan-hpp" => ["label" => "Ringkasan Modal HPP", "url" => "/app.fayyfir/abdul-hadi/belanja-harian/laporan/ringkasan-modal-hpp.php"],
 ];
 
 // Cek apakah submenu laporan sedang aktif

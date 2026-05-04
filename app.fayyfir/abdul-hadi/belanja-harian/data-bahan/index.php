@@ -90,13 +90,13 @@ include "../partials/navbar.php";
                     <!-- Tombol Edit -->
                     <a href="edit-bahan?id=<?= $row['id']; ?>" class="text-yellow-600 hover:text-yellow-800"
                       title="Edit">
-                      <img src="/app.fayyfir/abdul-hadi/belanja-harian/assets/icons/edit-dark.svg" class="w-5 h-5" alt="Edit">
+                      <img src="/abdul-hadi/belanja-harian/assets/icons/edit-dark.svg" class="w-5 h-5" alt="Edit">
                     </a>
 
                     <!-- Tombol Hapus -->
                     <a href="hapus-bahan?id=<?= $row['id']; ?>"
                       class="text-red-600 hover:text-red-800" title="Hapus">
-                      <img src="/app.fayyfir/abdul-hadi/belanja-harian/assets/icons/trash-dark.svg" class="w-5 h-5" alt="Hapus">
+                      <img src="/abdul-hadi/belanja-harian/assets/icons/trash-dark.svg" class="w-5 h-5" alt="Hapus">
                     </a>
                   </div>
                 </td>
