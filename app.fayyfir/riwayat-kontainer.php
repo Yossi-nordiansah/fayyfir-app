@@ -61,7 +61,7 @@ $total_pembelian = 0;
 $total_fee = 0;
 $grand_total = 0;
 $total_jumlah_jual = 0; // Tambahan untuk jumlah jual
-
+$data_transaksi = []; // Fix: Inisialisasi array agar tidak error di foreach saat kosong
 while ($row = $transaksi->fetch_assoc()) {
   $total_karung += $row["sack_count"];
   $total_berat += $row["weight_kg"];

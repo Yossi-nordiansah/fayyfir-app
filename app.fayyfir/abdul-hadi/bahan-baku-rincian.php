@@ -151,8 +151,7 @@ $log_material = $stmt3->get_result()->fetch_all(MYSQLI_ASSOC);
           </tr>    
         </tbody>    
       </table>    
-          
-      <!-- Peringatan Stock Hampir Habis -->    
+            
       <?php if (isset($_GET['min_qty']) && $_GET['min_qty'] <= ($material['minimum_quantity'])): ?>    
         <div class="mb-4 bg-gray-100 border gray-red-400 text-gray-700 px-4 py-3 rounded relative flex items-start space-x-2">    
           <span class="material-symbols-outlined mt-0.5">error</span>    

@@ -27,7 +27,7 @@ if ($row = $result->fetch_assoc()) {
     $conn->begin_transaction();
 
     try {
-        // Hapus log di stock_movements
+        
         $del_stmt = $conn->prepare("DELETE FROM stock_movements WHERE id = ?");
         $del_stmt->bind_param("i", $id);
         $del_stmt->execute();

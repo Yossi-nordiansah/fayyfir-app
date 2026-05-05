@@ -41,16 +41,17 @@ $result1 = $stmt1->get_result();
 $combined = [];
 while ($row = $result1->fetch_assoc()) {
     $row['source'] = 'manual';
+    $row['weight_kg'] = 0;
     $combined[] = $row;
 }
 $stmt1->close();
 
 // get container transaction
-$sql = "SELECT t.id, t.created_at, t.container_id, c.container_number, t.weight_kg, t.total_price
+$sql = "SELECT t.id, t.transaction_date AS created_at, t.container_id, c.container_number, t.weight_kg, t.total_price
         FROM transactions t
         JOIN containers c ON t.container_id = c.id
         WHERE t.supplier_id = ?
-        ORDER BY t.created_at ASC, t.id ASC";
+        ORDER BY t.transaction_date ASC, t.id ASC";
 $stmt2 = $conn->prepare($sql);
 $stmt2->bind_param("i", $id);
 $stmt2->execute();
@@ -241,7 +242,7 @@ function formatRupiah($angka) {
     pagination, 
     totalInfo 
   }) {
-    let currentPage = 1;
+    let currentPage = null;
 
     function filterRows() {
       const query = searchInput.value.toLowerCase();
@@ -254,15 +255,20 @@ function formatRupiah($angka) {
           row.style.display = "none";
         }
       }
-      currentPage = 1;
+      currentPage = null;
       paginate();
     }
 
     function paginate() {
       const maxRows = parseInt(rowsPerPage.value);
       const visibleRows = [...rows].filter(r => r.classList.contains("match"));
-      const totalPages = Math.ceil(visibleRows.length / maxRows);
-      currentPage = Math.min(currentPage, totalPages || 1);
+      const totalPages = Math.ceil(visibleRows.length / maxRows) || 1;
+      
+      if (currentPage === null) {
+          currentPage = totalPages;
+      } else {
+          currentPage = Math.min(currentPage, totalPages);
+      }
     
       let showingCount = 0;
       visibleRows.forEach((row, index) => {
@@ -275,7 +281,23 @@ function formatRupiah($angka) {
       });
     
       pagination.innerHTML = "";
-      for (let i = 1; i <= totalPages; i++) {
+
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+
+      if (endPage - startPage < 4) {
+          startPage = Math.max(1, endPage - 4);
+      }
+
+      if (currentPage > 1) {
+          const prevBtn = document.createElement("button");
+          prevBtn.className = "px-2 py-1 border rounded hover:bg-yellow-100";
+          prevBtn.innerHTML = "&laquo;";
+          prevBtn.onclick = () => { currentPage--; paginate(); };
+          pagination.appendChild(prevBtn);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
         const btn = document.createElement("button");
         btn.className =
           "px-2 py-1 border rounded " +
@@ -289,13 +311,21 @@ function formatRupiah($angka) {
         };
         pagination.appendChild(btn);
       }
+
+      if (currentPage < totalPages) {
+          const nextBtn = document.createElement("button");
+          nextBtn.className = "px-2 py-1 border rounded hover:bg-yellow-100";
+          nextBtn.innerHTML = "&raquo;";
+          nextBtn.onclick = () => { currentPage++; paginate(); };
+          pagination.appendChild(nextBtn);
+      }
     
       totalInfo.textContent = `Menampilkan ${showingCount} data dari total ${visibleRows.length}`;
     }
 
     // init
     for (let row of rows) row.classList.add("match");
-    rowsPerPage.addEventListener("change", paginate);
+    rowsPerPage.addEventListener("change", () => { currentPage = null; paginate(); });
     searchInput.addEventListener("keyup", filterRows);
     paginate();
   }

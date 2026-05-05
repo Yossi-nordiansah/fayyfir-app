@@ -43,6 +43,7 @@ $total_pembelian = 0;
 $total_fee = 0;
 $grand_total = 0;
 $total_jumlah_jual = 0; // Tambahan untuk jumlah jual
+$data_transaksi = [];
 
 while ($row = $transaksi->fetch_assoc()) {
   $total_karung += $row["sack_count"];
@@ -68,6 +69,7 @@ while ($row = $transaksi->fetch_assoc()) {
 $transaksi->data_seek(0); // reset pointer
 
 $total_operasional = 0;
+$data_expenses = [];
 while ($row = $expenses->fetch_assoc()) {
   $total_operasional += $row["amount"];
   $data_expenses[] = $row;
