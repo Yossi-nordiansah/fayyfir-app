@@ -282,6 +282,9 @@ $log_material = $stmt3->get_result()->fetch_all(MYSQLI_ASSOC);
                 <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($lm['unit_price'], 0, ',', '.') ?></td>    
                 <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($lm['amount'], 0, ',', '.') ?></td>    
                 <td class="px-4 py-2 text-center whitespace-nowrap">
+                  <a href="bahan-baku-log-edit.php?id=<?= $lm['id'] ?>&material_id=<?= $id ?>" class="inline-block text-blue-500 hover:text-blue-700 mr-2 text-sm" title="Edit">    
+                    <span class="material-symbols-outlined text-base">edit</span>    
+                  </a>
                   <a href="bahan-baku-log-batal.php?id=<?= $lm['id'] ?>&material_id=<?= $id ?>" onclick="return confirm('Yakin ingin membatalkan/undo aksi ini? Stok akan dikembalikan seperti semula.')" class="inline-block text-red-500 hover:text-red-700 text-sm" title="Batal/Undo">    
                     <span class="material-symbols-outlined text-base">undo</span>    
                   </a>
