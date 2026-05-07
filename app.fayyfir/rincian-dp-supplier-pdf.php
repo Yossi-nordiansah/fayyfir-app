@@ -39,6 +39,7 @@ $result1 = $stmt1->get_result();
 $combined = [];
 while ($row = $result1->fetch_assoc()) {
     $row['source'] = 'manual';
+    $row['weight_kg'] = 0;
     $combined[] = $row;
 }
 $stmt1->close();
@@ -83,6 +84,43 @@ foreach ($combined as $k => $item) {
         $runningSaldo = $runningSaldo + $debit - $credit;
     }
     $combined[$k]['saldo'] = $runningSaldo;
+}
+
+// filter logic
+$filter = $_GET['filter'] ?? '';
+$filtered_combined = $combined;
+
+if ($filter) {
+    $today = new DateTime();
+    $today->setTime(0, 0, 0);
+    $start_date = '';
+
+    if ($filter === 'minggu_ini') {
+        $monday = clone $today;
+        $dayOfWeek = (int)$monday->format('N');
+        $monday->modify('-' . ($dayOfWeek - 1) . ' days');
+        $start_date = $monday->format('Y-m-d');
+    } elseif ($filter === '2_minggu') {
+        $twoWeeksAgo = clone $today;
+        $twoWeeksAgo->modify('-14 days');
+        $start_date = $twoWeeksAgo->format('Y-m-d');
+    } elseif ($filter === '1_bulan') {
+        $oneMonthAgo = clone $today;
+        $oneMonthAgo->modify('-1 month');
+        $start_date = $oneMonthAgo->format('Y-m-d');
+    } elseif ($filter === 'bulan_ini') {
+        $start_date = $today->format('Y-m-01');
+    }
+
+    if ($start_date) {
+        $filtered_combined = [];
+        foreach ($combined as $item) {
+            $item_date = date('Y-m-d', strtotime($item['created_at']));
+            if ($item_date >= $start_date) {
+                $filtered_combined[] = $item;
+            }
+        }
+    }
 }
 
 $runningSaldo_fmt = number_format($runningSaldo, 0, ",", ".");
@@ -151,10 +189,12 @@ $totalWeight = 0;
 $totalDebit = 0;
 $totalCredit = 0;
 
-foreach ($combined as $t) {
+$displaySaldo = 0;
+foreach ($filtered_combined as $t) {
     $totalDebit += $t['debit'];
     $totalWeight += $t['weight_kg'];
     $totalCredit += $t['credit'];
+    $displaySaldo = $t['saldo'];
     $tanggal = date("d/m/Y", strtotime($t['created_at']));
     $desc    = htmlspecialchars($t['description']);
     $weight   = $t['weight_kg'] ? number_format($t['weight_kg'], 0, ",", ".") : "-";
@@ -181,12 +221,12 @@ $htmlTable .= "
     <td align='right'>".number_format($totalWeight,0,",",".")."</td>
     <td align='right'>".number_format($totalDebit,0,",",".")."</td>
     <td align='right'>".number_format($totalCredit,0,",",".")."</td>
-    <td align='right'>".number_format($runningSaldo,0,",",".")."</td>
+    <td align='right'>".number_format($displaySaldo,0,",",".")."</td>
   </tr>
 ";
 
 // jika kosong
-if (empty($combined)) {
+if (empty($filtered_combined)) {
     $htmlTable .= "
       <tr>
         <td colspan='5' align='center'>Belum ada transaksi.</td>

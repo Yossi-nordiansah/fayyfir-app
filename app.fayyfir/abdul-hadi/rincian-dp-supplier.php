@@ -89,6 +89,44 @@ foreach ($combined as $k => $item) {
     $combined[$k]['saldo'] = $runningSaldo;
 }
 
+// filter logic
+$filter = $_GET['filter'] ?? '';
+$filtered_combined = $combined;
+
+if ($filter) {
+    $today = new DateTime();
+    $today->setTime(0, 0, 0);
+    $start_date = '';
+
+    if ($filter === 'minggu_ini') {
+        // Get Monday of current week
+        $monday = clone $today;
+        $dayOfWeek = (int)$monday->format('N'); // 1 (Mon) to 7 (Sun)
+        $monday->modify('-' . ($dayOfWeek - 1) . ' days');
+        $start_date = $monday->format('Y-m-d');
+    } elseif ($filter === '2_minggu') {
+        $twoWeeksAgo = clone $today;
+        $twoWeeksAgo->modify('-14 days');
+        $start_date = $twoWeeksAgo->format('Y-m-d');
+    } elseif ($filter === '1_bulan') {
+        $oneMonthAgo = clone $today;
+        $oneMonthAgo->modify('-1 month');
+        $start_date = $oneMonthAgo->format('Y-m-d');
+    } elseif ($filter === 'bulan_ini') {
+        $start_date = $today->format('Y-m-01');
+    }
+
+    if ($start_date) {
+        $filtered_combined = [];
+        foreach ($combined as $item) {
+            $item_date = date('Y-m-d', strtotime($item['created_at']));
+            if ($item_date >= $start_date) {
+                $filtered_combined[] = $item;
+            }
+        }
+    }
+}
+
 // tampil
 function formatRupiah($angka) {
   return "Rp " . number_format($angka, 0, ",", ".");
@@ -143,14 +181,23 @@ function formatRupiah($angka) {
           <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">refresh</span>
           <span class="ml-2">Refund</span>
         </a>
-        <a href="rincian-dp-supplier-pdf.php?id=<?= $id ?>" target="_blank" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
+        <a href="rincian-dp-supplier-pdf.php?id=<?= $id ?>&filter=<?= $filter ?>" target="_blank" class="group flex items-center bg-gray-800 hover:bg-yellow-400 text-white px-4 py-2 rounded text-sm transition">
           <span class="material-symbols-outlined text-sm text-yellow-400 group-hover:text-gray-800">picture_as_pdf</span>
           <span class="ml-2">PDF</span>
         </a>
       </div>
       <h2 class="text-md mb-2 font-semibold">Riwayat Transaksi DP</h2>
       <div class="mb-4 flex justify-between items-center flex-wrap gap-2">
-        <input id="searchInput" type="text" placeholder="Cari..." class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded">
+        <div class="flex flex-wrap gap-2 w-full md:w-2/3">
+          <input id="searchInput" type="text" placeholder="Cari..." class="flex-1 px-3 py-2 border border-gray-300 rounded">
+          <select onchange="location.href='?id=<?= $id ?>&filter='+this.value" class="px-3 py-2 border border-gray-300 rounded text-sm bg-white">
+            <option value="" <?= $filter == '' ? 'selected' : '' ?>>Semua Waktu</option>
+            <option value="minggu_ini" <?= $filter == 'minggu_ini' ? 'selected' : '' ?>>Minggu Ini</option>
+            <option value="2_minggu" <?= $filter == '2_minggu' ? 'selected' : '' ?>>2 Minggu Terakhir</option>
+            <option value="bulan_ini" <?= $filter == 'bulan_ini' ? 'selected' : '' ?>>Bulan Ini</option>
+            <option value="1_bulan" <?= $filter == '1_bulan' ? 'selected' : '' ?>>1 Bulan Terakhir</option>
+          </select>
+        </div>
         <div class="text-sm">
           Tampilkan 
           <select id="rowsPerPage" class="border border-gray-300 rounded px-2 py-1">
@@ -182,10 +229,12 @@ function formatRupiah($angka) {
               $totalCredit = 0;
             ?>
             <?php
-              foreach ($combined as $t):
+              $displaySaldo = 0;
+              foreach ($filtered_combined as $t):
                 $totalWeight += $t['weight_kg'];
                 $totalDebit += $t['debit'];
                 $totalCredit += $t['credit'];
+                $displaySaldo = $t['saldo'];
             ?>
               <tr class="data-row">
                 <td class="px-4 py-2"><?= date("d/m/Y", strtotime($t['created_at'])) ?></td>
@@ -215,11 +264,11 @@ function formatRupiah($angka) {
               <td class="px-4 py-2 text-right"><?= number_format($totalWeight, 0, ",", ".") ?></td>
               <td class="px-4 py-2 text-right"><?= number_format($totalDebit, 0, ",", ".") ?></td>
               <td class="px-4 py-2 text-right"><?= number_format($totalCredit, 0, ",", ".") ?></td>
-              <td class="px-4 py-2 text-right"><?= number_format($runningSaldo, 0, ",", ".") ?></td>
+              <td class="px-4 py-2 text-right"><?= number_format($displaySaldo, 0, ",", ".") ?></td>
               <td class="px-4 py-2 text-right"></td>
             </tr>
-            <?php if (empty($combined)): ?>
-              <tr><td colspan="5" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi.</td></tr>
+            <?php if (empty($filtered_combined)): ?>
+              <tr><td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi pada periode ini.</td></tr>
             <?php endif; ?>
           </tbody>
         </table>
