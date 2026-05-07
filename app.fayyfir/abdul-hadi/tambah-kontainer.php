@@ -119,9 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
       <div>
         <label class="block text-sm font-medium">Tanggal Release</label>
-        <input type="date" name="tanggal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none" value="<?= date(
-        "Y-m-d"
-      ) ?>" />
+        <input type="datetime-local" name="tanggal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none" value="<?= date('Y-m-d\TH:i') ?>" />
       </div>
 
       <!-- Jenis Produk + Tombol -->

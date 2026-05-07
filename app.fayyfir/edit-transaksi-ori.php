@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <form class="space-y-6 bg-white shadow rounded-lg p-6" method="POST">  
     <div>  
       <label class="block text-sm font-medium">Tanggal</label>  
-      <input type="date" name="tanggal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= $transaksi['transaction_date'] ?>" />  
+      <input type="datetime-local" name="tanggal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= date('Y-m-d\TH:i', strtotime($transaksi['transaction_date'])) ?>" />  
     </div>  
 
     <div>  
