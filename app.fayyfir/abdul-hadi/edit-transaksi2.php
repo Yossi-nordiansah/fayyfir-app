@@ -72,6 +72,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <title>Edit Transaksi - Fayyfir</title>  
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />  
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />  
+  <!-- Select2 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+    /* Premium Select2 Styling Overrides to match Tailwind Form controls */
+    .select2-container .select2-selection--single {
+      height: 38px !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 0.375rem !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 36px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 36px !important;
+      padding-left: 12px !important;
+      color: #1f2937 !important;
+      font-size: 0.875rem !important;
+    }
+    .select2-dropdown {
+      border: 1px solid #d1d5db !important;
+      border-radius: 0.375rem !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      z-index: 9999 !important;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+      border: 1px solid #d1d5db !important;
+      border-radius: 0.375rem !important;
+      padding: 6px 12px !important;
+      outline: none !important;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+      border-color: #fbbf24 !important; /* Tailwind's yellow-400 */
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #fbbf24 !important; /* Tailwind's yellow-400 */
+      color: #1f2937 !important;
+    }
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+      background-color: #f3f4f6 !important;
+      color: #1f2937 !important;
+    }
+  </style>
 </head>  
 <body class="bg-gray-100 text-gray-800 min-h-screen">  
   
@@ -93,9 +137,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>  
 
     <div>  
-      <label class="block text-sm font-medium">Nama Petani / Supplier</label> 
+      <label class="block text-sm font-medium mb-1">Nama Petani / Supplier</label> 
       <div class="flex gap-2">
-        <select name="supplier" id="supplierSelect" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md">  
+        <select name="supplier" id="supplierSelect" class="w-full">  
           <option value="">-- Pilih Nama Petani --</option>  
           <?php while ($row = $supplier_result->fetch_assoc()): ?>  
             <option value="<?= $row["id"] ?>" <?= $row["id"] == $transaksi['supplier_id'] ? 'selected' : '' ?>>
@@ -104,12 +148,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <?php endwhile; ?>  
           <option value="lainnya">+ Tambah Baru</option>
         </select>  
-        <input type="text" id="supplierBaru" name="supplierBaru" placeholder="Masukkan Nama Petani Baru"  
-               class="mt-3 w-full px-3 py-2 border border-yellow-400 rounded-md hidden" />
-        <a href="tambah-supplier" class="bg-gray-800 hover:bg-yellow-400 text-white rounded-md px-3 flex items-center justify-center transition">
+        <a href="tambah-supplier" class="bg-gray-800 hover:bg-yellow-400 text-white rounded-md px-3 flex items-center justify-center transition shrink-0 h-[38px] w-[38px]">
           <span class="material-icons text-yellow-400 group-hover:text-gray-800 transition">add</span>
         </a>
       </div>
+      <input type="text" id="supplierBaru" name="supplierBaru" placeholder="Masukkan Nama Petani Baru"  
+             class="mt-2 w-full px-3 py-2 border border-yellow-400 rounded-md hidden text-sm" />
     </div>  
 
     <div>  
@@ -180,10 +224,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </form>  
 </main>
   
+<!-- jQuery and Select2 JS CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-  document.getElementById("supplierSelect").addEventListener("change", function () {
-    var lainnya = this.value === "lainnya";
-    document.getElementById("supplierBaru").classList.toggle("hidden", !lainnya);
+  $(document).ready(function() {
+    const $supplierSelect = $('#supplierSelect');
+    const $supplierBaru = $('#supplierBaru');
+
+    // Inisialisasi Select2
+    $supplierSelect.select2({
+      placeholder: "-- Pilih Nama Petani --",
+      width: '100%'
+    });
+
+    // Tambahkan placeholder ke kolom input pencarian Select2 saat dibuka
+    $supplierSelect.on('select2:open', function() {
+      setTimeout(function() {
+        const searchField = document.querySelector('.select2-search__field');
+        if (searchField) {
+          searchField.placeholder = "Cari nama supplier/petani...";
+        }
+      }, 0);
+    });
+
+    // Handle event change pada Select2
+    $supplierSelect.on('change', function() {
+      var lainnya = this.value === "lainnya";
+      $supplierBaru.toggleClass('hidden', !lainnya);
+    });
+
+    // Inisialisasi status input nama baru jika pas load sudah terpilih 'lainnya'
+    var lainnyaInit = $supplierSelect.val() === "lainnya";
+    $supplierBaru.toggleClass('hidden', !lainnyaInit);
   });
 
   const formatter = new Intl.NumberFormat("id-ID");
