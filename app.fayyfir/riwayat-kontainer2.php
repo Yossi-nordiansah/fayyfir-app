@@ -210,11 +210,12 @@ $margin = $total_jumlah_jual - $total_pengeluaran;
         </a>
       </div>
     <?php endif; ?>
+
     <?php endif; ?>
     
     <!-- Tabel Transaksi -->
-    <section>
-      <div class="flex justify-end gap-2 mb-4">
+    <section class="">
+      <div class="flex flex-wrap justify-end gap-2 mb-4">
         <a href="edit-kontainer-admin.php?id=<?= $container_id ?>" class="group flex items-center bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded text-sm transition">
           <span class="material-symbols-outlined text-sm text-white">add_circle</span>
           <span class="ml-2">Edit Kontainer</span>
@@ -238,10 +239,18 @@ $margin = $total_jumlah_jual - $total_pengeluaran;
             $region_name
           ) ?></span>
         </div>
-        <a href="tambah-transaksi?container_id=<?= $container_id ?>" class="flex items-center space-x-1 bg-gray-800 hover:bg-yellow-400 text-white text-sm px-3 py-2 rounded transition lg:space-x-2">
-          <span class="material-symbols-outlined text-yellow-400 lg:mr-1">add_circle</span>
-          <span class="hidden lg:inline text-white">Tambah Transaksi</span>
-        </a>
+        <div class="flex items-center gap-2">
+          <?php if (isset($kontainer) && $kontainer["status"] === "lunas" && ($level == "2" || $level == "3")): ?>
+          <a href="ubah-status-diterima.php?id=<?= $kontainer["id"] ?>" class="group flex items-center bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm transition" onclick="return confirm('Yakin ingin mengubah status kembali ke Diterima (Batal Lunas)?');">
+            <span class="material-symbols-outlined text-sm text-white">undo</span>
+            <span class="ml-2">Batal Lunas</span>
+          </a>
+        <?php endif; ?>
+          <a href="tambah-transaksi?container_id=<?= $container_id ?>" class="flex items-center space-x-1 bg-gray-800 hover:bg-yellow-400 text-white text-sm px-3 py-2 rounded transition lg:space-x-2">
+            <span class="material-symbols-outlined text-yellow-400 lg:mr-1">add_circle</span>
+            <span class="hidden lg:inline text-white">Tambah Transaksi</span>
+          </a>
+        </div>
       </div>
       <!-- tabel transaksi tetap -->
       <div class="overflow-auto bg-white shadow rounded-lg mb-2">
