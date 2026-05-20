@@ -148,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <span class="material-icons text-base">chevron_left</span>  
       <span class="hidden lg:inline">Kembali</span>  
     </a>  
-    <h1 class="text-lg font-semibold">Edit Transaksi</h1>  
+    <h1 class="text-lg font-semibold">Edit Transaksixx</h1>  
   </div>  
 </header>  
   

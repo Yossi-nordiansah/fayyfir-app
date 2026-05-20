@@ -92,6 +92,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <title>Tambah Transaksi - Fayyfir</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <!-- Select2 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+    /* Premium Select2 Styling Overrides to match Tailwind Form controls */
+    .select2-container .select2-selection--single {
+      height: 38px !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 0.375rem !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 36px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 36px !important;
+      padding-left: 12px !important;
+      color: #1f2937 !important;
+      font-size: 0.875rem !important;
+    }
+    .select2-dropdown {
+      border: 1px solid #d1d5db !important;
+      border-radius: 0.375rem !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      z-index: 9999 !important;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+      border: 1px solid #d1d5db !important;
+      border-radius: 0.375rem !important;
+      padding: 6px 12px !important;
+      outline: none !important;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+      border-color: #fbbf24 !important; /* Tailwind's yellow-400 */
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #fbbf24 !important; /* Tailwind's yellow-400 */
+      color: #1f2937 !important;
+    }
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+      background-color: #f3f4f6 !important;
+      color: #1f2937 !important;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 text-gray-800 min-h-screen">
@@ -116,14 +160,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <!-- SUPPLIER PICKER -->
   <div>
-    <label class="block text-sm font-medium">Nama Petani / Supplier</label>
-
-    <button type="button" id="openSupplierModal"
-      class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-left">
-      <span id="supplierLabel" class="text-gray-400">Pilih Nama Petani</span>
-    </button>
-
-    <input type="hidden" name="supplier" id="supplier_id" required />
+    <label class="block text-sm font-medium mb-1">Nama Petani / Supplier</label>
+    <div class="flex gap-2">
+      <div class="flex-grow">
+        <select name="supplier" id="supplierSelect" class="w-full" required>
+          <option value="">-- Pilih Nama Petani --</option>
+          <?php 
+          $supplier_result->data_seek(0);
+          while ($row = $supplier_result->fetch_assoc()): ?>
+            <option value="<?= $row["id"] ?>">
+              <?= htmlspecialchars($row["name"]) ?>
+            </option>
+          <?php endwhile; ?>
+        </select>
+      </div>
+      <a href="tambah-supplier" class="bg-gray-800 hover:bg-yellow-400 text-white rounded-md px-3 flex items-center justify-center transition shrink-0 h-[38px] w-[38px]">
+        <span class="material-icons text-yellow-400 group-hover:text-gray-800 transition">add</span>
+      </a>
+    </div>
   </div>
 
   <div>
@@ -165,43 +219,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </form>
 </main>
 
-<!-- MODAL PILIH SUPPLIER -->
-<div id="supplierModal" class="fixed inset-0 bg-white z-50 hidden flex flex-col">
-  <div class="p-4 border-b flex justify-between items-center">
-    <h2 class="text-lg font-semibold">Pilih Petani</h2>
-    <button id="closeSupplierModal" class="material-icons">close</button>
-  </div>
 
-  <div class="p-4">
-    <input type="text" id="supplierSearch" placeholder="Cari nama petani..."
-      class="w-full px-3 py-2 border border-gray-300 rounded-md" />
-  </div>
-  
-  <div id="addSupplierBox" class="hidden px-4 pb-2">
-    <button
-      type="button"
-      id="addSupplierBtn"
-      class="w-full text-left text-sm text-blue-600 py-2 border rounded-md">
-      + Tambah supplier
-    </button>
-  </div>
 
-  <div class="flex-1 overflow-y-auto px-4">
-    <?php
-    $supplier_result->data_seek(0);
-    while ($row = $supplier_result->fetch_assoc()):
-    ?>
-    <button type="button"
-      class="supplier-item w-full text-left py-3 border-b"
-      data-id="<?= $row["id"] ?>"
-      data-name="<?= htmlspecialchars($row["name"]) ?>">
-      <?= htmlspecialchars($row["name"]) ?>
-    </button>
-    <?php endwhile; ?>
-  </div>
-</div>
+<!-- jQuery and Select2 JS CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+$(document).ready(function() {
+  const $supplierSelect = $('#supplierSelect');
+
+  // Inisialisasi Select2
+  $supplierSelect.select2({
+    placeholder: "-- Pilih Nama Petani --",
+    width: '100%'
+  });
+
+  // Tambahkan placeholder ke kolom input pencarian Select2 saat dibuka
+  $supplierSelect.on('select2:open', function() {
+    setTimeout(function() {
+      const searchField = document.querySelector('.select2-search__field');
+      if (searchField) {
+        searchField.placeholder = "Cari nama supplier/petani...";
+      }
+    }, 0);
+  });
+});
+
 const formatter = new Intl.NumberFormat("id-ID");
 
 function cleanNumber(str) {
@@ -219,69 +263,6 @@ document.getElementById("jumlah_karung_display").addEventListener("input", funct
 document.getElementById("berat_display").addEventListener("input", function () {
   updateFormattedInput(this, document.getElementById("berat"));
 });
-
-const supplierModal = document.getElementById("supplierModal");
-
-document.getElementById("openSupplierModal").onclick = () => {
-  supplierModal.classList.remove("hidden");
-};
-document.getElementById("closeSupplierModal").onclick = () => {
-  supplierModal.classList.add("hidden");
-};
-
-document.querySelectorAll(".supplier-item").forEach(item => {
-  item.onclick = () => {
-    document.getElementById("supplier_id").value = item.dataset.id;
-    document.getElementById("supplierLabel").innerText = item.dataset.name;
-    document.getElementById("supplierLabel").classList.remove("text-gray-400");
-    supplierModal.classList.add("hidden");
-  };
-});
-
-const supplierSearch = document.getElementById("supplierSearch");
-const addBox = document.getElementById("addSupplierBox");
-const addBtn = document.getElementById("addSupplierBtn");
-
-supplierSearch.addEventListener("input", function () {
-  const keyword = this.value.toLowerCase().trim();
-  let found = false;
-
-  document.querySelectorAll(".supplier-item").forEach(item => {
-    const match = item.dataset.name.toLowerCase().includes(keyword);
-    item.style.display = match ? "block" : "none";
-    if (match) found = true;
-  });
-
-  if (!found && keyword.length >= 2) {
-    addBox.classList.remove("hidden");
-    addBtn.innerText = `+ Tambah supplier: "${this.value}"`;
-  } else {
-    addBox.classList.add("hidden");
-  }
-});
-
-addBtn.onclick = async () => {
-  const name = supplierSearch.value.trim();
-  if (!name) return;
-
-  addBtn.innerText = "Menyimpan...";
-  addBtn.disabled = true;
-
-  const res = await fetch("ajax-add-supplier.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "name=" + encodeURIComponent(name)
-  });
-
-  const data = await res.json();
-
-  document.getElementById("supplier_id").value = data.id;
-  document.getElementById("supplierLabel").innerText = data.name;
-  document.getElementById("supplierLabel").classList.remove("text-gray-400");
-
-  supplierModal.classList.add("hidden");
-  addBtn.disabled = false;
-};
 </script>
 
 </body>
