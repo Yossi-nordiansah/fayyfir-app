@@ -10,6 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $now = time();  
   
   // --- CEK DB1 ---  
+  $conn1 = get_conn1();
   $stmt1 = $conn1->prepare("SELECT id, name, region_name, password, role_id, session_token, token_expiry   
                             FROM users WHERE email = ? OR phone = ?");  
   $stmt1->bind_param("ss", $identity, $identity);  
@@ -48,6 +49,7 @@ $_SESSION["session_token"] = $token;
   }  
   
   // --- CEK DB2 ---  
+  $conn2 = get_conn2();
   $stmt2 = $conn2->prepare("SELECT id, name, region_name, password, role_id, session_token, token_expiry   
                             FROM users WHERE email = ? OR phone = ?");  
   $stmt2->bind_param("ss", $identity, $identity);  

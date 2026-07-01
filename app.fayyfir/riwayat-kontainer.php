@@ -7,19 +7,7 @@ if (!isset($_SESSION["user_id"])) {
   exit();
 }
 
-// Cek apakah token di session masih sama dengan di database
-$stmt = $conn->prepare("SELECT session_token FROM users WHERE id = ?");
-$stmt->bind_param("i", $_SESSION["user_id"]);
-$stmt->execute();
-$stmt->bind_result($db_token);
-$stmt->fetch();
-$stmt->close();
-
-if ($db_token !== $_SESSION["session_token"]) {
-  session_destroy();
-  header("Location: login.php?force_logout=1");
-  exit();
-}
+// Validasi session token sudah ditangani oleh config.php (setiap 5 menit via $_SESSION['last_validation'])
 
 $level = $_SESSION["role_id"] ?? "";
 $user_id = $_SESSION["user_id"] ?? 0;
