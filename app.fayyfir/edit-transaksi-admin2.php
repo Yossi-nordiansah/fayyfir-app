@@ -198,9 +198,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="hidden" id="berat" name="berat" value="<?= $transaksi['weight_kg'] ?>"/>
     </div>
 
-    <div hidden>
+    <div>
+      <label class="block text-sm font-medium">Harga per Kg</label>
+      <input type="text" id="harga_per_kg_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['price_per_kg'], 0, ',', '.') ?>" />
       <input type="hidden" id="harga_per_kg" name="harga_per_kg" value="<?= $transaksi['price_per_kg'] ?>"/>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Total Harga</label>
+      <input type="text" id="total_harga_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= number_format($transaksi['total_price'], 0, ',', '.') ?>" readonly />
       <input type="hidden" id="total_harga" name="total_harga" value="<?= $transaksi['total_price'] ?>"/>
+    </div>
+
+    <div hidden>
       <input type="hidden" id="fee_per_kg" name="fee_per_kg" value="<?= $transaksi['fee_per_kg'] ?>"/>
       <input type="hidden" id="total_fee" name="total_fee" value="<?= $transaksi['total_fee'] ?>"/>
       <input type="hidden" id="grand_total" name="grand_total" value="<?= $transaksi['grand_total'] ?>"/>
@@ -261,13 +271,61 @@ const jumlahKarung = document.getElementById("jumlah_karung");
 const beratDisplay = document.getElementById("berat_display");
 const berat = document.getElementById("berat");
 
+const hargaDisplay = document.getElementById("harga_per_kg_display");
+const harga = document.getElementById("harga_per_kg");
+
+const totalDisplay = document.getElementById("total_harga_display");
+const total = document.getElementById("total_harga");
+
+const fee = document.getElementById("fee_per_kg");
+const totalFee = document.getElementById("total_fee");
+const grandTotal = document.getElementById("grand_total");
+
+function updateTotalHarga() {
+  const beratVal = parseRibuan(beratDisplay.value);
+  const hargaVal = parseRibuan(hargaDisplay.value);
+  const totalVal = beratVal * hargaVal;
+
+  total.value = totalVal;
+  totalDisplay.value = formatter.format(totalVal);
+  updateGrandTotal();
+}
+
+function updateTotalFee() {
+  const beratVal = parseRibuan(beratDisplay.value);
+  const feeVal = parseFloat(fee.value) || 0;
+  const totalVal = beratVal * feeVal;
+
+  totalFee.value = totalVal;
+  updateGrandTotal();
+}
+
+function updateGrandTotal() {
+  const totalHargaVal = parseInt(total.value) || 0;
+  const totalFeeVal = parseInt(totalFee.value) || 0;
+  const grandTotalVal = totalHargaVal + totalFeeVal;
+
+  grandTotal.value = grandTotalVal;
+}
+
 jumlahKarungDisplay.addEventListener("input", function () {
   updateFormattedInput(jumlahKarungDisplay, jumlahKarung);
 });
 
 beratDisplay.addEventListener("input", function () {
   updateFormattedInput(beratDisplay, berat);
+  updateTotalHarga();
+  updateTotalFee();
 });
+
+hargaDisplay.addEventListener("input", function () {
+  updateFormattedInput(hargaDisplay, harga);
+  updateTotalHarga();
+});
+
+// Inisialisasi saat pertama kali halaman dimuat
+updateTotalHarga();
+updateTotalFee();
 </script>
 
 </body>
