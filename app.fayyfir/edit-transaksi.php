@@ -52,8 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $supplier_id = intval($_POST["supplier"]);    
   }    
 
-  $stmt = $conn->prepare("UPDATE transactions SET transaction_date=?, driver_name=?, driver_phone=?, vehicle_plate=?, sack_count=?, weight_kg=?, price_per_kg=?, fee_per_kg=?, total_price=?, total_fee=?, grand_total=?, notes=?, supplier_id=? WHERE id=?");    
-  $stmt->bind_param("ssssiiidddisii", $date, $driver_name, $driver_phone, $vehicle_plate, $sack_count, $weight, $price_per_kg, $fee_per_kg, $total_price, $total_fee, $grand_total, $notes, $supplier_id, $transaction_id);    
+  $weight_input_by_role = $_SESSION["role_id"] ?? null;
+  $price_input_by_role = $_SESSION["role_id"] ?? null;
+
+  $stmt = $conn->prepare("UPDATE transactions SET transaction_date=?, driver_name=?, driver_phone=?, vehicle_plate=?, sack_count=?, weight_kg=?, price_per_kg=?, fee_per_kg=?, total_price=?, total_fee=?, grand_total=?, notes=?, supplier_id=?, weight_input_by_role=?, price_input_by_role=? WHERE id=?");    
+  $stmt->bind_param("ssssiiidddisiiii", $date, $driver_name, $driver_phone, $vehicle_plate, $sack_count, $weight, $price_per_kg, $fee_per_kg, $total_price, $total_fee, $grand_total, $notes, $supplier_id, $weight_input_by_role, $price_input_by_role, $transaction_id);    
 
   if ($stmt->execute()) {    
     header("Location: riwayat-kontainer2.php?id=" . $container_id);    

@@ -46,11 +46,23 @@ $years_query = "
 $years_res = $conn->query($years_query);
 $years = [];
 while ($y_row = $years_res->fetch_assoc()) {
-    $years[] = $y_row['yr'];
+  if ($y_row['yr'] !== null) {
+    $years[] = intval($y_row['yr']);
+  }
 }
 $current_year = intval(date('Y'));
+
+// Tentukan default year: tahun sekarang jika ada data, atau tahun terbaru yang ada datanya
+if (in_array($current_year, $years)) {
+  $default_year = $current_year;
+} elseif (!empty($years)) {
+  $default_year = $years[0];
+} else {
+  $default_year = $current_year;
+}
+
 if (!in_array($current_year, $years)) {
-    $years[] = $current_year;
+  $years[] = $current_year;
 }
 rsort($years);
 
@@ -109,14 +121,14 @@ $result = $conn->query($query);
 
     <!-- Filter and Search Section -->
     <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-      <div class="flex flex-col md:flex-row gap-4">
-        
+      <div class="flex flex-col md:flex-row gap-4 md:items-end">
+
         <!-- Search Input -->
-        <div class="flex-1">
+        <div class="flex-1 w-full">
           <label for="search" class="block text-sm font-semibold text-gray-700 mb-1">Cari Kontainer</label>
           <div class="relative">
-            <input type="text" id="search" placeholder="Cari nama, nomor kontainer, atau nomor urut..." 
-                   class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm text-gray-800" />
+            <input type="text" id="search" placeholder="Cari nama, nomor kontainer, nomor urut, atau area..."
+              class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm text-gray-800" />
             <button id="clear-search" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
               <span class="material-symbols-outlined text-sm">close</span>
             </button>
@@ -125,13 +137,26 @@ $result = $conn->query($query);
 
         <!-- Year Filter Dropdown -->
         <div class="w-full md:w-48">
-          <label for="tahun" class="block text-sm font-semibold text-gray-700 mb-1">Filter Tahun</label>
+          <label for="tahun" class="block text-sm font-semibold text-gray-700 mb-1">Filter Waktu</label>
           <select id="tahun" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm text-gray-800">
             <option value="">Semua Tahun</option>
             <?php foreach ($years as $y): ?>
-              <option value="<?= $y ?>"><?= $y ?></option>
+              <option value="<?= $y ?>" <?= $y == $default_year ? 'selected' : '' ?>><?= $y ?></option>
             <?php endforeach; ?>
+            <option value="custom">Pilih Periode...</option>
           </select>
+        </div>
+
+        <!-- Custom Period Inputs -->
+        <div id="custom-period-container" class="hidden w-full md:w-auto flex flex-col sm:flex-row gap-4">
+          <div class="w-full sm:w-40">
+            <label for="start-date" class="block text-sm font-semibold text-gray-700 mb-1">Dari Tanggal</label>
+            <input type="date" id="start-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm text-gray-800" />
+          </div>
+          <div class="w-full sm:w-40">
+            <label for="end-date" class="block text-sm font-semibold text-gray-700 mb-1">Sampai Tanggal</label>
+            <input type="date" id="end-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm text-gray-800" />
+          </div>
         </div>
 
       </div>
@@ -148,12 +173,14 @@ $result = $conn->query($query);
 
       <?php while ($row = $result->fetch_assoc()): ?>
 
-        <a href="riwayat-kontainer2?id=<?= $row["id"] ?>" 
-           class="container-card bg-white rounded-lg shadow p-4"
-           data-year="<?= !empty($row["lunas_at"]) ? date("Y", strtotime($row["lunas_at"])) : '' ?>"
-           data-number="<?= htmlspecialchars($row["number"]) ?>"
-           data-container-number="<?= htmlspecialchars($row["container_number"]) ?>"
-           data-product="<?= htmlspecialchars($row["product_name"] ?? '') ?>">
+        <a href="riwayat-kontainer2?id=<?= $row["id"] ?>"
+          class="container-card bg-white rounded-lg shadow p-4"
+          data-year="<?= !empty($row["lunas_at"]) ? date("Y", strtotime($row["lunas_at"])) : '' ?>"
+          data-date="<?= !empty($row["lunas_at"]) ? date("Y-m-d", strtotime($row["lunas_at"])) : '' ?>"
+          data-number="<?= htmlspecialchars($row["number"]) ?>"
+          data-container-number="<?= htmlspecialchars($row["container_number"]) ?>"
+          data-product="<?= htmlspecialchars($row["product_name"] ?? '') ?>"
+          data-area="<?= htmlspecialchars($row["region_name"] ?? '') ?>">
 
           <div class="text-gray-800 flex justify-between items-center mb-2">
 
@@ -402,12 +429,24 @@ $result = $conn->query($query);
     const searchInput = document.getElementById('search');
     const clearSearchBtn = document.getElementById('clear-search');
     const tahunSelect = document.getElementById('tahun');
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    const customPeriodContainer = document.getElementById('custom-period-container');
     const cards = document.querySelectorAll('.container-card');
     const emptyState = document.getElementById('empty-state');
 
     function filterContainers() {
       const query = searchInput.value.toLowerCase().trim();
       const selectedYear = tahunSelect.value;
+
+      if (selectedYear === 'custom') {
+        customPeriodContainer.classList.remove('hidden');
+      } else {
+        customPeriodContainer.classList.add('hidden');
+      }
+
+      const startDateVal = startDateInput ? startDateInput.value : '';
+      const endDateVal = endDateInput ? endDateInput.value : '';
       let visibleCount = 0;
 
       // Show/hide clear button
@@ -419,20 +458,41 @@ $result = $conn->query($query);
 
       cards.forEach(card => {
         const year = card.getAttribute('data-year');
+        const dateStr = card.getAttribute('data-date');
         const number = card.getAttribute('data-number').toLowerCase();
         const containerNumber = card.getAttribute('data-container-number').toLowerCase();
         const product = card.getAttribute('data-product').toLowerCase();
+        const area = (card.getAttribute('data-area') || '').toLowerCase();
 
-        // Check year filter
-        const matchesYear = !selectedYear || year === selectedYear;
+        // Check year filter or custom period filter
+        let matchesTime = false;
+        if (selectedYear === 'custom') {
+          matchesTime = true;
+          if (dateStr) {
+            if (startDateVal && dateStr < startDateVal) {
+              matchesTime = false;
+            }
+            if (endDateVal && dateStr > endDateVal) {
+              matchesTime = false;
+            }
+          } else {
+            // if date range is defined but container has no date, it shouldn't match
+            if (startDateVal || endDateVal) {
+              matchesTime = false;
+            }
+          }
+        } else {
+          matchesTime = !selectedYear || year === selectedYear;
+        }
 
         // Check search query
-        const matchesQuery = !query || 
-                             number.includes(query) || 
-                             containerNumber.includes(query) || 
-                             product.includes(query);
+        const matchesQuery = !query ||
+          number.includes(query) ||
+          containerNumber.includes(query) ||
+          product.includes(query) ||
+          area.includes(query);
 
-        if (matchesYear && matchesQuery) {
+        if (matchesTime && matchesQuery) {
           card.style.display = '';
           visibleCount++;
         } else {
@@ -460,6 +520,15 @@ $result = $conn->query($query);
     if (tahunSelect) {
       tahunSelect.addEventListener('change', filterContainers);
     }
+    if (startDateInput) {
+      startDateInput.addEventListener('change', filterContainers);
+    }
+    if (endDateInput) {
+      endDateInput.addEventListener('change', filterContainers);
+    }
+
+    // Run filter automatically on page load
+    filterContainers();
   </script>
 
 </body>

@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $description = $_POST["keterangan"];
   $product_id = $_POST["produk"];
   $selling_price = str_replace('.', '', $_POST["harga_jual"]); // hilangkan titik
+  if ($selling_price === "") $selling_price = 0; // Default ke 0 jika kosong
   $created_by = $_SESSION["user_id"];
   $filled_by = $_SESSION["user_id"];
 
@@ -30,6 +31,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     "INSERT INTO containers (container_number, region_name, fill_date, expedition, shipping_line, description, status, filled_by, created_by, product_id, selling_price) 
      VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)"
   );
+
+  if (!$stmt) {
+    die("Gagal menyiapkan query database: " . $conn->error);
+  }
+
   $stmt->bind_param(
     "ssssssiiis",
     $container_number,
@@ -49,15 +55,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Cek apakah ada biaya tetap sesuai expedition (region_name)
     $check_fixed = $conn->prepare("SELECT expense_type, amount, notes FROM fixed_expenses WHERE region_name = ?");
+    if (!$check_fixed) {
+      die("Gagal menyiapkan query biaya tetap regional: " . $conn->error);
+    }
     $check_fixed->bind_param("s", $region_name);
     $check_fixed->execute();
     $fixed_result = $check_fixed->get_result();
 
     while ($row = $fixed_result->fetch_assoc()) {
       $insert_exp = $conn->prepare("INSERT INTO expenses (container_id, expense_date, expense_type, amount, notes, created_by) VALUES (?, ?, ?, ?, ?, ?)");
+      if (!$insert_exp) {
+        die("Gagal menyiapkan query input biaya tetap: " . $conn->error);
+      }
       $today = date("Y-m-d");
       $insert_exp->bind_param("issisi", $new_container_id, $today, $row['expense_type'], $row['amount'], $row['notes'], $created_by);
-      $insert_exp->execute();
+      if (!$insert_exp->execute()) {
+        die("Gagal menyimpan biaya tetap: " . $insert_exp->error);
+      }
       $insert_exp->close();
     }
 
@@ -66,12 +80,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: index");
     exit();
   } else {
-    echo "Gagal menyimpan data kontainer.";
+    echo "Gagal menyimpan data kontainer: " . $stmt->error;
   }
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -79,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 text-gray-800 min-h-screen">
 
   <!-- Header -->
@@ -164,4 +180,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
   </script>
 </body>
+
 </html>

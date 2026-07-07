@@ -49,15 +49,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $notes = $_POST["catatan"];
   $created_by = $user_id;
   $supplier_id = intval($_POST["supplier"]);
+  $weight_input_by_role = $_SESSION["role_id"] ?? null;
 
   $stmt = $conn->prepare("
     INSERT INTO transactions (
       container_id, transaction_date, driver_name, driver_phone, vehicle_plate,
-      sack_count, weight_kg, notes, supplier_id, created_by
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      sack_count, weight_kg, notes, supplier_id, created_by, weight_input_by_role
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   ");
   $stmt->bind_param(
-    "issssissii",
+    "issssissiii",
     $container_id,
     $date,
     $driver_name,
@@ -67,7 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $weight,
     $notes,
     $supplier_id,
-    $created_by
+    $created_by,
+    $weight_input_by_role
   );
 
   if ($stmt->execute()) {

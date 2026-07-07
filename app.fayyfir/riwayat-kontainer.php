@@ -138,7 +138,7 @@ $margin = $total_jumlah_jual - $total_pengeluaran;
         <div class="p-3 flex justify-center gap-3">
           <a href="ubah-status-kontainer.php?id=<?= $kontainer["id"] ?>"
             class="inline-flex items-center px-4 py-2 bg-green-800 hover:bg-green-900 text-white text-sm font-semibold rounded">
-            <span class="material-symbols-outlined text-base mr-1">check_circle</span> Kontainer Full
+            <span class="material-symbols-outlined text-base mr-1">check_circle</span> Kontainer Fullxx
           </a>
         </div>
       </div>

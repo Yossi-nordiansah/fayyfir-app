@@ -55,19 +55,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $driver_name = $_POST["nama_driver"];
   $driver_phone = $_POST["no_telp_driver"];
   $vehicle_plate = $_POST["plat_nomor"];
-  $sack_count = $_POST["jumlah_karung"];
-  $weight = $_POST["berat"];
-  $price_per_kg = $_POST["harga_per_kg"];
-  $total_price = $_POST["total_harga"];
-  $fee_per_kg = $_POST["fee_per_kg"];
-  $total_fee = $_POST["total_fee"];
-  $grand_total = $_POST["grand_total"];
   $notes = $_POST["catatan"];
-
   $supplier_id = intval($_POST["supplier"]);
 
-  $stmt = $conn->prepare("UPDATE transactions SET transaction_date=?, driver_name=?, driver_phone=?, vehicle_plate=?, sack_count=?, weight_kg=?, price_per_kg=?, fee_per_kg=?, total_price=?, total_fee=?, grand_total=?, notes=?, supplier_id=? WHERE id=?");
-  $stmt->bind_param("ssssiiidddisii", $date, $driver_name, $driver_phone, $vehicle_plate, $sack_count, $weight, $price_per_kg, $fee_per_kg, $total_price, $total_fee, $grand_total, $notes, $supplier_id, $transaction_id);
+  $role_id = $_SESSION["role_id"] ?? null;
+
+  // Logic for weight input preservation
+  if ($role_id == 1 && ($transaksi["weight_input_by_role"] == 3 || $transaksi["weight_input_by_role"] == 2)) {
+    $sack_count = $transaksi["sack_count"];
+    $weight = $transaksi["weight_kg"];
+    $weight_input_by_role = $transaksi["weight_input_by_role"];
+  } else {
+    $sack_count = $_POST["jumlah_karung"];
+    $weight = $_POST["berat"];
+    $weight_input_by_role = $role_id;
+  }
+
+  // Logic for price input preservation
+  if ($role_id == 1 && ($transaksi["price_input_by_role"] == 3 || $transaksi["price_input_by_role"] == 2)) {
+    $price_per_kg = $transaksi["price_per_kg"];
+    $total_price = $transaksi["total_price"];
+    $fee_per_kg = $transaksi["fee_per_kg"];
+    $total_fee = $transaksi["total_fee"];
+    $grand_total = $transaksi["grand_total"];
+    $price_input_by_role = $transaksi["price_input_by_role"];
+  } else {
+    $price_per_kg = $_POST["harga_per_kg"];
+    $total_price = $_POST["total_harga"];
+    $fee_per_kg = $_POST["fee_per_kg"];
+    $total_fee = $_POST["total_fee"];
+    $grand_total = $_POST["grand_total"];
+    $price_input_by_role = $role_id;
+  }
+
+  $stmt = $conn->prepare("UPDATE transactions SET transaction_date=?, driver_name=?, driver_phone=?, vehicle_plate=?, sack_count=?, weight_kg=?, price_per_kg=?, fee_per_kg=?, total_price=?, total_fee=?, grand_total=?, notes=?, supplier_id=?, weight_input_by_role=?, price_input_by_role=? WHERE id=?");
+  $stmt->bind_param("ssssiiidddisiiii", $date, $driver_name, $driver_phone, $vehicle_plate, $sack_count, $weight, $price_per_kg, $fee_per_kg, $total_price, $total_fee, $grand_total, $notes, $supplier_id, $weight_input_by_role, $price_input_by_role, $transaction_id);
 
   if ($stmt->execute()) {
     header("Location: riwayat-kontainer.php?id=" . $container_id);
@@ -186,15 +208,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="text" name="plat_nomor" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= htmlspecialchars($transaksi['vehicle_plate']) ?>" />
     </div>
 
+    <?php
+    $session_role_id = $_SESSION["role_id"] ?? null;
+    $is_weight_readonly = ($session_role_id == 1 && ($transaksi["weight_input_by_role"] == 3 || $transaksi["weight_input_by_role"] == 2));
+    ?>
+
     <div>
       <label class="block text-sm font-medium">Jumlah Karung</label>
-      <input type="text" id="jumlah_karung_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['sack_count'], 0, ',', '.') ?>" />
+      <input type="text" id="jumlah_karung_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md <?= $is_weight_readonly ? 'bg-gray-100' : '' ?>" value="<?= number_format($transaksi['sack_count'], 0, ',', '.') ?>" <?= $is_weight_readonly ? 'readonly' : '' ?> />
       <input type="hidden" id="jumlah_karung" name="jumlah_karung" value="<?= $transaksi['sack_count'] ?>"/>
     </div>
 
     <div>
       <label class="block text-sm font-medium">Total Berat (kg)</label>
-      <input type="text" id="berat_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['weight_kg'], 0, ',', '.') ?>" />
+      <input type="text" id="berat_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md <?= $is_weight_readonly ? 'bg-gray-100' : '' ?>" value="<?= number_format($transaksi['weight_kg'], 0, ',', '.') ?>" <?= $is_weight_readonly ? 'readonly' : '' ?> />
       <input type="hidden" id="berat" name="berat" value="<?= $transaksi['weight_kg'] ?>"/>
     </div>
 
