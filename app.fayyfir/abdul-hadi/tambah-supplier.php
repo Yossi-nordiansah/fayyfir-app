@@ -8,6 +8,20 @@ if (!isset($_SESSION["user_id"])) {
   exit();
 }
 
+$container_id = isset($_GET["container_id"]) ? intval($_GET["container_id"]) : 0;
+$default_area = "";
+
+if ($container_id > 0) {
+  $c_stmt = $conn->prepare("SELECT region_name FROM containers WHERE id = ?");
+  $c_stmt->bind_param("i", $container_id);
+  $c_stmt->execute();
+  $c_res = $c_stmt->get_result()->fetch_assoc();
+  if ($c_res) {
+    $default_area = $c_res["region_name"] ?? "";
+  }
+  $c_stmt->close();
+}
+
 $user_result = $conn->query("SELECT DISTINCT region_name FROM users WHERE region_name IS NOT NULL");
 
 $success = "";
@@ -44,7 +58,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if ($stmt->execute()) {
-      header("Location: daftar-supplier");
+      if ($container_id > 0) {
+        header("Location: daftar-supplier-area.php?container_id=" . $container_id);
+      } else {
+        header("Location: daftar-supplier");
+      }
       exit();
     } else {
       $error = "Gagal menyimpan data. Silakan coba lagi.";
@@ -88,7 +106,7 @@ $provinces = $conn->query("SELECT id, name FROM reg_provinces ORDER BY name");
     <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4"><?= $error ?></div>
   <?php endif; ?>
 
-  <form method="POST" action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>" class="bg-white shadow p-6 rounded-lg space-y-4">
+  <form method="POST" action="tambah-supplier.php<?= $container_id > 0 ? '?container_id=' . $container_id : '' ?>" class="bg-white shadow p-6 rounded-lg space-y-4">
     
     <div>
       <label class="block text-sm font-medium">Nama</label>
@@ -105,8 +123,12 @@ $provinces = $conn->query("SELECT id, name FROM reg_provinces ORDER BY name");
       <label class="block text-sm font-medium">Area</label>
       <select name="area" class="mt-1 w-full border px-3 py-2 rounded">
         <option value="">-- Pilih Area --</option>
-        <?php while($r = $user_result->fetch_assoc()): ?>
-          <option value="<?= htmlspecialchars($r['region_name']) ?>">
+        <?php 
+        $user_result->data_seek(0);
+        while ($r = $user_result->fetch_assoc()): 
+          $selected = ($r['region_name'] === $default_area) ? "selected" : "";
+        ?>
+          <option value="<?= htmlspecialchars($r['region_name']) ?>" <?= $selected ?>>
             <?= htmlspecialchars($r['region_name']) ?>
           </option>
         <?php endwhile; ?>

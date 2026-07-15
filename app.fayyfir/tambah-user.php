@@ -108,9 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </div>
     <?php endif; ?>
 
-    <form method="POST" action="<?= htmlspecialchars(
-      $_SERVER["PHP_SELF"]
-    ) ?>" class="space-y-6 bg-white shadow rounded-lg p-6">
+    <form method="POST" action="tambah-user.php" class="space-y-6 bg-white shadow rounded-lg p-6">
       <div>
         <label class="block text-sm font-medium">Area</label>
         <select name="area" id="areaSelect" class="mt-1 w-full border px-3 py-2 rounded">

@@ -47,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -54,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 text-gray-800 min-h-screen">
 
   <header class="bg-gray-900 text-white py-4 px-6 fixed top-0 left-0 right-0 z-40">
@@ -68,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <main class="pt-24 px-6 pb-32 max-w-xl mx-auto">
     <form class="space-y-6 bg-white shadow rounded-lg p-6" method="POST">
-      <?php if(isset($error)): ?>
+      <?php if (isset($error)): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <span class="block sm:inline"><?= $error ?></span>
         </div>
@@ -78,14 +80,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label class="block text-sm font-medium">Area</label>
         <select name="area" class="mt-1 w-full border px-3 py-2 rounded focus:ring focus:ring-yellow-300 focus:outline-none">
           <option value="">-- Pilih Area --</option>
-          <?php while($r = $area_result->fetch_assoc()): ?>
+          <?php while ($r = $area_result->fetch_assoc()): ?>
             <option value="<?= htmlspecialchars($r['region_name']) ?>" <?= $data['region_name'] == $r['region_name'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($r['region_name']) ?>
             </option>
           <?php endwhile; ?>
         </select>
       </div>
-      
+
       <div>
         <label class="block text-sm font-medium">Deskripsi</label>
         <textarea name="keterangan" rows="2" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none"><?= htmlspecialchars($data['expense_type']) ?></textarea>
@@ -114,4 +116,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
   </script>
 </body>
+
 </html>

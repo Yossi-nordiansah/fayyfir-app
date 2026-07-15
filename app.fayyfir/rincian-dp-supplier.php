@@ -40,9 +40,9 @@ $result1 = $stmt1->get_result();
 
 $combined = [];
 while ($row = $result1->fetch_assoc()) {
-    $row['source'] = 'manual';
-    $row['weight_kg'] = 0;
-    $combined[] = $row;
+  $row['source'] = 'manual';
+  $row['weight_kg'] = 0;
+  $combined[] = $row;
 }
 $stmt1->close();
 
@@ -58,35 +58,35 @@ $stmt2->execute();
 $result2 = $stmt2->get_result();
 
 while ($row = $result2->fetch_assoc()) {
-    $combined[] = [
-        'id' => $row['id'],
-        'created_at' => $row['created_at'],
-        'description' => 'Pengisian ('.$row['container_number'].')',
-        'weight_kg' => $row['weight_kg'],
-        'debit' => 0,
-        'credit' => (float)$row['total_price'],
-        'source' => 'kontainer',
-        'container_id' => $row['container_id']
-    ];
+  $combined[] = [
+    'id' => $row['id'],
+    'created_at' => $row['created_at'],
+    'description' => 'Pengisian (' . $row['container_number'] . ')',
+    'weight_kg' => $row['weight_kg'],
+    'debit' => 0,
+    'credit' => (float)$row['total_price'],
+    'source' => 'kontainer',
+    'container_id' => $row['container_id']
+  ];
 }
 $stmt2->close();
 
 // gabungkan dan urutkan ASC by tanggal
-usort($combined, function($a,$b){
-    return strtotime($a['created_at']) <=> strtotime($b['created_at']);
+usort($combined, function ($a, $b) {
+  return strtotime($a['created_at']) <=> strtotime($b['created_at']);
 });
 
 // hitung saldo
 $runningSaldo = 0;
 foreach ($combined as $k => $item) {
-    $debit  = (int)$item['debit'];
-    $credit = (int)$item['credit'];
-    if ($k === 0) {
-        $runningSaldo = $debit - $credit;
-    } else {
-        $runningSaldo = $runningSaldo + $debit - $credit;
-    }
-    $combined[$k]['saldo'] = $runningSaldo;
+  $debit  = (int)$item['debit'];
+  $credit = (int)$item['credit'];
+  if ($k === 0) {
+    $runningSaldo = $debit - $credit;
+  } else {
+    $runningSaldo = $runningSaldo + $debit - $credit;
+  }
+  $combined[$k]['saldo'] = $runningSaldo;
 }
 
 // filter logic
@@ -94,53 +94,56 @@ $filter = $_GET['filter'] ?? '';
 $filtered_combined = $combined;
 
 if ($filter) {
-    $today = new DateTime();
-    $today->setTime(0, 0, 0);
-    $start_date = '';
+  $today = new DateTime();
+  $today->setTime(0, 0, 0);
+  $start_date = '';
 
-    if ($filter === 'minggu_ini') {
-        // Get Monday of current week
-        $monday = clone $today;
-        $dayOfWeek = (int)$monday->format('N'); // 1 (Mon) to 7 (Sun)
-        $monday->modify('-' . ($dayOfWeek - 1) . ' days');
-        $start_date = $monday->format('Y-m-d');
-    } elseif ($filter === '2_minggu') {
-        $twoWeeksAgo = clone $today;
-        $twoWeeksAgo->modify('-14 days');
-        $start_date = $twoWeeksAgo->format('Y-m-d');
-    } elseif ($filter === '1_bulan') {
-        $oneMonthAgo = clone $today;
-        $oneMonthAgo->modify('-1 month');
-        $start_date = $oneMonthAgo->format('Y-m-d');
-    } elseif ($filter === 'bulan_ini') {
-        $start_date = $today->format('Y-m-01');
-    }
+  if ($filter === 'minggu_ini') {
+    // Get Monday of current week
+    $monday = clone $today;
+    $dayOfWeek = (int)$monday->format('N'); // 1 (Mon) to 7 (Sun)
+    $monday->modify('-' . ($dayOfWeek - 1) . ' days');
+    $start_date = $monday->format('Y-m-d');
+  } elseif ($filter === '2_minggu') {
+    $twoWeeksAgo = clone $today;
+    $twoWeeksAgo->modify('-14 days');
+    $start_date = $twoWeeksAgo->format('Y-m-d');
+  } elseif ($filter === '1_bulan') {
+    $oneMonthAgo = clone $today;
+    $oneMonthAgo->modify('-1 month');
+    $start_date = $oneMonthAgo->format('Y-m-d');
+  } elseif ($filter === 'bulan_ini') {
+    $start_date = $today->format('Y-m-01');
+  }
 
-    if ($start_date) {
-        $filtered_combined = [];
-        foreach ($combined as $item) {
-            $item_date = date('Y-m-d', strtotime($item['created_at']));
-            if ($item_date >= $start_date) {
-                $filtered_combined[] = $item;
-            }
-        }
+  if ($start_date) {
+    $filtered_combined = [];
+    foreach ($combined as $item) {
+      $item_date = date('Y-m-d', strtotime($item['created_at']));
+      if ($item_date >= $start_date) {
+        $filtered_combined[] = $item;
+      }
     }
+  }
 }
 
 // tampil
-function formatRupiah($angka) {
+function formatRupiah($angka)
+{
   return "Rp " . number_format($angka, 0, ",", ".");
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rincian DP Supplier</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 text-gray-800 min-h-screen">
   <header class="bg-gray-900 text-white py-4 px-6 fixed top-0 left-0 right-0 z-40">
     <div class="flex justify-between items-center">
@@ -157,16 +160,32 @@ function formatRupiah($angka) {
       <h2 class="text-md font-semibold mb-2">Ringkasan DP</h2>
       <table class="min-w-full divide-y divide-gray-200 text-sm">
         <tbody class="text-gray-800 divide-y divide-gray-200">
-          <tr><td class="pr-4 py-2 font-semibold">Nama</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["name"]) ?></td></tr>
-          <tr><td class="pr-4 py-2 font-semibold">Nomor HP</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["phone"]) ?></td></tr>
-          <tr><td class="pr-4 py-2 font-semibold">Alamat</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["address"]) ?>, <?= $supplier["village_name"] ?>, <?= $supplier["district_name"] ?>, <?= $supplier["regency_name"] ?>, <?= $supplier["province_name"] ?></td></tr>
-          <tr><td class="pr-4 py-2 font-semibold">Sisa DP</td><td>:</td><td class="pl-2 font-semibold text-green-700"><?= formatRupiah($runningSaldo) ?></td></tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Nama</td>
+            <td>:</td>
+            <td class="pl-2"><?= htmlspecialchars($supplier["name"]) ?></td>
+          </tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Nomor HP</td>
+            <td>:</td>
+            <td class="pl-2"><?= htmlspecialchars($supplier["phone"]) ?></td>
+          </tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Alamat</td>
+            <td>:</td>
+            <td class="pl-2"><?= htmlspecialchars($supplier["address"]) ?>, <?= $supplier["village_name"] ?>, <?= $supplier["district_name"] ?>, <?= $supplier["regency_name"] ?>, <?= $supplier["province_name"] ?></td>
+          </tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Sisa DP</td>
+            <td>:</td>
+            <td class="pl-2 font-semibold text-green-700"><?= formatRupiah($runningSaldo) ?></td>
+          </tr>
         </tbody>
       </table>
       <div class="mt-6 flex justify-end space-x-3">
         <a href="edit-supplier?id=<?= $id ?>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Edit Supplier</a>
         <form method="POST" action="hapus-supplier.php" onsubmit="return confirm('Yakin ingin menghapus supplier ini?')">
-          <input type="hidden" name="id" value="<?= $id ?>"/>
+          <input type="hidden" name="id" value="<?= $id ?>" />
           <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm">Hapus Supplier</button>
         </form>
       </div>
@@ -199,16 +218,16 @@ function formatRupiah($angka) {
           </select>
         </div>
         <div class="text-sm">
-          Tampilkan 
+          Tampilkan
           <select id="rowsPerPage" class="border border-gray-300 rounded px-2 py-1">
             <option value="10" selected>10</option>
             <option value="25">25</option>
             <option value="50">50</option>
-          </select> 
+          </select>
           baris
         </div>
       </div>
-      
+
       <div class="overflow-auto bg-white shadow rounded-lg">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-100 text-gray-600">
@@ -224,17 +243,17 @@ function formatRupiah($angka) {
           </thead>
           <tbody id="materialTable" class="text-gray-800 divide-y divide-gray-200">
             <?php
-              $totalWeight = 0;
-              $totalDebit = 0;
-              $totalCredit = 0;
+            $totalWeight = 0;
+            $totalDebit = 0;
+            $totalCredit = 0;
             ?>
             <?php
-              $displaySaldo = 0;
-              foreach ($filtered_combined as $t):
-                $totalWeight += $t['weight_kg'];
-                $totalDebit += $t['debit'];
-                $totalCredit += $t['credit'];
-                $displaySaldo = $t['saldo'];
+            $displaySaldo = 0;
+            foreach ($filtered_combined as $t):
+              $totalWeight += $t['weight_kg'];
+              $totalDebit += $t['debit'];
+              $totalCredit += $t['credit'];
+              $displaySaldo = $t['saldo'];
             ?>
               <tr class="data-row">
                 <td class="px-4 py-2"><?= date("d/m/Y", strtotime($t['created_at'])) ?></td>
@@ -268,126 +287,137 @@ function formatRupiah($angka) {
               <td class="px-4 py-2 text-right"></td>
             </tr>
             <?php if (empty($filtered_combined)): ?>
-              <tr><td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi pada periode ini.</td></tr>
+              <tr>
+                <td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi pada periode ini.</td>
+              </tr>
             <?php endif; ?>
           </tbody>
         </table>
       </div>
-      
+
       <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
         <div id="totalRowsInfo"></div>
         <div id="paginationControls" class="flex gap-1"></div>
       </div>
-      
+
     </section>
   </main>
 
-<script>
-  // Fungsi reusable
-  function setupPagination({ 
-    rows, 
-    rowsPerPage, 
-    searchInput, 
-    pagination, 
-    totalInfo 
-  }) {
-    let currentPage = null;
+  <script>
+    // Fungsi reusable
+    function setupPagination({
+      rows,
+      rowsPerPage,
+      searchInput,
+      pagination,
+      totalInfo
+    }) {
+      let currentPage = null;
 
-    function filterRows() {
-      const query = searchInput.value.toLowerCase();
-      for (let row of rows) {
-        const text = row.innerText.toLowerCase();
-        if (text.includes(query)) {
-          row.classList.add("match");
-        } else {
-          row.classList.remove("match");
-          row.style.display = "none";
+      function filterRows() {
+        const query = searchInput.value.toLowerCase();
+        for (let row of rows) {
+          const text = row.innerText.toLowerCase();
+          if (text.includes(query)) {
+            row.classList.add("match");
+          } else {
+            row.classList.remove("match");
+            row.style.display = "none";
+          }
         }
+        currentPage = null;
+        paginate();
       }
-      currentPage = null;
-      paginate();
-    }
 
-    function paginate() {
-      const maxRows = parseInt(rowsPerPage.value);
-      const visibleRows = [...rows].filter(r => r.classList.contains("match"));
-      const totalPages = Math.ceil(visibleRows.length / maxRows) || 1;
-      
-      if (currentPage === null) {
+      function paginate() {
+        const maxRows = parseInt(rowsPerPage.value);
+        const visibleRows = [...rows].filter(r => r.classList.contains("match"));
+        const totalPages = Math.ceil(visibleRows.length / maxRows) || 1;
+
+        if (currentPage === null) {
           currentPage = totalPages;
-      } else {
-          currentPage = Math.min(currentPage, totalPages);
-      }
-    
-      let showingCount = 0;
-      visibleRows.forEach((row, index) => {
-        if (index >= (currentPage - 1) * maxRows && index < currentPage * maxRows) {
-          row.style.display = "";
-          showingCount++;
         } else {
-          row.style.display = "none";
+          currentPage = Math.min(currentPage, totalPages);
         }
-      });
-    
-      pagination.innerHTML = "";
 
-      let startPage = Math.max(1, currentPage - 2);
-      let endPage = Math.min(totalPages, startPage + 4);
+        let showingCount = 0;
+        visibleRows.forEach((row, index) => {
+          if (index >= (currentPage - 1) * maxRows && index < currentPage * maxRows) {
+            row.style.display = "";
+            showingCount++;
+          } else {
+            row.style.display = "none";
+          }
+        });
 
-      if (endPage - startPage < 4) {
+        pagination.innerHTML = "";
+
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+
+        if (endPage - startPage < 4) {
           startPage = Math.max(1, endPage - 4);
-      }
+        }
 
-      if (currentPage > 1) {
+        if (currentPage > 1) {
           const prevBtn = document.createElement("button");
           prevBtn.className = "px-2 py-1 border rounded hover:bg-yellow-100";
           prevBtn.innerHTML = "&laquo;";
-          prevBtn.onclick = () => { currentPage--; paginate(); };
+          prevBtn.onclick = () => {
+            currentPage--;
+            paginate();
+          };
           pagination.appendChild(prevBtn);
-      }
+        }
 
-      for (let i = startPage; i <= endPage; i++) {
-        const btn = document.createElement("button");
-        btn.className =
-          "px-2 py-1 border rounded " +
-          (i === currentPage
-            ? "bg-yellow-500 text-white"
-            : "hover:bg-yellow-100");
-        btn.textContent = i;
-        btn.onclick = () => {
-          currentPage = i;
-          paginate();
-        };
-        pagination.appendChild(btn);
-      }
+        for (let i = startPage; i <= endPage; i++) {
+          const btn = document.createElement("button");
+          btn.className =
+            "px-2 py-1 border rounded " +
+            (i === currentPage ?
+              "bg-yellow-500 text-white" :
+              "hover:bg-yellow-100");
+          btn.textContent = i;
+          btn.onclick = () => {
+            currentPage = i;
+            paginate();
+          };
+          pagination.appendChild(btn);
+        }
 
-      if (currentPage < totalPages) {
+        if (currentPage < totalPages) {
           const nextBtn = document.createElement("button");
           nextBtn.className = "px-2 py-1 border rounded hover:bg-yellow-100";
           nextBtn.innerHTML = "&raquo;";
-          nextBtn.onclick = () => { currentPage++; paginate(); };
+          nextBtn.onclick = () => {
+            currentPage++;
+            paginate();
+          };
           pagination.appendChild(nextBtn);
+        }
+
+        totalInfo.textContent = `Menampilkan ${showingCount} data dari total ${visibleRows.length}`;
       }
-    
-      totalInfo.textContent = `Menampilkan ${showingCount} data dari total ${visibleRows.length}`;
+
+      // init
+      for (let row of rows) row.classList.add("match");
+      rowsPerPage.addEventListener("change", () => {
+        currentPage = null;
+        paginate();
+      });
+      searchInput.addEventListener("keyup", filterRows);
+      paginate();
     }
 
-    // init
-    for (let row of rows) row.classList.add("match");
-    rowsPerPage.addEventListener("change", () => { currentPage = null; paginate(); });
-    searchInput.addEventListener("keyup", filterRows);
-    paginate();
-  }
-
-  // Setup untuk tabel 1
-  setupPagination({
-    rows: document.querySelectorAll("#materialTable .data-row"),
-    rowsPerPage: document.getElementById("rowsPerPage"),
-    searchInput: document.getElementById("searchInput"),
-    pagination: document.getElementById("paginationControls"),
-    totalInfo: document.getElementById("totalRowsInfo")
-  });
-  
-</script>
+    // Setup untuk tabel 1
+    setupPagination({
+      rows: document.querySelectorAll("#materialTable .data-row"),
+      rowsPerPage: document.getElementById("rowsPerPage"),
+      searchInput: document.getElementById("searchInput"),
+      pagination: document.getElementById("paginationControls"),
+      totalInfo: document.getElementById("totalRowsInfo")
+    });
+  </script>
 </body>
+
 </html>

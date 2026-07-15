@@ -17,21 +17,31 @@ if ($container_id === 0) {
   exit();
 }
 
+// Ambil detail kontainer dan region untuk filter supplier
+$c_stmt = $conn->prepare("SELECT region_name FROM containers WHERE id = ?");
+$c_stmt->bind_param("i", $container_id);
+$c_stmt->execute();
+$c_row = $c_stmt->get_result()->fetch_assoc();
+$c_stmt->close();
+
+$container_region = $c_row["region_name"] ?? "";
+
 /* =========================
    FILTER SUPPLIER BY REGION
 ========================= */
-if ($region) {
+if ($container_region) {
   $stmt = $conn->prepare("
     SELECT id, name, region_name 
     FROM suppliers 
     WHERE region_name = ?
     ORDER BY name ASC
   ");
-  $stmt->bind_param("s", $region);
+  $stmt->bind_param("s", $container_region);
   $stmt->execute();
   $supplier_result = $stmt->get_result();
+  $stmt->close();
 } else {
-  // fallback (kalau session region kosong)
+  // fallback (kalau region kosong)
   $supplier_result = $conn->query("
     SELECT id, name, region_name 
     FROM suppliers 
@@ -176,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <?php endwhile; ?>
         </select>
       </div>
-      <a href="tambah-supplier" class="bg-gray-800 hover:bg-yellow-400 text-white rounded-md px-3 flex items-center justify-center transition shrink-0 h-[38px] w-[38px]">
+      <a href="tambah-supplier?container_id=<?= $container_id ?>" class="bg-gray-800 hover:bg-yellow-400 text-white rounded-md px-3 flex items-center justify-center transition shrink-0 h-[38px] w-[38px]">
         <span class="material-icons text-yellow-400 group-hover:text-gray-800 transition">add</span>
       </a>
     </div>

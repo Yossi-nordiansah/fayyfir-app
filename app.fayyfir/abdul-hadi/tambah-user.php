@@ -77,6 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -84,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 </head>
+
 <body class="bg-gray-100 text-gray-800 min-h-screen">
   <!-- Header -->
   <header class="bg-gray-900 text-white py-4 px-6 fixed top-0 left-0 right-0 z-40">
@@ -108,14 +110,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </div>
     <?php endif; ?>
 
-    <form method="POST" action="<?= htmlspecialchars(
-      $_SERVER["PHP_SELF"]
-    ) ?>" class="space-y-6 bg-white shadow rounded-lg p-6">
+    <form method="POST" class="space-y-6 bg-white shadow rounded-lg p-6">
       <div>
         <label class="block text-sm font-medium">Area</label>
         <select name="area" id="areaSelect" class="mt-1 w-full border px-3 py-2 rounded">
           <option value="">-- Pilih Area --</option>
-          <?php while($r = $user_result->fetch_assoc()): ?>
+          <?php while ($r = $user_result->fetch_assoc()): ?>
             <option value="<?= htmlspecialchars($r['region_name']) ?>"><?= htmlspecialchars($r['region_name']) ?></option>
           <?php endwhile; ?>
           <option value="lainnya2">Tambah baru...</option>
@@ -141,8 +141,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           $roles = $conn->query("SELECT id, name FROM roles ORDER BY name");
           while ($r = $roles->fetch_assoc()): ?>
             <option value="<?= $r["id"] ?>"><?= htmlspecialchars(
-  $r["name"]
-) ?></option>
+                                              $r["name"]
+                                            ) ?></option>
           <?php endwhile;
           ?>
         </select>
@@ -159,10 +159,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </form>
   </main>
 
-<script>
-document.getElementById("areaSelect").addEventListener("change", e => {
-  document.getElementById("areaOther").classList.toggle("hidden", e.target.value !== "lainnya2");
-});
-</script>
+  <script>
+    document.getElementById("areaSelect").addEventListener("change", e => {
+      document.getElementById("areaOther").classList.toggle("hidden", e.target.value !== "lainnya2");
+    });
+  </script>
 </body>
+
 </html>

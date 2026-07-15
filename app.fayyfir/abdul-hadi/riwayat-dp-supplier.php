@@ -58,6 +58,7 @@ $result = $conn->query($sql);
             <th class="px-4 py-2 text-center">Nama</th>
             <th class="px-4 py-2 text-center">Alamat</th>
             <th class="px-4 py-2 text-center">Nomor HP</th>
+            <th class="px-4 py-2 text-center">Berat (Kg)</th>
             <th class="px-4 py-2 text-center">Sisa DP</th>
             <th class="px-4 py-2 text-center">Aksi</th>
           </tr>
@@ -65,24 +66,28 @@ $result = $conn->query($sql);
         <tbody class="text-gray-800 divide-y divide-gray-200">
           <?php
           $total_all = 0;
+          $total_weight_all = 0;
           while ($row = $result->fetch_assoc()):
             $supplier_id = $row["id"];
 
-            // Hitung total transaksi pembelian dari tabel transactions
-            $queryTotalTrans = $conn->query("SELECT SUM(total_price) AS total_trans FROM transactions WHERE supplier_id = '$supplier_id'");
+            // Hitung total transaksi pembelian dan total berat dari tabel transactions
+            $queryTotalTrans = $conn->query("SELECT SUM(total_price) AS total_trans, SUM(weight_kg) AS total_weight FROM transactions WHERE supplier_id = '$supplier_id'");
             $rowTrans = $queryTotalTrans->fetch_assoc();
             $total_trans = $rowTrans['total_trans'] ?? 0;
+            $total_weight = $rowTrans['total_weight'] ?? 0;
 
             // Hitung Sisa DP: Total DP - Total Transaksi
             $sisa_dp = $row["total_debit"] - $row["total_credit"] - $total_trans;
             $total_all += $sisa_dp;
+            $total_weight_all += $total_weight;
 
             $alamat = $row["address"] . ", " . $row["village_name"] . ", " . $row["district_name"] . ", " . $row["regency_name"] . ", " . $row["province_name"];
           ?>
-          <tr>
+          <tr class="data-row" data-berat="<?= htmlspecialchars($total_weight) ?>" data-sisa-dp="<?= htmlspecialchars($sisa_dp) ?>">
             <td class="px-4 py-2"><?= htmlspecialchars($row["name"]) ?></td>
             <td class="px-4 py-2"><?= htmlspecialchars($alamat) ?></td>
             <td class="px-4 py-2"><?= htmlspecialchars($row["phone"]) ?></td>
+            <td class="px-4 py-2 text-right"><?= number_format($total_weight, 0, ',', '.') ?> Kg</td>
             <td class="px-4 py-2 text-right"><?= number_format($sisa_dp, 0, ',', '.') ?></td>
             <td class="px-4 py-2 text-center">
               <a href="rincian-dp-supplier?id=<?= $row["id"] ?>" class="text-blue-600 hover:text-blue-800">
@@ -92,8 +97,9 @@ $result = $conn->query($sql);
           </tr>
           <?php endwhile; ?>
           <tr>
-            <td colspan="3" class="px-4 py-2 text-right font-semibold">TOTAL DP</td>
-            <td class="px-4 py-2 text-right font-semibold"><?= number_format($total_all, 0, ',', '.') ?></td>
+            <td colspan="3" class="px-4 py-2 text-right font-semibold">TOTAL</td>
+            <td id="totalBeratVal" class="px-4 py-2 text-right font-semibold"><?= number_format($total_weight_all, 0, ',', '.') ?> Kg</td>
+            <td id="totalDpVal" class="px-4 py-2 text-right font-semibold"><?= number_format($total_all, 0, ',', '.') ?></td>
             <td class="px-4 py-2"></td>
           </tr>
         </tbody>
@@ -105,20 +111,29 @@ $result = $conn->query($sql);
     // Aktifkan pencarian
     document.getElementById("searchPetani").addEventListener("input", function () {
       const keyword = this.value.toLowerCase();
-      const rows = document.querySelectorAll("tbody tr");
+      const rows = document.querySelectorAll("tbody tr.data-row");
+      let totalWeight = 0;
+      let totalDp = 0;
 
       rows.forEach((row) => {
-        const namaCell = row.querySelector("td:nth-child(1)");
+        const namaCell = row.querySelector("td:first-child");
         if (!namaCell) return;
 
         const nama = namaCell.textContent.toLowerCase();
+        const match = nama.includes(keyword);
 
-        // Jangan filter baris total
-        const isTotalRow = row.querySelector("td[colspan]");
-        if (isTotalRow) return;
-
-        row.style.display = nama.includes(keyword) ? "" : "none";
+        if (match) {
+          row.style.display = "";
+          totalWeight += parseFloat(row.getAttribute("data-berat") || 0);
+          totalDp += parseFloat(row.getAttribute("data-sisa-dp") || 0);
+        } else {
+          row.style.display = "none";
+        }
       });
+
+      // Update total elements
+      document.getElementById("totalBeratVal").textContent = new Intl.NumberFormat('id-ID').format(Math.round(totalWeight)) + " Kg";
+      document.getElementById("totalDpVal").textContent = new Intl.NumberFormat('id-ID').format(Math.round(totalDp));
     });
   </script>
 </body>
