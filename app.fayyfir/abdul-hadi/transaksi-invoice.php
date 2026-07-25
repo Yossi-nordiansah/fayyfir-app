@@ -85,21 +85,21 @@ $html = '
 <table cellpadding="4">
   <tr>
     <td class="garis"><strong>INVOICE TO:</strong></td>
-    <td class="garis">'. htmlspecialchars($invoice["buyer_name"]) .'</td>
+    <td class="garis">' . htmlspecialchars($invoice["buyer_name"]) . '</td>
     <td class="garis"><strong>INVOICE NO :</strong></td>
-    <td class="garis">'. htmlspecialchars($invoice["invoice_number"]) .'</td>
+    <td class="garis">' . htmlspecialchars($invoice["invoice_number"]) . '</td>
   </tr>
   <tr>
     <td class="garis" style="background-color:#eee;"><strong>ADDRESS :</strong></td>
-    <td class="garis" style="background-color:#eee;">'. nl2br(htmlspecialchars($invoice["address"])) .'</td>
+    <td class="garis" style="background-color:#eee;">' . nl2br(htmlspecialchars($invoice["address"])) . '</td>
     <td class="garis" style="background-color:#eee;"><strong>INVOICE DATE :</strong></td>
-    <td class="garis" style="background-color:#eee;">'. date("d/m/Y", strtotime($invoice["selling_date"])) .'</td>
+    <td class="garis" style="background-color:#eee;">' . date("d/m/Y", strtotime($invoice["selling_date"])) . '</td>
   </tr>
   <tr>
     <td class="garis"><strong>CONTACT :</strong></td>
-    <td class="garis">'. htmlspecialchars($invoice["contact"]) .'</td>
+    <td class="garis">' . htmlspecialchars($invoice["contact"]) . '</td>
     <td class="garis"><strong>STATUS :</strong></td>
-    <td class="garis">'. htmlspecialchars($invoice["status"]) .'</td>
+    <td class="garis">' . htmlspecialchars($invoice["status"]) . '</td>
   </tr>
 </table>
 
@@ -118,33 +118,33 @@ $html = '
 while ($d = $details->fetch_assoc()) {
   $html .= '
     <tr>
-      <td class="garis">'. htmlspecialchars($d["product_name"]) .'</td>
-      <td align="right" class="garis">'. number_format($d["qty"], 2, ",", ".") .' '. htmlspecialchars($d["symbol"]) .'</td>
-      <td align="right" class="garis">Rp '. number_format($d["price"], 0, ",", ".") .'</td>
-      <td align="right" class="garis">Rp '. number_format($d["total_selling"], 0, ",", ".") .'</td>
+      <td class="garis">' . htmlspecialchars($d["product_name"]) . '</td>
+      <td align="right" class="garis">' . number_format($d["qty"], 2, ",", ".") . ' ' . htmlspecialchars($d["symbol"]) . '</td>
+      <td align="right" class="garis">Rp ' . number_format($d["price"], 0, ",", ".") . '</td>
+      <td align="right" class="garis">Rp ' . number_format($d["total_selling"], 0, ",", ".") . '</td>
     </tr>';
 }
 
 $html .= '
     <tr>
       <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Total :</td>
-      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp '. number_format($total_harga, 0, ",", ".") .'</td>
+      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($total_harga, 0, ",", ".") . '</td>
     </tr>
     <!-- <tr>
       <td colspan="3" align="right" class="garis">PPh 0,25% :</td>
-      <td align="right" class="garis">Rp '. number_format($pph, 0, ",", ".") .'</td>
+      <td align="right" class="garis">Rp ' . number_format($pph, 0, ",", ".") . '</td>
     </tr>
     <tr>
       <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Sub Total :</td>
-      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp '. number_format($sub_total, 0, ",", ".") .'</td>
+      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($sub_total, 0, ",", ".") . '</td>
     </tr> -->
     <tr>
       <td colspan="3" align="right" class="garis">Down Payment :</td>
-      <td align="right" class="garis">Rp '. number_format($dp, 0, ",", ".") .'</td>
+      <td align="right" class="garis">Rp ' . number_format($dp, 0, ",", ".") . '</td>
     </tr>
     <tr>
       <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Remaining :</td>
-      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp '. number_format($remaining, 0, ",", ".") .'</td>
+      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($remaining, 0, ",", ".") . '</td>
     </tr>
   </tbody>
 </table>
@@ -160,5 +160,9 @@ $html .= '
 ';
 
 // Cetak PDF
+if (ob_get_length()) {
+  ob_clean();
+}
+$output_mode = (isset($_GET['download']) && $_GET['download'] == '1') ? 'D' : 'I';
 $pdf->writeHTML($html, true, false, true, false, '');
-$pdf->Output("Invoice_" . $invoice["invoice_number"] . ".pdf", "I");
+$pdf->Output("Invoice_" . $invoice["invoice_number"] . ".pdf", $output_mode);

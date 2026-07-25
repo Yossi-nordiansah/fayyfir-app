@@ -18,11 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $invoice = $_POST['invoice'] ?? null;
+$buyer_id = $_POST['buyer_id'] ?? null;
 $item_ids = $_POST['item_id'] ?? [];
 $product_ids = $_POST['product_id'] ?? [];
 $qtys = $_POST['qty'] ?? [];
 $prices = $_POST['price'] ?? [];
 $dp = $_POST['dp'] ?? 0;
+$selling_date_input = $_POST['selling_date'] ?? null;
+$selling_date_formatted = !empty($selling_date_input) 
+    ? date("Y-m-d H:i:s", strtotime($selling_date_input)) 
+    : date("Y-m-d H:i:s");
 
 $deleted_items = $_POST['deleted_items'] ?? '';
 
@@ -175,13 +180,14 @@ try {
             $stmt_insert = $conn->prepare("
                 INSERT INTO selling_products
                 (selling_date,invoice_number,product_id,buyer_id,qty,price,total_selling,dp,status)
-                VALUES (NOW(),?,?,?,?,?,?,0,'Lunas')
+                VALUES (?,?,?,?,?,?,?,0,'Lunas')
             ");
 
             $buyer_id = $_POST['buyer_id'];
 
             $stmt_insert->bind_param(
-                "siiddd",
+                "ssiiddd",
+                $selling_date_formatted,
                 $invoice,
                 $product_id,
                 $buyer_id,
@@ -249,7 +255,7 @@ try {
 
 
     /* ==========================
-       Update DP & Status
+       Update DP, Status & Tanggal
     ========================== */
 
     $dp = num($dp);
@@ -259,11 +265,11 @@ try {
 
     $stmt_dp = $conn->prepare("
         UPDATE selling_products
-        SET dp=?, status=?
+        SET dp=?, status=?, selling_date=?
         WHERE invoice_number=?
     ");
 
-    $stmt_dp->bind_param("dss",$dp,$status,$invoice);
+    $stmt_dp->bind_param("dsss",$dp,$status,$selling_date_formatted,$invoice);
     $stmt_dp->execute();
     $stmt_dp->close();
 
@@ -274,7 +280,22 @@ try {
 
     $conn->commit();
 
-    header("Location: transaksi-rincian.php?invoice=" . urlencode($invoice));
+    if (!$buyer_id && $invoice) {
+        $stmt_b = $conn->prepare("SELECT buyer_id FROM selling_products WHERE invoice_number = ? LIMIT 1");
+        $stmt_b->bind_param("s", $invoice);
+        $stmt_b->execute();
+        $res_b = $stmt_b->get_result();
+        if ($row_b = $res_b->fetch_assoc()) {
+            $buyer_id = $row_b['buyer_id'];
+        }
+        $stmt_b->close();
+    }
+
+    if ($buyer_id) {
+        header("Location: transaksi-rincian?id=" . urlencode($buyer_id));
+    } else {
+        header("Location: transaksi-produk");
+    }
     exit();
 
 } catch (Exception $e) {

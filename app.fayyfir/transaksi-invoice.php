@@ -160,5 +160,9 @@ $html .= '
 ';
 
 // Cetak PDF
+if (ob_get_length()) {
+    ob_clean();
+}
+$output_mode = (isset($_GET['download']) && $_GET['download'] == '1') ? 'D' : 'I';
 $pdf->writeHTML($html, true, false, true, false, '');
-$pdf->Output("Invoice_" . $invoice["invoice_number"] . ".pdf", "I");
+$pdf->Output("Invoice_" . $invoice["invoice_number"] . ".pdf", $output_mode);

@@ -124,6 +124,7 @@ $total_margin = $total_fix_price - $total_production;
           <th class="px-3 py-2">Status</th>
           <th class="px-3 py-2">Mentah (gram)</th>
           <th class="px-3 py-2">Hasil (gram)</th>
+          <th class="px-3 py-2">Biaya/Kg</th>
           <th class="px-3 py-2">Total Biaya</th>
           <th class="px-3 py-2">Harga Jual/Kg</th>
           <th class="px-3 py-2">Harga Jual</th>
@@ -134,6 +135,8 @@ $total_margin = $total_fix_price - $total_production;
         <?php foreach ($productions as $row): ?>
           <?php 
             $total_biaya = ($row['total_pro_expenses'] ?? 0) + ($row['total_pro_materials'] ?? 0); 
+            $total_output = $row['total_output'] ?? 0;
+            $total_biaya_kg = $total_output > 0 ? $total_biaya / ($total_output / 1000) : 0;
           ?>
           <tr class="border-b hover:bg-gray-50">
             <td class="px-3 py-2"><?= htmlspecialchars($row['production_date']) ?></td>
@@ -141,6 +144,7 @@ $total_margin = $total_fix_price - $total_production;
             <td class="px-3 py-2"><?= htmlspecialchars($row['status']) ?></td>
             <td class="px-3 py-2 text-right"><?= number_format($row['total_weight'], 0, ',', '.') ?></td>
             <td class="px-3 py-2 text-right"><?= number_format($row['total_output'], 0, ',', '.') ?></td>
+            <td class="px-3 py-2 text-right">Rp <?= number_format($total_biaya_kg, 0, ',', '.') ?></td>
             <td class="px-3 py-2 text-right">Rp <?= number_format($total_biaya, 0, ',', '.') ?></td>
             <td class="px-3 py-2 text-right">Rp <?= number_format($row['price_weight'] ?? 0, 0, ',', '.') ?></td>
             <td class="px-3 py-2 text-right">Rp <?= number_format($row['fix_price'] ?? 0, 0, ',', '.') ?></td>
