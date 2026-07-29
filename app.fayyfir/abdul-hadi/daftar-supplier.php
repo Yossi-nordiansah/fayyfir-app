@@ -50,6 +50,7 @@ $result = $conn->query($sql);
           <tr>
             <th class="px-12 py-2 text-center">Nama</th>
             <th class="px-4 py-2 text-center">No. HP</th>
+            <th class="px-4 py-2 text-center">Regional</th>
             <th class="px-16 py-2 text-center">Alamat</th>
             <th class="px-4 py-2 text-center">Keterangan</th>
             <th class="px-4 py-2 text-center">Aksi</th>
@@ -61,6 +62,7 @@ $result = $conn->query($sql);
             $id = $row["id"];
             $name = htmlspecialchars($row["name"]);
             $phone = htmlspecialchars($row["phone"]);
+            $region = htmlspecialchars($row["region_name"] ?? ($row["regency_name"] ?? ""));
             $address = htmlspecialchars(
               $row["address"] .
                 ", " .
@@ -73,10 +75,11 @@ $result = $conn->query($sql);
                 $row["province_name"]
             );
             $notes = htmlspecialchars($row["notes"]);
-            ?>
+          ?>
           <tr>
             <td class="px-4 py-2 text-left"><?= $name ?></td>
             <td class="px-4 py-2 text-left"><?= $phone ?></td>
+            <td class="px-4 py-2 text-left"><?= $region ?></td>
             <td class="px-4 py-2 text-left"><?= $address ?></td>
             <td class="px-4 py-2 text-left"><?= $notes ?></td>
             <td class="px-4 py-2 text-center">
@@ -98,6 +101,7 @@ $result = $conn->query($sql);
               <h2 class="text-xl font-semibold mb-4">Detail Supplier</h2>
               <p><strong>Nama:</strong> <?= $name ?></p>
               <p><strong>No. HP:</strong> <?= $phone ?></p>
+              <p><strong>Regional:</strong> <?= $region ?></p>
               <p><strong>Alamat:</strong><br> <?= nl2br($address) ?></p>
               <p><strong>Keterangan:</strong><br> <?= nl2br($notes) ?></p>
           
@@ -111,8 +115,7 @@ $result = $conn->query($sql);
               </div>
             </div>
           </div>
-          <?php
-          endwhile; ?>
+          <?php endwhile; ?>
         </tbody>
       </table>
     </div>

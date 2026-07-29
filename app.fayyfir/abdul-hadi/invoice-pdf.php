@@ -85,7 +85,6 @@ $html = '
 <table cellpadding="4">
   <tr>
     <td></td>
-    <td></td>
     <td class="garis" style="background-color: #fff;"><strong>INVOICE TO:</strong></td>
     <td class="garis" style="background-color: #fff;">' . nl2br(htmlspecialchars($invoice["invoice_to"])) . '</td>
     <td class="garis" style="background-color: #fff;"><strong>CONTAINER NO :</strong></td>
@@ -93,16 +92,12 @@ $html = '
   </tr>
   <tr>
     <td></td>
-    <td></td>
     <td class="garis" style="background-color: #eee;"><strong>ADDRESS :</strong></td>
     <td class="garis" style="background-color: #eee;">' . nl2br(htmlspecialchars($invoice["address"])) . '</td>
     <td class="garis" style="background-color: #eee;"><strong>CLOSING DATE :</strong></td>
     <td class="garis" style="background-color: #eee;">' . (!empty($container["verified_at"]) ? date("d/m/Y", strtotime($container["verified_at"])) : "-") . '</td>
-    <td class="garis" style="background-color: #eee;"><strong>CLOSING DATE :</strong></td>
-    <td class="garis" style="background-color: #eee;">' . (!empty($container["verified_at"]) ? date("d/m/Y", strtotime($container["verified_at"])) : "-") . '</td>
   </tr>
   <tr>
-    <td></td>
     <td></td>
     <td class="garis" style="background-color: #fff;"><strong>CONTANER :</strong></td>
     <td class="garis" style="background-color: #fff;">' . nl2br(htmlspecialchars($invoice["containers"])) . '</td>
@@ -111,60 +106,59 @@ $html = '
   </tr>
   <tr>
     <td></td>
-    <td></td>
     <td class="garis" style="background-color: #eee;"></td>
     <td class="garis" style="background-color: #eee;"></td>
-     <td class="garis" style="background-color: #fff;"><strong>INVOICE DATE :</strong></td>
+    <td class="garis" style="background-color: #fff;"><strong>INVOICE DATE :</strong></td>
     <td class="garis" style="background-color: #fff;">' . date("d/m/Y", strtotime($invoice["invoice_date"])) . '</td>
   </tr>
 </table>
 <br><br>
 
-<table cellpadding="5">
+<table cellpadding="5" width="100%">
   <thead>
     <tr style="background-color:#E2B712; color: #fff;">
-      <th align="center" class="garis"><strong>DESCRIPTION</strong></th>
-      <th align="center" class="garis"><strong>WEIGHT (Kg)</strong></th>
-      <th align="center" class="garis"><strong>PRICE/KG</strong></th>
-      <th align="center" class="garis"><strong>TOTAL</strong></th>
+      <th align="center" class="garis" style="width:45%;"><strong>ITEM DESCRIPTION</strong></th>
+      <th align="center" class="garis" style="width:15%;"><strong>WEIGHT (Kg)</strong></th>
+      <th align="center" class="garis" style="width:20%;"><strong>PRICE/KG</strong></th>
+      <th align="center" class="garis" style="width:20%;"><strong>TOTAL</strong></th>
     </tr>
   </thead>
   <tbody>
     <tr style="background-color:#fff;">
-      <td class="garis">' . htmlspecialchars($container["product_name"]) . ' - ' . htmlspecialchars($container["container_number"]) . '</td>
-      <td align="right" class="garis">' . number_format($total_berat, 0, ",", ".") . '</td>
-      <td align="right" class="garis">Rp ' . number_format($container["selling_price"], 0, ",", ".") . '</td>
-      <td align="right" class="garis">Rp ' . number_format($total_harga, 0, ",", ".") . '</td>
+      <td class="garis" style="width:45%;">' . nl2br(htmlspecialchars($invoice["description"])) . '</td>
+      <td align="right" class="garis" style="width:15%;">' . number_format($total_berat, 0, ",", ".") . '</td>
+      <td align="right" class="garis" style="width:20%;">Rp ' . number_format($container["selling_price"], 0, ",", ".") . '</td>
+      <td align="right" class="garis" style="width:20%;">Rp ' . number_format($total_harga, 0, ",", ".") . '</td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td class="garis" style="background-color:#eee; font-weight: bold; text-align: right;">Total :</td>
-      <td class="garis" style="background-color:#eee; font-weight: bold; text-align: right;">Rp ' . number_format($total_harga, 0, ",", ".") . '</td>
+      <td style="width:45%;"></td>
+      <td style="width:15%;"></td>
+      <td class="garis" style="width:20%; background-color:#eee; font-weight: bold; text-align: right;">Total :</td>
+      <td class="garis" style="width:20%; background-color:#eee; font-weight: bold; text-align: right;">Rp ' . number_format($total_harga, 0, ",", ".") . '</td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td class="garis" style="background-color:#fff; font-weight: bold; text-align: right;">PPh 0,25% :</td>
-      <td class="garis" style="background-color:#fff; font-weight: bold; text-align: right;">Rp ' . number_format($pph, 0, ",", ".") . '</td>
+      <td style="width:45%;"></td>
+      <td style="width:15%;"></td>
+      <td class="garis" style="width:20%; background-color:#fff; font-weight: bold; text-align: right;">PPh 0,25% :</td>
+      <td class="garis" style="width:20%; background-color:#fff; font-weight: bold; text-align: right;">Rp ' . number_format($pph, 0, ",", ".") . '</td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td class="garis" style="background-color:#eee; font-weight: bold; text-align: right;">Sub Total :</td>
-      <td class="garis" style="background-color:#eee; font-weight: bold; text-align: right;">Rp ' . number_format($sub_total, 0, ",", ".") . '</td>
+      <td style="width:45%;"></td>
+      <td style="width:15%;"></td>
+      <td class="garis" style="width:20%; background-color:#eee; font-weight: bold; text-align: right;">Sub Total :</td>
+      <td class="garis" style="width:20%; background-color:#eee; font-weight: bold; text-align: right;">Rp ' . number_format($sub_total, 0, ",", ".") . '</td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td class="garis" style="background-color:#fff; font-weight: bold; text-align: right;">Down Payment :</td>
-      <td class="garis" style="background-color:#fff; font-weight: bold; text-align: right;">Rp ' . number_format($dp, 0, ",", ".") . '</td>
+      <td style="width:45%;"></td>
+      <td style="width:15%;"></td>
+      <td class="garis" style="width:20%; background-color:#fff; font-weight: bold; text-align: right;">Down Payment :</td>
+      <td class="garis" style="width:20%; background-color:#fff; font-weight: bold; text-align: right;">Rp ' . number_format($dp, 0, ",", ".") . '</td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td class="garis" style="background-color:#eee; font-weight: bold; text-align: right;">Remaining :</td>
-      <td class="garis" style="background-color:#eee; font-weight: bold; text-align: right;">Rp ' . number_format($remaining, 0, ",", ".") . '</td>
+      <td style="width:45%;"></td>
+      <td style="width:15%;"></td>
+      <td class="garis" style="width:20%; background-color:#eee; font-weight: bold; text-align: right;">Remaining :</td>
+      <td class="garis" style="width:20%; background-color:#eee; font-weight: bold; text-align: right;">Rp ' . number_format($remaining, 0, ",", ".") . '</td>
     </tr>
   </tbody>
 </table>
@@ -176,15 +170,15 @@ $html = '
     <td></td>
   </tr>
   <tr>
-    <td style="background-color: #eee;">><strong>Account Name :</strong> ' . htmlspecialchars($invoice["account_name"]) . '</td>
+    <td style="background-color: #eee;"><strong>Account Name :</strong> ' . htmlspecialchars($invoice["account_name"]) . '</td>
     <td></td>
   </tr>
   <tr>
-    <td style="background-color: #fff;">><strong>Account Number :</strong> ' . htmlspecialchars($invoice["account_number"]) . '</td>
+    <td style="background-color: #fff;"><strong>Account Number :</strong> ' . htmlspecialchars($invoice["account_number"]) . '</td>
     <td></td>
   </tr>
   <tr>
-    <td style="background-color: #eee;">><strong>Bank Name :</strong> ' . htmlspecialchars($invoice["bank_name"]) . '</td>
+    <td style="background-color: #eee;"><strong>Bank Name :</strong> ' . htmlspecialchars($invoice["bank_name"]) . '</td>
     <td></td>
   </tr>
   <tr>
