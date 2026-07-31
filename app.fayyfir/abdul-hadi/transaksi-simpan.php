@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $today = date("Ymd");    
   $prefix = "INV" . $today;    
     
-  $result = $conn->query("SELECT invoice_number FROM selling_products WHERE invoice_number LIKE '{$prefix}-%' ORDER BY id DESC LIMIT 1");    
+  $result = $conn->query("SELECT invoice_number FROM selling_products WHERE invoice_number LIKE 'INV%' ORDER BY id DESC LIMIT 1");    
   if ($result && $row = $result->fetch_assoc()) {    
     $last_number = (int)substr($row["invoice_number"], -4);    
     $seq = str_pad($last_number + 1, 4, "0", STR_PAD_LEFT);    
