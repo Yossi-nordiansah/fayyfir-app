@@ -418,7 +418,7 @@ $total_pages = max(1, ceil($total_count / $perPage));
               <th class="p-2 border">Tanggal</th>  
               <th class="p-2 border">Invoice</th>  
               <th class="p-2 border">Buyer</th>  
-              <th class="p-2 border">Qty</th>  
+              <th class="p-2 border">Qty (Kg)</th>  
               <th class="p-2 border">Total</th>  
               <th class="p-2 border">DP</th>  
               <th class="p-2 border">Status</th>  
@@ -431,7 +431,10 @@ $total_pages = max(1, ceil($total_count / $perPage));
               <td class="p-2 border" data-label="Tanggal"><?= date("d/m/Y H:i", strtotime($tr['selling_date'])) ?></td>  
               <td class="p-2 border" data-label="Invoice"><?= htmlspecialchars($tr['invoice_number']) ?></td>  
               <td class="p-2 border" data-label="Buyer"><?= htmlspecialchars($tr['buyer_name']) ?></td>  
-              <td class="p-2 border text-right" data-label="Qty"><?= fmtNum($tr['qty'],0) ?></td>  
+              <td class="p-2 border text-right" data-label="Qty (Kg)"><?php 
+                $qty_kg = $tr['qty'] / 1000;
+                echo ($qty_kg == floor($qty_kg)) ? fmtNum($qty_kg, 0) : rtrim(rtrim(fmtNum($qty_kg, 2), '0'), ',');
+              ?></td>  
               <td class="p-2 border text-right font-semibold" data-label="Total">Rp <?= fmtIDR($tr['total_selling']) ?></td>  
               <td class="p-2 border text-right" data-label="DP">Rp <?= fmtIDR($tr['dp']) ?></td>  
               <td class="p-2 border" data-label="Status">  
