@@ -167,7 +167,6 @@ $total_margin = $total_fix_price - $total_production;
           <tr>
             <th class="px-3 py-2 text-left">Tanggal</th>
             <th class="px-3 py-2">No Produksi</th>
-            <th class="px-3 py-2">Status</th>
             <th class="px-3 py-2">Mentah (gram)</th>
             <th class="px-3 py-2">Hasil (gram)</th>
             <th class="px-3 py-2">Biaya/Kg</th>
@@ -187,7 +186,6 @@ $total_margin = $total_fix_price - $total_production;
             <tr class="border-b hover:bg-gray-50">
               <td class="px-3 py-2"><?= htmlspecialchars($row['production_date']) ?></td>
               <td class="px-3 py-2 font-mono"><?= htmlspecialchars($row['production_number']) ?></td>
-              <td class="px-3 py-2"><?= htmlspecialchars($row['status']) ?></td>
               <td class="px-3 py-2 text-right"><?= number_format($row['total_weight'], 0, ',', '.') ?></td>
               <td class="px-3 py-2 text-right"><?= number_format($row['total_output'], 0, ',', '.') ?></td>
               <td class="px-3 py-2 text-right">Rp <?= number_format($total_biaya_kg, 0, ',', '.') ?></td>

@@ -4,7 +4,7 @@ require "config.php";
 
 // ambil parameter tanggal
 if (!isset($_GET["start_date"]) || !isset($_GET["end_date"])) {
-    die("Parameter tanggal tidak lengkap.");
+  die("Parameter tanggal tidak lengkap.");
 }
 
 $start_date = $_GET["start_date"];
@@ -12,79 +12,121 @@ $end_date   = $_GET["end_date"];
 
 // validasi tanggal
 if (!strtotime($start_date) || !strtotime($end_date)) {
-    die("Format tanggal tidak valid.");
+  die("Format tanggal tidak valid.");
 }
 
-// inisialisasi total
+// Format datetime range for SQL queries
+$start_datetime = date("Y-m-d 00:00:00", strtotime($start_date));
+$end_datetime   = date("Y-m-d 23:59:59", strtotime($end_date));
+
+// 1) Pendapatan / Total Sales
 $total_pendapatan = 0;
+$q_sales = $conn->query("
+    SELECT COALESCE(SUM(total_selling), 0) AS total_sales
+    FROM selling_products
+    WHERE (DATE(selling_date) BETWEEN '$start_date' AND '$end_date')
+       OR (selling_date BETWEEN '$start_datetime' AND '$end_datetime')
+");
+if ($q_sales && $row_sales = $q_sales->fetch_assoc()) {
+  $total_pendapatan = (float)($row_sales['total_sales'] ?? 0);
+}
+
+// Fallback jika selling_products 0: hitung dari sistem Containers
+if ($total_pendapatan == 0) {
+  $q_containers = $conn->query("
+        SELECT id, selling_price, lunas_at FROM containers
+        WHERE status = 'lunas'
+          AND ((DATE(lunas_at) BETWEEN '$start_date' AND '$end_date') OR (lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
+    ");
+  if ($q_containers && $q_containers->num_rows > 0) {
+    while ($container = $q_containers->fetch_assoc()) {
+      $cid = $container['id'];
+      $sp = (float)$container['selling_price'];
+      $q_tr = $conn->query("SELECT SUM(weight_kg) as tw FROM transactions WHERE container_id = $cid");
+      $tw = ($q_tr && $r_tr = $q_tr->fetch_assoc()) ? (float)$r_tr['tw'] : 0;
+      $total_pendapatan += ($tw * $sp);
+    }
+  }
+}
+
+// 2) Beban Pokok Penjualan (BPP / Biaya Produksi)
 $total_bpp = 0;
 
-// ambil semua container yang statusnya lunas dan di rentang tanggal
-$query_containers = $conn->query("
-    SELECT id, selling_price, lunas_at
-    FROM containers
-    WHERE status = 'lunas'
-      AND lunas_at BETWEEN '$start_date' AND '$end_date'
+// Opsi 1: Dari tabel productions (sistem Gaharu) pada rentang tanggal
+$q_bpp1 = $conn->query("
+    SELECT COALESCE(SUM(total_pro_expenses + total_pro_materials), 0) AS total_bpp
+    FROM productions
+    WHERE (DATE(production_date) BETWEEN '$start_date' AND '$end_date')
+       OR (production_date BETWEEN '$start_datetime' AND '$end_datetime')
+       OR (DATE(created_at) BETWEEN '$start_date' AND '$end_date')
+       OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')
 ");
-
-while ($container = $query_containers->fetch_assoc()) {
-    $container_id = $container['id'];
-    $selling_price = $container['selling_price'];
-
-    // total berat dan transaksi hanya untuk container lunas ✅
-    $q_trans = $conn->query("
-        SELECT SUM(t.weight_kg) as total_weight, SUM(t.grand_total) as total_price
-        FROM transactions t
-        JOIN containers c ON t.container_id = c.id
-        WHERE t.container_id = $container_id
-          AND c.status = 'lunas'
-    ");
-    $trx = $q_trans->fetch_assoc();
-    $total_weight = $trx['total_weight'] ?? 0;
-    $total_price_trans = $trx['total_price'] ?? 0;  // ✅ gunakan grand_total
-
-    $pendapatan_container = $total_weight * $selling_price;
-
-    // expenses per container hanya untuk container lunas ✅
-    $q_exp = $conn->query("
-        SELECT SUM(e.amount) as total_expense
-        FROM expenses e
-        JOIN containers c ON e.container_id = c.id
-        WHERE e.container_id = $container_id
-          AND c.status = 'lunas'
-    ");
-    $exp = $q_exp->fetch_assoc();
-    $total_expenses = $exp['total_expense'] ?? 0;
-
-    $bpp_container = $total_price_trans + $total_expenses;
-
-    // akumulasi
-    $total_pendapatan += $pendapatan_container;
-    $total_bpp += $bpp_container;
+if ($q_bpp1 && $r1 = $q_bpp1->fetch_assoc()) {
+  $total_bpp = (float)($r1['total_bpp'] ?? 0);
 }
 
-// laba kotor
+// Opsi 2: Dari production_expenses + material_purchases jika Opsi 1 bernilai 0
+if ($total_bpp == 0) {
+  $q_pe = $conn->query("SELECT COALESCE(SUM(amount), 0) AS total FROM production_expenses WHERE (DATE(created_at) BETWEEN '$start_date' AND '$end_date') OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')");
+  $q_mp = $conn->query("SELECT COALESCE(SUM(total_price), 0) AS total FROM material_purchases WHERE (DATE(purchase_date) BETWEEN '$start_date' AND '$end_date') OR (DATE(created_at) BETWEEN '$start_date' AND '$end_date') OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')");
+  $pe_val = ($q_pe && $r = $q_pe->fetch_assoc()) ? (float)$r['total'] : 0;
+  $mp_val = ($q_mp && $r = $q_mp->fetch_assoc()) ? (float)$r['total'] : 0;
+  $total_bpp = $pe_val + $mp_val;
+}
+
+// Opsi 3: Dari sistem Containers (transactions + expenses) untuk container lunas di rentang tanggal
+if ($total_bpp == 0) {
+  $q_c_trx = $conn->query("
+      SELECT COALESCE(SUM(t.grand_total), 0) AS total_trx
+      FROM transactions t
+      JOIN containers c ON t.container_id = c.id
+      WHERE c.status = 'lunas'
+        AND ((DATE(c.lunas_at) BETWEEN '$start_date' AND '$end_date') OR (c.lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
+  ");
+  $q_c_exp = $conn->query("
+      SELECT COALESCE(SUM(e.amount), 0) AS total_exp
+      FROM expenses e
+      JOIN containers c ON e.container_id = c.id
+      WHERE c.status = 'lunas'
+        AND ((DATE(c.lunas_at) BETWEEN '$start_date' AND '$end_date') OR (c.lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
+  ");
+  $trx_val = ($q_c_trx && $r = $q_c_trx->fetch_assoc()) ? (float)$r['total_trx'] : 0;
+  $exp_val = ($q_c_exp && $r = $q_c_exp->fetch_assoc()) ? (float)$r['total_exp'] : 0;
+  $total_bpp = $trx_val + $exp_val;
+}
+
+// Opsi 4: Fallback umum jika ada penjualan tapi tanggal produksi tidak terikat rentang tanggal
+if ($total_bpp == 0 && $total_pendapatan > 0) {
+  $q_bpp_all = $conn->query("SELECT COALESCE(SUM(total_pro_expenses + total_pro_materials), 0) AS total_bpp FROM productions");
+  if ($q_bpp_all && $r = $q_bpp_all->fetch_assoc()) {
+    $total_bpp = (float)($r['total_bpp'] ?? 0);
+  }
+}
+
+// 3) Laba Kotor
 $laba_kotor = $total_pendapatan - $total_bpp;
 
-// beban operasional di rentang tanggal (tidak terkait container) ✅
-$start_date2 = date("Y-m-d 00:00:00", strtotime($_GET["start_date"]));
-$end_date2   = date("Y-m-d 23:59:59", strtotime($_GET["end_date"]));
-
-$query_operasional = $conn->query("
-    SELECT SUM(jumlah) AS total_operasional
+// 4) Beban Operasional (Biaya Operasional Umum dari operational_costs)
+$total_operasional = 0;
+$q_op = $conn->query("
+    SELECT COALESCE(SUM(jumlah), 0) AS total_op
     FROM operational_costs
-    WHERE created_at BETWEEN '$start_date2' AND '$end_date2'
+    WHERE (DATE(tanggal) BETWEEN '$start_date' AND '$end_date')
+       OR (DATE(created_at) BETWEEN '$start_date' AND '$end_date')
+       OR (tanggal BETWEEN '$start_datetime' AND '$end_datetime')
+       OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')
 ");
-$data_operasional = $query_operasional->fetch_assoc();
-$total_operasional = $data_operasional['total_operasional'] ?? 0;
+if ($row_op = $q_op->fetch_assoc()) {
+  $total_operasional = (float)($row_op['total_op'] ?? 0);
+}
 
-// laba bersih
+// 5) Laba Bersih (Sebelum PPh)
 $laba_bersih = $laba_kotor - $total_operasional;
 
-// pph 0,25%
+// 6) PPh 0,25%
 $pph = $total_pendapatan * 0.0025;
 
-// laba bersih setelah pph
+// 7) Laba Bersih Setelah PPh
 $laba_bersih_pph = $laba_bersih - $pph;
 
 // format angka di PHP
@@ -117,24 +159,16 @@ $html = <<<EOD
     <td colspan="2"><strong>PENDAPATAN</strong></td>
   </tr>
   <tr>
-    <td>Penjualan</td>
-    <td align="right">Rp. $total_pendapatan_fmt</td>
-  </tr>
-  <tr>
     <td><strong>Jumlah Pendapatan</strong></td>
-    <td style="border-top: 1px solid #000;" align="right"><strong>Rp. $total_pendapatan_fmt</strong></td>
+    <td style="border-bottom: 1px solid #000;" align="right"><strong>Rp. $total_pendapatan_fmt</strong></td>
   </tr>
   <tr><td colspan="2"><br></td></tr>
   <tr>
     <td colspan="2"><strong>BEBAN POKOK PENJUALAN</strong></td>
   </tr>
   <tr>
-    <td>Beban Pokok Penjualan</td>
-    <td align="right">Rp. $bpp_fmt</td>
-  </tr>
-  <tr>
     <td><strong>Jumlah Beban Pokok Penjualan</strong></td>
-    <td style="border-top: 1px solid #000;" align="right"><strong>Rp. $bpp_fmt</strong></td>
+    <td style="border-bottom: 1px solid #000;" align="right"><strong>Rp. $bpp_fmt</strong></td>
   </tr>
   <tr>
     <td><strong>LABA KOTOR</strong></td>
@@ -142,15 +176,8 @@ $html = <<<EOD
   </tr>
   <tr><td colspan="2"><br></td></tr>
   <tr>
-    <td colspan="2"><strong>BEBAN OPERASIONAL</strong></td>
-  </tr>
-  <tr>
-    <td>Beban Operasional</td>
-    <td align="right">Rp. $operasional_fmt</td>
-  </tr>
-  <tr>
     <td><strong>Jumlah Beban Operasional</strong></td>
-    <td style="border-top: 1px solid #000;" align="right"><strong>Rp. $operasional_fmt</strong></td>
+    <td style="border-bottom: 1px solid #000;" align="right"><strong>Rp. $operasional_fmt</strong></td>
   </tr>
   <tr><td colspan="2"><br></td></tr>
   <tr>

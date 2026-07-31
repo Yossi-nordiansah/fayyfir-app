@@ -114,20 +114,22 @@ $filtered_laba_bersih = [];
 foreach ($filtered_pendapatan as $k => $v) {
   $filtered_bpp[$k]        = $bpp_per_bulan[$k] ?? 0;
   $filtered_laba_kotor[$k] = $laba_kotor_per_bulan[$k] ?? 0;
-  $filtered_operasional[$k]= $operasional_per_bulan[$k] ?? 0;
-  $filtered_laba_bersih[$k]= $laba_bersih_per_bulan[$k] ?? 0;
+  $filtered_operasional[$k] = $operasional_per_bulan[$k] ?? 0;
+  $filtered_laba_bersih[$k] = $laba_bersih_per_bulan[$k] ?? 0;
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laporan Laba Rugi - Fayyfir</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 text-gray-800 min-h-screen">
   <header class="bg-gray-900 text-white py-4 px-6 fixed top-0 left-0 right-0 z-40">
     <div class="flex justify-between items-center">
@@ -135,7 +137,7 @@ foreach ($filtered_pendapatan as $k => $v) {
         <span class="material-symbols-outlined text-base">chevron_left</span>
         <span class="hidden lg:inline">Kembali</span>
       </a>
-      <h1 class="text-lg font-semibold">Laba Rugis</h1>
+      <h1 class="text-lg font-semibold">Laba Rugi</h1>
     </div>
   </header>
 
@@ -218,11 +220,11 @@ foreach ($filtered_pendapatan as $k => $v) {
       <form action="laporan-laba-rugi-pdf-custom.php" method="get" target="_blank" class="space-y-4">
         <div>
           <label for="start_date" class="block text-sm font-medium">Dari Tanggal</label>
-          <input type="date" name="start_date" id="start_date" required class="w-full border px-3 py-2 rounded"/>
+          <input type="date" name="start_date" id="start_date" required class="w-full border px-3 py-2 rounded" />
         </div>
         <div>
           <label for="end_date" class="block text-sm font-medium">Sampai Tanggal</label>
-          <input type="date" name="end_date" id="end_date" required class="w-full border px-3 py-2 rounded"/>
+          <input type="date" name="end_date" id="end_date" required class="w-full border px-3 py-2 rounded" />
         </div>
         <div class="flex justify-end gap-2 mt-4">
           <button type="button" id="closeModal" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">Batal</button>
@@ -241,4 +243,5 @@ foreach ($filtered_pendapatan as $k => $v) {
     closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
   </script>
 </body>
+
 </html>

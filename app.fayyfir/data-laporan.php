@@ -73,21 +73,29 @@ $expense_row = $conn->query("SELECT COALESCE(SUM(amount),0) as total FROM produc
 $total_production_expenses = $expense_row['total'] ?? 0;  
 $gross_profit = $total_sales - $total_production_expenses;  
   
-// 6) Stok tersisa per produk (calculated)  
+// 6) Stok tersisa per produk (calculated per product)
 $prod_q = $conn->query("  
 SELECT 
-    p.id,
+    ps.id,
     ps.product_name,
-    p.total_output,
-    COALESCE(SUM(sp.qty),0) AS total_sold,
-    (p.total_output - COALESCE(SUM(sp.qty),0)) AS stok_tersisa,
+    COALESCE(p.total_output, 0) AS total_output,
+    COALESCE(sp.total_sold, 0) AS total_sold,
+    GREATEST(0, COALESCE(p.total_output, 0) - COALESCE(sp.total_sold, 0)) AS stok_tersisa,
     u.symbol
-FROM productions p
-JOIN product_stocks ps ON p.product_id = ps.id
-LEFT JOIN selling_products sp ON sp.product_id = ps.id
-LEFT JOIN units u ON p.unit_id = u.id
-WHERE p.status != 'Proses'
-GROUP BY p.id, ps.product_name, p.total_output, u.symbol;
+FROM product_stocks ps
+LEFT JOIN (
+    SELECT product_id, SUM(total_output) AS total_output 
+    FROM productions 
+    WHERE status != 'Proses' 
+    GROUP BY product_id
+) p ON p.product_id = ps.id
+LEFT JOIN (
+    SELECT product_id, SUM(qty) AS total_sold 
+    FROM selling_products 
+    GROUP BY product_id
+) sp ON sp.product_id = ps.id
+LEFT JOIN units u ON ps.unit_id = u.id
+ORDER BY ps.product_name ASC;
 ");  
   
 // 7) Grand total biaya produksi.  
@@ -172,40 +180,41 @@ $perPage = 25;
 $offset = ($page-1)*$perPage;  
   
 $sql_history = "  
-  SELECT s.id, s.selling_date, s.invoice_number, b.name as buyer_name, ps.product_name, u.symbol, s.price, s.dp, s.status,
-       SUM(s.qty) AS qty,
-       SUM(s.total_selling) AS total_selling
-FROM selling_products s
-LEFT JOIN buyer_products b ON s.buyer_id = b.id
-LEFT JOIN productions p ON p.product_id = s.product_id
-JOIN product_stocks ps ON ps.id = s.product_id
-LEFT JOIN units u ON p.unit_id = u.id
-WHERE $where_sql
-GROUP BY s.invoice_number, s.buyer_id, ps.product_name, u.symbol
-ORDER BY s.selling_date DESC
-LIMIT ? OFFSET ?
-";  
-$stmt = $conn->prepare($sql_history);  
-if ($params) {  
+  SELECT s.id, MAX(s.selling_date) AS selling_date, s.invoice_number, b.name as buyer_name, 
+         GROUP_CONCAT(DISTINCT ps.product_name SEPARATOR ', ') AS product_name, 
+         u.symbol, s.price, MAX(s.dp) AS dp, s.status,
+         SUM(s.qty) AS qty,
+         SUM(s.total_selling) AS total_selling
+  FROM selling_products s
+  LEFT JOIN buyer_products b ON s.buyer_id = b.id
+  JOIN product_stocks ps ON ps.id = s.product_id
+  LEFT JOIN units u ON ps.unit_id = u.id
+  WHERE $where_sql
+  GROUP BY s.invoice_number, s.buyer_id, b.name, s.status
+  ORDER BY selling_date DESC
+  LIMIT ? OFFSET ?
+";
+$stmt = $conn->prepare($sql_history);
+if ($params) {
   // bind dynamic params + two ints for limit/offset  
-  $bind_types = $types . "ii";  
-  $bind_vals = array_merge($params, [$perPage, $offset]);  
-  $stmt->bind_param($bind_types, ...$bind_vals);  
-} else {  
-  $stmt->bind_param("ii", $perPage, $offset);  
-}  
-$stmt->execute();  
-$res_history = $stmt->get_result();  
-$transactions = $res_history->fetch_all(MYSQLI_ASSOC);  
-$stmt->close();  
-  
+  $bind_types = $types . "ii";
+  $bind_vals = array_merge($params, [$perPage, $offset]);
+  $stmt->bind_param($bind_types, ...$bind_vals);
+} else {
+  $stmt->bind_param("ii", $perPage, $offset);
+}
+$stmt->execute();
+$res_history = $stmt->get_result();
+$transactions = $res_history->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 // total count for pagination  
-$sql_count = "SELECT COUNT(*) AS cnt FROM selling_products s WHERE $where_sql";  
-$stmt = $conn->prepare($sql_count);  
-if ($params) $stmt->bind_param($types, ...$params);  
-$stmt->execute();  
-$total_count = $stmt->get_result()->fetch_assoc()['cnt'] ?? 0;  
-$stmt->close();  
+$sql_count = "SELECT COUNT(DISTINCT s.invoice_number) AS cnt FROM selling_products s WHERE $where_sql";
+$stmt = $conn->prepare($sql_count);
+if ($params) $stmt->bind_param($types, ...$params);
+$stmt->execute();
+$total_count = $stmt->get_result()->fetch_assoc()['cnt'] ?? 0;
+$stmt->close();
 $total_pages = max(1, ceil($total_count / $perPage));  
   
 ?>  
@@ -472,6 +481,27 @@ $total_pages = max(1, ceil($total_count / $perPage));
     <footer class="text-center text-xs text-gray-500">Laporan dihasilkan: <?= date("d M Y H:i:s") ?> — Sistem Laporan</footer>  
   </main>  
   
+  <!-- Modal Export PDF Laba Rugi -->
+  <div id="modalPDF" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h2 class="text-lg font-semibold mb-4">Export Laporan PDF</h2>
+      <form action="laporan-laba-rugi-pdf-custom.php" method="get" target="_blank" class="space-y-4">
+        <div>
+          <label for="pdf_start_date" class="block text-sm font-medium text-gray-700">Dari Tanggal</label>
+          <input type="date" name="start_date" id="pdf_start_date" required class="w-full border rounded px-3 py-2 mt-1 text-sm"/>
+        </div>
+        <div>
+          <label for="pdf_end_date" class="block text-sm font-medium text-gray-700">Sampai Tanggal</label>
+          <input type="date" name="end_date" id="pdf_end_date" required class="w-full border rounded px-3 py-2 mt-1 text-sm"/>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="closeModalPDF" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">Batal</button>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">Export PDF</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <script>  
   // Chart Sales  
   const months = <?= json_encode($months) ?>;  
@@ -536,8 +566,35 @@ $total_pages = max(1, ceil($total_count / $perPage));
     URL.revokeObjectURL(url);  
   });  
   
-  // Print  
-  document.getElementById('btnPrint').addEventListener('click', () => window.print());  
+  // Modal PDF & Cetak Button
+  const btnPrint = document.getElementById('btnPrint');
+  const modalPDF = document.getElementById('modalPDF');
+  const closeModalPDF = document.getElementById('closeModalPDF');
+  const pdfStartDate = document.getElementById('pdf_start_date');
+  const pdfEndDate = document.getElementById('pdf_end_date');
+
+  if (btnPrint && modalPDF) {
+    btnPrint.addEventListener('click', (e) => {
+      e.preventDefault();
+      const filterFrom = document.querySelector('input[name="from"]');
+      const filterTo = document.querySelector('input[name="to"]');
+
+      if (filterFrom && filterFrom.value) {
+        pdfStartDate.value = filterFrom.value;
+      }
+      if (filterTo && filterTo.value) {
+        pdfEndDate.value = filterTo.value;
+      }
+
+      modalPDF.classList.remove('hidden');
+    });
+  }
+
+  if (closeModalPDF && modalPDF) {
+    closeModalPDF.addEventListener('click', () => {
+      modalPDF.classList.add('hidden');
+    });
+  }
   
   // Small client-side search (on transactions table)  
   const searchBox = document.createElement('input');  
