@@ -221,6 +221,10 @@ $result = $conn->query($query);
                 <span class="material-symbols-outlined text-sm">hand_package</span>  
                 <span class="text-base">Transaksi Produk</span>  
               </a>  
+              <a href="pengeluaran-bulanan-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                <span class="material-symbols-outlined text-sm">payments</span>
+                <span class="text-base">Pengeluaran Bulanan</span>
+              </a>
               <a href="data-laporan" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">  
                 <span class="material-symbols-outlined text-sm">bar_chart</span>  
                 <span class="text-base">Laporan</span>  

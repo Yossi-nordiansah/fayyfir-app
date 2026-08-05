@@ -18,13 +18,15 @@ if (!strtotime($start_date) || !strtotime($end_date)) {
 // Format datetime range for SQL queries
 $start_datetime = date("Y-m-d 00:00:00", strtotime($start_date));
 $end_datetime   = date("Y-m-d 23:59:59", strtotime($end_date));
+$start_date_db  = date("Y-m-d", strtotime($start_date));
+$end_date_db    = date("Y-m-d", strtotime($end_date));
 
 // 1) Pendapatan / Total Sales
 $total_pendapatan = 0;
 $q_sales = $conn->query("
     SELECT COALESCE(SUM(total_selling), 0) AS total_sales
     FROM selling_products
-    WHERE (DATE(selling_date) BETWEEN '$start_date' AND '$end_date')
+    WHERE (DATE(selling_date) BETWEEN '$start_date_db' AND '$end_date_db')
        OR (selling_date BETWEEN '$start_datetime' AND '$end_datetime')
 ");
 if ($q_sales && $row_sales = $q_sales->fetch_assoc()) {
@@ -36,7 +38,7 @@ if ($total_pendapatan == 0) {
   $q_containers = $conn->query("
         SELECT id, selling_price, lunas_at FROM containers
         WHERE status = 'lunas'
-          AND ((DATE(lunas_at) BETWEEN '$start_date' AND '$end_date') OR (lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
+          AND ((DATE(lunas_at) BETWEEN '$start_date_db' AND '$end_date_db') OR (lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
     ");
   if ($q_containers && $q_containers->num_rows > 0) {
     while ($container = $q_containers->fetch_assoc()) {
@@ -56,9 +58,9 @@ $total_bpp = 0;
 $q_bpp1 = $conn->query("
     SELECT COALESCE(SUM(total_pro_expenses + total_pro_materials), 0) AS total_bpp
     FROM productions
-    WHERE (DATE(production_date) BETWEEN '$start_date' AND '$end_date')
+    WHERE (DATE(production_date) BETWEEN '$start_date_db' AND '$end_date_db')
        OR (production_date BETWEEN '$start_datetime' AND '$end_datetime')
-       OR (DATE(created_at) BETWEEN '$start_date' AND '$end_date')
+       OR (DATE(created_at) BETWEEN '$start_date_db' AND '$end_date_db')
        OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')
 ");
 if ($q_bpp1 && $r1 = $q_bpp1->fetch_assoc()) {
@@ -67,8 +69,8 @@ if ($q_bpp1 && $r1 = $q_bpp1->fetch_assoc()) {
 
 // Opsi 2: Dari production_expenses + material_purchases jika Opsi 1 bernilai 0
 if ($total_bpp == 0) {
-  $q_pe = $conn->query("SELECT COALESCE(SUM(amount), 0) AS total FROM production_expenses WHERE (DATE(created_at) BETWEEN '$start_date' AND '$end_date') OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')");
-  $q_mp = $conn->query("SELECT COALESCE(SUM(total_price), 0) AS total FROM material_purchases WHERE (DATE(purchase_date) BETWEEN '$start_date' AND '$end_date') OR (DATE(created_at) BETWEEN '$start_date' AND '$end_date') OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')");
+  $q_pe = $conn->query("SELECT COALESCE(SUM(amount), 0) AS total FROM production_expenses WHERE (DATE(created_at) BETWEEN '$start_date_db' AND '$end_date_db') OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')");
+  $q_mp = $conn->query("SELECT COALESCE(SUM(total_price), 0) AS total FROM material_purchases WHERE (DATE(purchase_date) BETWEEN '$start_date_db' AND '$end_date_db') OR (DATE(created_at) BETWEEN '$start_date_db' AND '$end_date_db') OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')");
   $pe_val = ($q_pe && $r = $q_pe->fetch_assoc()) ? (float)$r['total'] : 0;
   $mp_val = ($q_mp && $r = $q_mp->fetch_assoc()) ? (float)$r['total'] : 0;
   $total_bpp = $pe_val + $mp_val;
@@ -81,14 +83,14 @@ if ($total_bpp == 0) {
       FROM transactions t
       JOIN containers c ON t.container_id = c.id
       WHERE c.status = 'lunas'
-        AND ((DATE(c.lunas_at) BETWEEN '$start_date' AND '$end_date') OR (c.lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
+        AND ((DATE(c.lunas_at) BETWEEN '$start_date_db' AND '$end_date_db') OR (c.lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
   ");
   $q_c_exp = $conn->query("
       SELECT COALESCE(SUM(e.amount), 0) AS total_exp
       FROM expenses e
       JOIN containers c ON e.container_id = c.id
       WHERE c.status = 'lunas'
-        AND ((DATE(c.lunas_at) BETWEEN '$start_date' AND '$end_date') OR (c.lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
+        AND ((DATE(c.lunas_at) BETWEEN '$start_date_db' AND '$end_date_db') OR (c.lunas_at BETWEEN '$start_datetime' AND '$end_datetime'))
   ");
   $trx_val = ($q_c_trx && $r = $q_c_trx->fetch_assoc()) ? (float)$r['total_trx'] : 0;
   $exp_val = ($q_c_exp && $r = $q_c_exp->fetch_assoc()) ? (float)$r['total_exp'] : 0;
@@ -111,8 +113,8 @@ $total_operasional = 0;
 $q_op = $conn->query("
     SELECT COALESCE(SUM(jumlah), 0) AS total_op
     FROM operational_costs
-    WHERE (DATE(tanggal) BETWEEN '$start_date' AND '$end_date')
-       OR (DATE(created_at) BETWEEN '$start_date' AND '$end_date')
+    WHERE (DATE(tanggal) BETWEEN '$start_date_db' AND '$end_date_db')
+       OR (DATE(created_at) BETWEEN '$start_date_db' AND '$end_date_db')
        OR (tanggal BETWEEN '$start_datetime' AND '$end_datetime')
        OR (created_at BETWEEN '$start_datetime' AND '$end_datetime')
 ");
@@ -120,8 +122,50 @@ if ($q_op && $row_op = $q_op->fetch_assoc()) {
   $total_operasional = (float)($row_op['total_op'] ?? 0);
 }
 
-// 5) Laba Bersih (Sebelum PPh)
-$laba_bersih = $laba_kotor - $total_operasional;
+// 5) Beban Operasional Bulanan Gaharu (dari tabel gaharu_monthly_expenses) - Proportional calculation
+$total_pengeluaran_bulanan_fix     = 0;
+$total_pengeluaran_bulanan_variatif = 0;
+
+$q_bulanan = $conn->query("
+  SELECT bulan, jenis, jumlah
+  FROM gaharu_monthly_expenses
+  WHERE bulan >= DATE_FORMAT('$start_date_db','%Y-%m')
+    AND bulan <= DATE_FORMAT('$end_date_db','%Y-%m')
+");
+
+if ($q_bulanan) {
+  while ($row = $q_bulanan->fetch_assoc()) {
+    $year_month = $row['bulan'];
+    $jenis = $row['jenis'];
+    $jumlah = (float)$row['jumlah'];
+
+    // Hitung proporsi hari dalam range tanggal
+    $month_start = date("Y-m-01", strtotime($year_month . "-01"));
+    $month_end = date("Y-m-t", strtotime($year_month . "-01"));
+    $days_in_month = (int)date("t", strtotime($year_month . "-01"));
+
+    $overlap_start = max($month_start, $start_date_db);
+    $overlap_end = min($month_end, $end_date_db);
+
+    $proportion = 0;
+    if ($overlap_start <= $overlap_end) {
+      $overlap_days = (strtotime($overlap_end) - strtotime($overlap_start)) / 86400 + 1;
+      $proportion = $overlap_days / $days_in_month;
+    }
+
+    $proportional_amount = $jumlah * $proportion;
+
+    if ($jenis === 'fix') {
+      $total_pengeluaran_bulanan_fix += $proportional_amount;
+    } else {
+      $total_pengeluaran_bulanan_variatif += $proportional_amount;
+    }
+  }
+}
+$total_pengeluaran_bulanan = $total_pengeluaran_bulanan_fix + $total_pengeluaran_bulanan_variatif;
+
+// 6) Laba Bersih (Sebelum PPh) — setelah pengeluaran operasional + pengeluaran bulanan
+$laba_bersih = $laba_kotor - $total_operasional - $total_pengeluaran_bulanan;
 
 // 6) PPh 0,25%
 $pph = $total_pendapatan * 0.0025;
@@ -135,6 +179,9 @@ $total_pendapatan_fmt = number_format($total_pendapatan, 0, ",", ".");
 $bpp_fmt = number_format($total_bpp, 0, ",", ".");
 $laba_kotor_fmt = number_format($laba_kotor, 0, ",", ".");
 $operasional_fmt = number_format($total_operasional, 0, ",", ".");
+$pengeluaran_bulanan_fix_fmt     = number_format($total_pengeluaran_bulanan_fix, 0, ",", ".");
+$pengeluaran_bulanan_var_fmt     = number_format($total_pengeluaran_bulanan_variatif, 0, ",", ".");
+$pengeluaran_bulanan_total_fmt   = number_format($total_pengeluaran_bulanan, 0, ",", ".");
 $laba_bersih_fmt = number_format($laba_bersih, 0, ",", ".");
 $laba_bersih_pph_fmt = number_format($laba_bersih_pph, 0, ",", ".");
 
@@ -174,7 +221,22 @@ $html = <<<EOD
     <td><strong>LABA KOTOR</strong></td>
     <td style="border-top: 1px solid #000;" align="right"><strong>Rp. $laba_kotor_fmt</strong></td>
   </tr>
-  <tr><td colspan="2"><br></td></tr>
+   <tr><td colspan="2"><br></td></tr>
+  <tr>
+    <td colspan="2"><strong>BEBAN OPERASIONAL BULANAN GAHARU</strong></td>
+  </tr>
+  <tr>
+    <td style="padding-left:16px;">Pengeluaran tetap (Gaji dan lainnya)</td>
+    <td align="right">Rp. $pengeluaran_bulanan_fix_fmt</td>
+  </tr>
+  <tr>
+    <td style="padding-left:16px;">Pengeluaran tidak tetap</td>
+    <td align="right">Rp. $pengeluaran_bulanan_var_fmt</td>
+  </tr>
+  <tr>
+    <td style="padding-left:16px;"><strong>Total Pengeluaran Bulanan</strong></td>
+    <td style="border-bottom: 1px solid #000;" align="right"><strong>Rp. $pengeluaran_bulanan_total_fmt</strong></td>
+  </tr>
   <tr><td colspan="2"><br></td></tr>
   <tr>
     <td colspan="2"><strong>LABA BERSIH</strong></td>

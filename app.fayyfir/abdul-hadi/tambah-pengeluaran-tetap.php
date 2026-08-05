@@ -8,7 +8,7 @@ if (!isset($_SESSION["user_id"])) {
   exit();
 }
 
-$area_result = $conn->query("SELECT DISTINCT region_name FROM users WHERE region_name IS NOT NULL");
+$area_result = $conn->query("SELECT region_name FROM areas ORDER BY region_name ASC");
 $filter_area = isset($_GET['filter_area']) ? $_GET['filter_area'] : '';
 
 // Cek apakah form disubmit

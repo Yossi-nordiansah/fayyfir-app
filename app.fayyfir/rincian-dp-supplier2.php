@@ -45,20 +45,20 @@ $total_credit  = 0;
 $grand_total   = 0;
 
 foreach ($manual_result as $i => $row) {
-    $debit  = (int)($row['debit']  ?? 0);
-    $credit = (int)($row['credit'] ?? 0);
+  $debit  = (int)($row['debit']  ?? 0);
+  $credit = (int)($row['credit'] ?? 0);
 
-    $total_debit  += $debit;
-    $total_credit += $credit;
+  $total_debit  += $debit;
+  $total_credit += $credit;
 
-    if ($i === 0) {
-        $runningSaldo = $debit - $credit;
-    } else {
-        $runningSaldo += $debit - $credit;
-    }
+  if ($i === 0) {
+    $runningSaldo = $debit - $credit;
+  } else {
+    $runningSaldo += $debit - $credit;
+  }
 
-    // tempel saldo per baris
-    $manual_result[$i]['saldo'] = $runningSaldo;
+  // tempel saldo per baris
+  $manual_result[$i]['saldo'] = $runningSaldo;
 }
 
 $grand_total = $total_debit - $total_credit;
@@ -78,27 +78,30 @@ $total_weight   = 0;
 $grand_price   = 0;
 
 foreach ($container_result as $i => $row) {
-    $weight  = (int)($row['weight_kg']  ?? 0);
-    $price = (int)($row['total_price'] ?? 0);
-    $total_weight  += $weight;
-    $grand_price += $price;
+  $weight  = (int)($row['weight_kg']  ?? 0);
+  $price = (int)($row['total_price'] ?? 0);
+  $total_weight  += $weight;
+  $grand_price += $price;
 }
 
 $sisa_dp = $grand_total - $grand_price;
 // helper rupiah
-function formatRupiah($angka) {
+function formatRupiah($angka)
+{
   return "Rp " . number_format($angka, 0, ",", ".");
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rincian DP Supplier</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 text-gray-800 min-h-screen">
   <header class="bg-gray-900 text-white py-4 px-6 fixed top-0 left-0 right-0 z-40">
     <div class="flex justify-between items-center">
@@ -116,16 +119,32 @@ function formatRupiah($angka) {
       <h2 class="text-md font-semibold mb-2">Ringkasan DP</h2>
       <table class="min-w-full divide-y divide-gray-200 text-sm">
         <tbody class="text-gray-800 divide-y divide-gray-200">
-          <tr><td class="pr-4 py-2 font-semibold">Nama</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["name"]) ?></td></tr>
-          <tr><td class="pr-4 py-2 font-semibold">Nomor HP</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["phone"]) ?></td></tr>
-          <tr><td class="pr-4 py-2 font-semibold">Alamat</td><td>:</td><td class="pl-2"><?= htmlspecialchars($supplier["address"]) ?>, <?= $supplier["village_name"] ?>, <?= $supplier["district_name"] ?>, <?= $supplier["regency_name"] ?>, <?= $supplier["province_name"] ?></td></tr>
-          <tr><td class="pr-4 py-2 font-semibold">Sisa DP</td><td>:</td><td class="pl-2 font-semibold text-green-700"><?= formatRupiah($sisa_dp) ?></td></tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Nama</td>
+            <td>:</td>
+            <td class="pl-2"><?= htmlspecialchars($supplier["name"]) ?></td>
+          </tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Nomor HP</td>
+            <td>:</td>
+            <td class="pl-2"><?= htmlspecialchars($supplier["phone"]) ?></td>
+          </tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Alamat</td>
+            <td>:</td>
+            <td class="pl-2"><?= htmlspecialchars($supplier["address"]) ?>, <?= $supplier["village_name"] ?>, <?= $supplier["district_name"] ?>, <?= $supplier["regency_name"] ?>, <?= $supplier["province_name"] ?></td>
+          </tr>
+          <tr>
+            <td class="pr-4 py-2 font-semibold">Sisa DP</td>
+            <td>:</td>
+            <td class="pl-2 font-semibold text-green-700"><?= formatRupiah($sisa_dp) ?></td>
+          </tr>
         </tbody>
       </table>
       <div class="mt-6 flex justify-end space-x-3">
         <a href="edit-supplier?id=<?= $id ?>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Edit Supplier</a>
         <form method="POST" action="hapus-supplier.php" onsubmit="return confirm('Yakin ingin menghapus supplier ini?')">
-          <input type="hidden" name="id" value="<?= $id ?>"/>
+          <input type="hidden" name="id" value="<?= $id ?>" />
           <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm">Hapus Supplier</button>
         </form>
       </div>
@@ -151,16 +170,16 @@ function formatRupiah($angka) {
       <div class="mb-4 flex justify-between items-center flex-wrap gap-2">
         <input id="searchInput" type="text" placeholder="Cari bahan baku..." class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded">
         <div class="text-sm">
-          Tampilkan 
+          Tampilkan
           <select id="rowsPerPage" class="border border-gray-300 rounded px-2 py-1">
             <option value="10" selected>10</option>
             <option value="25">25</option>
             <option value="50">50</option>
-          </select> 
+          </select>
           baris
         </div>
       </div>
-      
+
       <div class="overflow-auto bg-white shadow rounded-lg">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-100 text-gray-600">
@@ -175,26 +194,28 @@ function formatRupiah($angka) {
           </thead>
           <tbody id="materialTable" class="text-gray-800 divide-y divide-gray-200">
             <?php if ($manual_result): ?>
-            <?php foreach ($manual_result as $t): ?>
-              <tr class="data-row">
-                <td class="px-4 py-2 text-center whitespace-nowrap"><?= date("d/m/Y", strtotime($t['created_at'])) ?></td>
-                <td class="px-4 py-2 text-left whitespace-nowrap"><?= htmlspecialchars($t['description']) ?></td>
-                <td class="px-4 py-2 text-right whitespace-nowrap"><?= $t['debit'] ? number_format($t['debit'], 0, ",", ".") : "-" ?></td>
-                <td class="px-4 py-2 text-right whitespace-nowrap"><?= $t['credit'] ? number_format($t['credit'], 0, ",", ".") : "-" ?></td>
-                <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($t['saldo'] ?? 0, 0, ",", ".") ?></td>
-                <td class="px-4 py-2 text-center whitespace-nowrap">
-                  <a href="edit-dp.php?id=<?= $t['id'] ?>&supplier_id=<?= $id ?>" class="text-blue-500 hover:text-blue-700 mr-2 text-sm" title="Edit">
-                    <span class="material-symbols-outlined text-base">edit</span>
-                  </a>
-                  <a href="hapus-dp.php?id=<?= $t['id'] ?>&supplier_id=<?= $id ?>" onclick="return confirm('Yakin ingin menghapus data ini?')" class="text-red-500 hover:text-red-700 text-sm" title="Hapus">
-                    <span class="material-symbols-outlined text-base">delete</span>
-                  </a>
-                </td>
+              <?php foreach ($manual_result as $t): ?>
+                <tr class="data-row">
+                  <td class="px-4 py-2 text-center whitespace-nowrap"><?= date("d/m/Y", strtotime($t['created_at'])) ?></td>
+                  <td class="px-4 py-2 text-left whitespace-nowrap"><?= htmlspecialchars($t['description']) ?></td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap"><?= $t['debit'] ? number_format($t['debit'], 0, ",", ".") : "-" ?></td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap"><?= $t['credit'] ? number_format($t['credit'], 0, ",", ".") : "-" ?></td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($t['saldo'] ?? 0, 0, ",", ".") ?></td>
+                  <td class="px-4 py-2 text-center whitespace-nowrap">
+                    <a href="edit-dp.php?id=<?= $t['id'] ?>&supplier_id=<?= $id ?>" class="text-blue-500 hover:text-blue-700 mr-2 text-sm" title="Edit">
+                      <span class="material-symbols-outlined text-base">edit</span>
+                    </a>
+                    <a href="hapus-dp.php?id=<?= $t['id'] ?>&supplier_id=<?= $id ?>" onclick="return confirm('Yakin ingin menghapus data ini?')" class="text-red-500 hover:text-red-700 text-sm" title="Hapus">
+                      <span class="material-symbols-outlined text-base">delete</span>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi.</td>
               </tr>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <tr><td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi.</td></tr>
-          <?php endif; ?>
+            <?php endif; ?>
             <tr class="bg-gray-100 font-semibold">
               <td colspan="2" class="px-4 py-2 text-right">TOTAL</td>
               <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($total_debit, 0, ',', '.') ?></td>
@@ -205,30 +226,30 @@ function formatRupiah($angka) {
           </tbody>
         </table>
       </div>
-      
+
       <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
         <div id="totalRowsInfo"></div>
         <div id="paginationControls" class="flex gap-1"></div>
       </div>
-      
+
     </section>
-    
+
     <!-- Transaksi Kontainer -->
     <section>
       <h2 class="text-md mb-2 font-semibold">Transaksi Kontainer</h2>
       <div class="mb-4 flex justify-between items-center flex-wrap gap-2">
         <input id="logSearchInput" type="text" placeholder="Cari..." class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded">
         <div class="text-sm">
-          Tampilkan 
+          Tampilkan
           <select id="logRowsPerPage" class="border border-gray-300 rounded px-2 py-1">
             <option value="10" selected>10</option>
             <option value="25">25</option>
             <option value="50">50</option>
-          </select> 
+          </select>
           baris
         </div>
       </div>
-      
+
       <div class="overflow-auto bg-white shadow rounded-lg">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-100 text-gray-600">
@@ -242,21 +263,23 @@ function formatRupiah($angka) {
           </thead>
           <tbody id="logMaterialTable" class="text-gray-800 divide-y divide-gray-200">
             <?php if ($container_result): ?>
-            <?php foreach ($container_result as $lm): ?>
-              <tr class="log-row">
-                <td class="px-4 py-2 text-center whitespace-nowrap"><?= date("d/m/Y", strtotime($lm['created_at'])) ?></td>
-                <td class="px-4 py-2 text-left whitespace-nowrap">Pengisian (<?= htmlspecialchars($lm['container_number']) ?>)</td>
-                <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($lm['weight_kg'], 0, ",", ".") ?></td>
-                <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($lm['total_price'], 0, ",", ".") ?></td>
-                <td class="px-4 py-2 text-center">
-                  <a href="rincian-kontainer.php?id=<?= $lm['container_id'] ?>" class="text-blue-500 hover:text-blue-700 text-sm" title="Lihat Detail Kontainer"><span class="material-symbols-outlined text-base">visibility</span>
-                  </a>
-                </td>
+              <?php foreach ($container_result as $lm): ?>
+                <tr class="log-row">
+                  <td class="px-4 py-2 text-center whitespace-nowrap"><?= date("d/m/Y", strtotime($lm['created_at'])) ?></td>
+                  <td class="px-4 py-2 text-left whitespace-nowrap">Pengisian (<?= htmlspecialchars($lm['container_number']) ?>)</td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($lm['weight_kg'], 0, ",", ".") ?></td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($lm['total_price'], 0, ",", ".") ?></td>
+                  <td class="px-4 py-2 text-center">
+                    <a href="rincian-kontainer.php?id=<?= $lm['container_id'] ?>" class="text-blue-500 hover:text-blue-700 text-sm" title="Lihat Detail Kontainer"><span class="material-symbols-outlined text-base">visibility</span>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi.</td>
               </tr>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <tr><td colspan="7" class="px-4 py-2 text-center text-gray-500">Belum ada transaksi.</td></tr>
-          <?php endif; ?>
+            <?php endif; ?>
             <tr class="bg-gray-100 font-semibold">
               <td colspan="2" class="px-4 py-2 text-right">TOTAL</td>
               <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($total_weight, 0, ',', '.') ?></td>
@@ -266,100 +289,101 @@ function formatRupiah($angka) {
           </tbody>
         </table>
       </div>
-      
+
       <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
         <div id="logTotalRowsInfo"></div>
         <div id="logPaginationControls" class="flex gap-1"></div>
       </div>
-      
+
     </section>
   </main>
 
-<script>
-  // Fungsi reusable
-  function setupPagination({ 
-    rows, 
-    rowsPerPage, 
-    searchInput, 
-    pagination, 
-    totalInfo 
-  }) {
-    let currentPage = 1;
+  <script>
+    // Fungsi reusable
+    function setupPagination({
+      rows,
+      rowsPerPage,
+      searchInput,
+      pagination,
+      totalInfo
+    }) {
+      let currentPage = 1;
 
-    function filterRows() {
-      const query = searchInput.value.toLowerCase();
-      for (let row of rows) {
-        const text = row.innerText.toLowerCase();
-        if (text.includes(query)) {
-          row.classList.add("match");
-        } else {
-          row.classList.remove("match");
-          row.style.display = "none";
+      function filterRows() {
+        const query = searchInput.value.toLowerCase();
+        for (let row of rows) {
+          const text = row.innerText.toLowerCase();
+          if (text.includes(query)) {
+            row.classList.add("match");
+          } else {
+            row.classList.remove("match");
+            row.style.display = "none";
+          }
         }
+        currentPage = 1;
+        paginate();
       }
-      currentPage = 1;
+
+      function paginate() {
+        const maxRows = parseInt(rowsPerPage.value);
+        const visibleRows = [...rows].filter(r => r.classList.contains("match"));
+        const totalPages = Math.ceil(visibleRows.length / maxRows);
+        currentPage = Math.min(currentPage, totalPages || 1);
+
+        let showingCount = 0;
+        visibleRows.forEach((row, index) => {
+          if (index >= (currentPage - 1) * maxRows && index < currentPage * maxRows) {
+            row.style.display = "";
+            showingCount++;
+          } else {
+            row.style.display = "none";
+          }
+        });
+
+        pagination.innerHTML = "";
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.className =
+            "px-2 py-1 border rounded " +
+            (i === currentPage ?
+              "bg-yellow-500 text-white" :
+              "hover:bg-yellow-100");
+          btn.textContent = i;
+          btn.onclick = () => {
+            currentPage = i;
+            paginate();
+          };
+          pagination.appendChild(btn);
+        }
+
+        totalInfo.textContent = `Menampilkan ${showingCount} data dari total ${visibleRows.length}`;
+      }
+
+      // init
+      for (let row of rows) row.classList.add("match");
+      rowsPerPage.addEventListener("change", paginate);
+      searchInput.addEventListener("keyup", filterRows);
       paginate();
     }
 
-    function paginate() {
-      const maxRows = parseInt(rowsPerPage.value);
-      const visibleRows = [...rows].filter(r => r.classList.contains("match"));
-      const totalPages = Math.ceil(visibleRows.length / maxRows);
-      currentPage = Math.min(currentPage, totalPages || 1);
-    
-      let showingCount = 0;
-      visibleRows.forEach((row, index) => {
-        if (index >= (currentPage - 1) * maxRows && index < currentPage * maxRows) {
-          row.style.display = "";
-          showingCount++;
-        } else {
-          row.style.display = "none";
-        }
-      });
-    
-      pagination.innerHTML = "";
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.className =
-          "px-2 py-1 border rounded " +
-          (i === currentPage
-            ? "bg-yellow-500 text-white"
-            : "hover:bg-yellow-100");
-        btn.textContent = i;
-        btn.onclick = () => {
-          currentPage = i;
-          paginate();
-        };
-        pagination.appendChild(btn);
-      }
-    
-      totalInfo.textContent = `Menampilkan ${showingCount} data dari total ${visibleRows.length}`;
-    }
+    // Setup untuk tabel 1
+    setupPagination({
+      rows: document.querySelectorAll("#materialTable .data-row"),
+      rowsPerPage: document.getElementById("rowsPerPage"),
+      searchInput: document.getElementById("searchInput"),
+      pagination: document.getElementById("paginationControls"),
+      totalInfo: document.getElementById("totalRowsInfo")
+    });
 
-    // init
-    for (let row of rows) row.classList.add("match");
-    rowsPerPage.addEventListener("change", paginate);
-    searchInput.addEventListener("keyup", filterRows);
-    paginate();
-  }
-
-  // Setup untuk tabel 1
-  setupPagination({
-    rows: document.querySelectorAll("#materialTable .data-row"),
-    rowsPerPage: document.getElementById("rowsPerPage"),
-    searchInput: document.getElementById("searchInput"),
-    pagination: document.getElementById("paginationControls"),
-    totalInfo: document.getElementById("totalRowsInfo")
-  });
-
-  // Setup untuk tabel 2
-  setupPagination({
-    rows: document.querySelectorAll("#logMaterialTable .log-row"),
-    rowsPerPage: document.getElementById("logRowsPerPage"),
-    searchInput: document.getElementById("logSearchInput"),
-    pagination: document.getElementById("logPaginationControls"),
-    totalInfo: document.getElementById("logTotalRowsInfo")
-  });
-</script>
+    // Setup untuk tabel 2
+    setupPagination({
+      rows: document.querySelectorAll("#logMaterialTable .log-row"),
+      rowsPerPage: document.getElementById("logRowsPerPage"),
+      searchInput: document.getElementById("logSearchInput"),
+      pagination: document.getElementById("logPaginationControls"),
+      totalInfo: document.getElementById("logTotalRowsInfo")
+    });
+  </script>
 </body>
+
 </html>

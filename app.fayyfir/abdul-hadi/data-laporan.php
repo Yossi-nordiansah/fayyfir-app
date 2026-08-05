@@ -18,8 +18,8 @@ function fmtNum($n, $dec = 2)
 }
 
 // --- Filters (GET) ---  
-$from = $_GET['from'] ?? null; // yyyy-mm-dd  
-$to   = $_GET['to']   ?? null; // yyyy-mm-dd  
+$from = isset($_GET['from']) && $_GET['from'] !== '' ? date('Y-m-d', strtotime($_GET['from'])) : null; // yyyy-mm-dd  
+$to   = isset($_GET['to']) && $_GET['to'] !== '' ? date('Y-m-d', strtotime($_GET['to'])) : null; // yyyy-mm-dd  
 $buyer_id = isset($_GET['buyer']) && $_GET['buyer'] !== '' ? (int)$_GET['buyer'] : null;
 $product_id = isset($_GET['product']) && $_GET['product'] !== '' ? (int)$_GET['product'] : null;
 $status_filter = isset($_GET['status']) && $_GET['status'] !== '' ? $_GET['status'] : null;
@@ -111,6 +111,45 @@ $total_bahan = $total['total_materials'] ?? 0;
 $grand_total_produksi = $total_pengeluaran + $total_bahan;
 
 $grand_profit = $total_sales - $grand_total_produksi;
+
+// 8) Total pengeluaran bulanan gaharu (dalam rentang tanggal filter atau semua jika tidak ada filter) - Proportional calculation
+$total_pengeluaran_bulanan = 0;
+if ($from && $to) {
+  $bulan_from = date('Y-m', strtotime($from));
+  $bulan_to   = date('Y-m', strtotime($to));
+  $q_bulanan  = $conn->prepare(
+    "SELECT bulan, jumlah FROM gaharu_monthly_expenses WHERE bulan >= ? AND bulan <= ?"
+  );
+  $q_bulanan->bind_param('ss', $bulan_from, $bulan_to);
+  $q_bulanan->execute();
+  $res_bulanan = $q_bulanan->get_result();
+  while ($row = $res_bulanan->fetch_assoc()) {
+    $year_month = $row['bulan'];
+    $jumlah = (float)$row['jumlah'];
+
+    // Hitung proporsi hari dalam range tanggal
+    $month_start = date("Y-m-01", strtotime($year_month . "-01"));
+    $month_end = date("Y-m-t", strtotime($year_month . "-01"));
+    $days_in_month = (int)date("t", strtotime($year_month . "-01"));
+
+    $overlap_start = max($month_start, $from);
+    $overlap_end = min($month_end, $to);
+
+    $proportion = 0;
+    if ($overlap_start <= $overlap_end) {
+      $overlap_days = (strtotime($overlap_end) - strtotime($overlap_start)) / 86400 + 1;
+      $proportion = $overlap_days / $days_in_month;
+    }
+    $total_pengeluaran_bulanan += ($jumlah * $proportion);
+  }
+  $q_bulanan->close();
+} else {
+  $q_bulanan = $conn->query("SELECT COALESCE(SUM(jumlah),0) AS total FROM gaharu_monthly_expenses");
+  $total_pengeluaran_bulanan = (float)($q_bulanan->fetch_assoc()['total'] ?? 0);
+}
+
+// Profit bersih setelah dikurangi pengeluaran bulanan
+$grand_profit_bersih = $grand_profit - $total_pengeluaran_bulanan;
 
 // gather products for filter dropdown  
 $products_for_filter = $conn->query("SELECT p.id, ps.product_name
@@ -331,7 +370,7 @@ $total_pages = max(1, ceil($total_count / $perPage));
     </section>
 
     <!-- KPI -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       <div class="bg-white p-4 rounded-lg shadow">
         <div class="text-sm text-gray-500">Total Pembelian Bahan</div>
         <div class="mt-2 text-xl font-bold text-green-600">Rp <?= fmtIDR($total_purchases) ?></div>
@@ -344,9 +383,15 @@ $total_pages = max(1, ceil($total_count / $perPage));
         <div class="text-sm text-gray-500">Total Penjualan</div>
         <div class="mt-2 text-xl font-bold text-purple-600">Rp <?= fmtIDR($total_sales) ?></div>
       </div>
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="text-sm text-gray-500">Total Profit</div>
-        <div class="mt-2 text-xl font-bold text-red-600">Rp <?= fmtIDR($grand_profit) ?></div>
+      <div class="bg-white p-4 rounded-lg shadow border-l-4 border-orange-400">
+        <div class="text-sm text-gray-500">Pengeluaran Bulanan</div>
+        <div class="mt-2 text-xl font-bold text-orange-600">Rp <?= fmtIDR($total_pengeluaran_bulanan) ?></div>
+        <a href="pengeluaran-bulanan-gaharu" class="text-xs text-orange-400 hover:underline">Kelola &rsaquo;</a>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+        <div class="text-sm text-gray-500">Profit Bersih</div>
+        <div class="mt-2 text-xl font-bold <?= $grand_profit_bersih >= 0 ? 'text-red-600' : 'text-red-800' ?>">Rp <?= fmtIDR($grand_profit_bersih) ?></div>
+        <div class="text-xs text-gray-400">(setelah pengeluaran bulanan)</div>
       </div>
     </section>
 

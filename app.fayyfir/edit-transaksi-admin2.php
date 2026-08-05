@@ -32,7 +32,7 @@ $container_id = $transaksi["container_id"];
 ========================= */
 $region  = $_SESSION["region"] ?? null;
 
-if ($region) {
+if ($region && $region !== 'Gaharu') {
   $stmtSupplier = $conn->prepare("
     SELECT id, name 
     FROM suppliers 

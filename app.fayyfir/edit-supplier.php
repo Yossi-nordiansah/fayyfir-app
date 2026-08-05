@@ -17,9 +17,9 @@ $success = "";
 $error = "";
 
 /* =========================
-   DATA AREA (DARI USERS)
+   DATA AREA (DARI AREAS)
 ========================= */
-$user_result = $conn->query("SELECT DISTINCT region_name FROM users WHERE region_name IS NOT NULL");
+$area_result = $conn->query("SELECT region_name FROM areas ORDER BY region_name ASC");
 
 // Ambil data supplier
 $stmt = $conn->prepare("SELECT * FROM suppliers WHERE id = ?");
@@ -141,7 +141,7 @@ $provinces = $conn->query("SELECT id, name FROM reg_provinces ORDER BY name");
 <select name="area" class="mt-1 w-full border px-3 py-2 rounded">
 <option value="">-- Pilih Area --</option>
 
-<?php while($r = $user_result->fetch_assoc()): ?>
+<?php while($r = $area_result->fetch_assoc()): ?>
 <option value="<?= htmlspecialchars($r['region_name']) ?>"
 <?= $supplier["region_name"] == $r['region_name'] ? "selected" : "" ?>>
 <?= htmlspecialchars($r['region_name']) ?>

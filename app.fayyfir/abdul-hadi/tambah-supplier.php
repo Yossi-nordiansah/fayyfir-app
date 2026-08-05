@@ -22,7 +22,7 @@ if ($container_id > 0) {
   $c_stmt->close();
 }
 
-$user_result = $conn->query("SELECT DISTINCT region_name FROM users WHERE region_name IS NOT NULL");
+$area_result = $conn->query("SELECT region_name FROM areas ORDER BY region_name ASC");
 
 $success = "";
 $error = "";
@@ -59,7 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($stmt->execute()) {
       if ($container_id > 0) {
-        header("Location: daftar-supplier-area.php?container_id=" . $container_id);
+        // Kembali ke tambah-transaksi agar supplier baru langsung muncul di dropdown
+        header("Location: tambah-transaksi.php?container_id=" . $container_id);
       } else {
         header("Location: daftar-supplier");
       }
@@ -124,8 +125,8 @@ $provinces = $conn->query("SELECT id, name FROM reg_provinces ORDER BY name");
       <select name="area" class="mt-1 w-full border px-3 py-2 rounded">
         <option value="">-- Pilih Area --</option>
         <?php 
-        $user_result->data_seek(0);
-        while ($r = $user_result->fetch_assoc()): 
+        $area_result->data_seek(0);
+        while ($r = $area_result->fetch_assoc()): 
           $selected = ($r['region_name'] === $default_area) ? "selected" : "";
         ?>
           <option value="<?= htmlspecialchars($r['region_name']) ?>" <?= $selected ?>>
