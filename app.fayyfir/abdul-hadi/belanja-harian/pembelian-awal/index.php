@@ -312,9 +312,9 @@ include "../partials/navbar.php";
               // hitung remaining untuk next stage
               $remaining_for_next = $next_stage ? calc_remaining_for_next_stage($conn, $id, $next_stage) : 0;
             ?>
-              <tr class="data-row hover:bg-gray-50 whitespace-nowrap transition" 
-                  data-berat="<?= $berat_awal ?>" 
-                  data-total="<?= $total ?>">
+              <tr class="data-row hover:bg-gray-50 whitespace-nowrap transition"
+                data-berat="<?= $berat_awal ?>"
+                data-total="<?= $total ?>">
                 <td class="px-6 py-3 font-medium text-gray-800"><?= $no++ ?></td>
                 <td class="px-6 py-3"><?= htmlspecialchars(format_tanggal($row['tanggal_pembelian'])) ?></td>
                 <td class="px-6 py-3"><?= htmlspecialchars($row["kode_batch"] ?? "-") ?></td>
@@ -326,9 +326,9 @@ include "../partials/navbar.php";
                 <td class="px-6 py-3 text-center font-semibold text-emerald-700"><?= number_format($total, 0, ',', '.') ?></td>
                 <td class="px-6 py-3 text-center font-medium">
                   <!-- Payment Status Only -->
-                  <?php 
-                    $pStatus = $row['status_pembayaran'] ?? 'belum_dibayar';
-                    if ($pStatus === 'lunas'): ?>
+                  <?php
+                  $pStatus = $row['status_pembayaran'] ?? 'belum_dibayar';
+                  if ($pStatus === 'lunas'): ?>
                     <span class="inline-block px-3 py-1 rounded-full text-[10px] uppercase font-bold bg-emerald-600 text-white">Lunas</span>
                   <?php elseif ($pStatus === 'dp'): ?>
                     <span class="inline-block px-3 py-1 rounded-full text-[10px] uppercase font-bold bg-orange-500 text-white">DP</span>
@@ -480,8 +480,8 @@ include "../partials/navbar.php";
         let grandTotal = 0;
 
         visibleRows.forEach(row => {
-            totalBerat += parseFloat(row.getAttribute('data-berat')) || 0;
-            grandTotal += parseFloat(row.getAttribute('data-total')) || 0;
+          totalBerat += parseFloat(row.getAttribute('data-berat')) || 0;
+          grandTotal += parseFloat(row.getAttribute('data-total')) || 0;
         });
 
         document.getElementById('footerBeratTotal').textContent = new Intl.NumberFormat('id-ID').format(totalBerat);

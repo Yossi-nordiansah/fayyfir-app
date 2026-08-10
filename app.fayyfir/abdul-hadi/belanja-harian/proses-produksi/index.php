@@ -6,39 +6,43 @@ require "../includes/helpers.php";
 
 // Pastikan user login
 if (!isset($_SESSION["user_id"])) {
-  header("Location: ../../login");
-  exit();
+    header("Location: ../../login");
+    exit();
 }
 
 /** Helpers copied from pembelian-awal to maintain consistency **/
-function get_proses_by_urutan($conn, $id_bahan, $urutan) {
-  $sql = "SELECT id, nama_proses FROM bb_proses_master WHERE id_bahan = ? AND urutan_tahap = ? LIMIT 1";
-  $stmt = $conn->prepare($sql);
-  $stmt->bind_param("ii", $id_bahan, $urutan);
-  $stmt->execute();
-  $res = $stmt->get_result()->fetch_assoc();
-  return $res;
+function get_proses_by_urutan($conn, $id_bahan, $urutan)
+{
+    $sql = "SELECT id, nama_proses FROM bb_proses_master WHERE id_bahan = ? AND urutan_tahap = ? LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $id_bahan, $urutan);
+    $stmt->execute();
+    $res = $stmt->get_result()->fetch_assoc();
+    return $res;
 }
 
-function get_min_urutan($conn, $id_bahan) {
-  $sql = "SELECT MIN(urutan_tahap) as min_u FROM bb_proses_master WHERE id_bahan = ?";
-  $stmt = $conn->prepare($sql);
-  $stmt->bind_param("i", $id_bahan);
-  $stmt->execute();
-  $row = $stmt->get_result()->fetch_assoc();
-  return $row['min_u'] !== null ? (int)$row['min_u'] : null;
+function get_min_urutan($conn, $id_bahan)
+{
+    $sql = "SELECT MIN(urutan_tahap) as min_u FROM bb_proses_master WHERE id_bahan = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id_bahan);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    return $row['min_u'] !== null ? (int)$row['min_u'] : null;
 }
 
-function get_next_urutan($conn, $id_bahan, $urutan) {
-  $sql = "SELECT urutan_tahap FROM bb_proses_master WHERE id_bahan = ? AND urutan_tahap > ? ORDER BY urutan_tahap ASC LIMIT 1";
-  $stmt = $conn->prepare($sql);
-  $stmt->bind_param("ii", $id_bahan, $urutan);
-  $stmt->execute();
-  $row = $stmt->get_result()->fetch_assoc();
-  return $row ? (int)$row['urutan_tahap'] : null;
+function get_next_urutan($conn, $id_bahan, $urutan)
+{
+    $sql = "SELECT urutan_tahap FROM bb_proses_master WHERE id_bahan = ? AND urutan_tahap > ? ORDER BY urutan_tahap ASC LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $id_bahan, $urutan);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    return $row ? (int)$row['urutan_tahap'] : null;
 }
 
-function get_prev_urutan($conn, $id_bahan, $urutan) {
+function get_prev_urutan($conn, $id_bahan, $urutan)
+{
     $sql = "SELECT urutan_tahap FROM bb_proses_master WHERE id_bahan = ? AND urutan_tahap < ? ORDER BY urutan_tahap DESC LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $id_bahan, $urutan);
@@ -47,7 +51,8 @@ function get_prev_urutan($conn, $id_bahan, $urutan) {
     return $row ? (int)$row['urutan_tahap'] : null;
 }
 
-function calc_remaining_for_next_stage($conn, $idPembelian, $nextStage) {
+function calc_remaining_for_next_stage($conn, $idPembelian, $nextStage)
+{
     $idPembelian = (int)$idPembelian;
     $nextStage = (int)$nextStage;
     if ($nextStage <= 0) return 0;
@@ -129,7 +134,8 @@ $resultProduksi = $conn->query($queryProduksi);
 
 <?php
 /** Helper to get current stage name inside the loop since subqueries in SELECT with GROUP BY can be tricky **/
-function get_stage_name($conn, $id_bahan, $urutan) {
+function get_stage_name($conn, $id_bahan, $urutan)
+{
     $stmt = $conn->prepare("SELECT nama_proses FROM bb_proses_master WHERE id_bahan = ? AND urutan_tahap = ? LIMIT 1");
     $stmt->bind_param("ii", $id_bahan, $urutan);
     $stmt->execute();
@@ -153,7 +159,7 @@ include "../partials/navbar.php";
             <p class="text-sm text-gray-500">Kelola alur produksi dari bahan mentah hingga siap jual.</p>
         </div>
         <div class="flex gap-2 mt-4 sm:mt-0">
-             <a href="../data-tahap/index.php"
+            <a href="../data-tahap/index.php"
                 class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm shadow-sm transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -175,7 +181,8 @@ include "../partials/navbar.php";
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
-            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+            <?= $_SESSION['success'];
+            unset($_SESSION['success']); ?>
         </div>
     <?php endif; ?>
 
@@ -184,7 +191,7 @@ include "../partials/navbar.php";
         <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center flex-wrap gap-4">
             <h3 class="font-semibold text-gray-800">Daftar Produksi Berjalan</h3>
             <div class="flex items-center gap-4 flex-1 max-w-2xl justify-end">
-                <input id="searchInput" type="text" placeholder="Cari produksi atau bahan..." 
+                <input id="searchInput" type="text" placeholder="Cari produksi atau bahan..."
                     class="w-full md:w-64 px-3 py-1.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition">
                 <div class="text-xs text-gray-500 whitespace-nowrap">
                     Tampilkan
@@ -208,18 +215,18 @@ include "../partials/navbar.php";
                     </tr>
                 </thead>
                 <tbody id="productionTable" class="divide-y divide-gray-100">
-                    <?php 
+                    <?php
                     $total_tersisa_grand = 0;
                     if ($resultProduksi && $resultProduksi->num_rows > 0): ?>
-                        <?php while ($row = $resultProduksi->fetch_assoc()): 
+                        <?php while ($row = $resultProduksi->fetch_assoc()):
                             $kode_produksi = $row['kode_produksi'];
                             $id_pembelian = $row['sample_id_pembelian'];
                             $id_bahan = $row['id_bahan'];
                             $current_tahap_nama = ($row['current_tahap_urutan'] == 0) ? 'Persiapan' : get_stage_name($conn, $id_bahan, $row['current_tahap_urutan']);
-                            
+
                             $next_urutan = get_next_urutan($conn, $id_bahan, $row['current_tahap_urutan']);
                             $next_process = $next_urutan ? get_proses_by_urutan($conn, $id_bahan, $next_urutan) : null;
-                            
+
                             // Remaining is total_berat_akhir_tahap_ini
                             $remaining = (float)$row['total_berat_akhir_tahap_ini'];
                             $total_tersisa_grand += $remaining;
@@ -246,7 +253,7 @@ include "../partials/navbar.php";
                                                 Proses: <?= htmlspecialchars($next_process['nama_proses']) ?>
                                             </button>
                                         <?php endif; ?>
-                                        <a href="/app.fayyfir/abdul-hadi/belanja-harian/proses-produksi/detail-penyusutan.php?id=<?= $id_pembelian ?><?= $kode_produksi ? '&kode_produksi='.$kode_produksi : '' ?>"
+                                        <a href="/app.fayyfir/abdul-hadi/belanja-harian/proses-produksi/detail-penyusutan.php?id=<?= $id_pembelian ?><?= $kode_produksi ? '&kode_produksi=' . $kode_produksi : '' ?>"
                                             class="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs hover:bg-purple-700 transition" title="Detail Penyusutan & HPP">
                                             Detail
                                         </a>
@@ -298,8 +305,8 @@ include "../partials/navbar.php";
                     <select name="id_bahan" id="selectBahan" onchange="handleBahanChange(this.value)" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
                         <option value="">-- Pilih Bahan --</option>
                         <?php
-                        $resBahan = $conn->query("SELECT id, nama_bahan FROM bb_bahan_master WHERE deleted_at IS NULL");
-                        while($b = $resBahan->fetch_assoc()) echo "<option value='{$b['id']}'>{$b['nama_bahan']}</option>";
+                        $resBahan = $conn->query("SELECT id, nama_bahan FROM bb_bahan_master ORDER BY nama_bahan ASC");
+                        while ($b = $resBahan->fetch_assoc()) echo "<option value='{$b['id']}'>{$b['nama_bahan']}</option>";
                         ?>
                     </select>
                 </div>
@@ -333,7 +340,7 @@ include "../partials/navbar.php";
 
             <div id="rawStockList" class="mb-6 hidden">
                 <h4 class="text-sm font-semibold text-gray-800 mb-3">Pilih Sumber Bahan (Supplier)</h4>
-                
+
                 <!-- View: Stok Gabungan (Penampungan) -->
                 <div id="viewAllSuppliers" class="hidden">
                     <div id="penampunganRowContainer" class="space-y-3 max-h-64 overflow-y-auto pr-2">
@@ -403,7 +410,7 @@ include "../partials/navbar.php";
                 <input type="text" name="berat_keluar" required placeholder="Masukan hasil proses..." class="format-number w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
-             <div class="mb-6">
+            <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                 <textarea name="catatan" class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" rows="2"></textarea>
             </div>
@@ -418,133 +425,134 @@ include "../partials/navbar.php";
 
 <script src="../assets/js/table-pagination.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    initTablePagination({
-        tableId: "productionTable",
-        rowsPerPageId: "rowsPerPage",
-        searchInputId: "searchInput",
-        paginationId: "paginationControls",
-        infoId: "totalRowsInfo",
-        onUpdate: function(visibleRows) {
-            let total = 0;
-            visibleRows.forEach(row => {
-                total += parseFloat(row.getAttribute('data-remaining')) || 0;
-            });
-            const footer = document.getElementById('footerTotalRemaining');
-            if (footer) {
-                footer.textContent = new Intl.NumberFormat('id-ID', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).format(total);
+    document.addEventListener("DOMContentLoaded", function() {
+        initTablePagination({
+            tableId: "productionTable",
+            rowsPerPageId: "rowsPerPage",
+            searchInputId: "searchInput",
+            paginationId: "paginationControls",
+            infoId: "totalRowsInfo",
+            onUpdate: function(visibleRows) {
+                let total = 0;
+                visibleRows.forEach(row => {
+                    total += parseFloat(row.getAttribute('data-remaining')) || 0;
+                });
+                const footer = document.getElementById('footerTotalRemaining');
+                if (footer) {
+                    footer.textContent = new Intl.NumberFormat('id-ID', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(total);
+                }
+            }
+        });
+    });
+
+    // Helper thousand separator
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function unformatNumber(str) {
+        return str.toString().replace(/\./g, "");
+    }
+
+    // Global listener for thousand separators and validation
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('format-number')) {
+            let rawVal = unformatNumber(e.target.value);
+
+            // Validation check if data-max is present
+            if (e.target.dataset.max) {
+                let maxVal = parseFloat(e.target.dataset.max);
+                if (parseFloat(rawVal) > maxVal) {
+                    alert("⚠️ Peringatan: Input (" + formatNumber(rawVal) + ") melebihi stok tersedia (" + formatNumber(Math.floor(maxVal)) + ")!");
+                    rawVal = Math.floor(maxVal).toString();
+                }
+            }
+
+            if (!isNaN(rawVal) && rawVal !== "") {
+                e.target.value = formatNumber(rawVal);
             }
         }
     });
-});
 
-// Helper thousand separator
-function formatNumber(num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
+    function openMulaiProduksi() {
+        document.getElementById('modalMulaiProduksi').classList.remove('hidden');
+    }
 
-function unformatNumber(str) {
-    return str.toString().replace(/\./g, "");
-}
+    function closeMulaiProduksi() {
+        document.getElementById('modalMulaiProduksi').classList.add('hidden');
+    }
 
-// Global listener for thousand separators and validation
-document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('format-number')) {
-        let rawVal = unformatNumber(e.target.value);
-        
-        // Validation check if data-max is present
-        if (e.target.dataset.max) {
-            let maxVal = parseFloat(e.target.dataset.max);
-            if (parseFloat(rawVal) > maxVal) {
-                alert("⚠️ Peringatan: Input (" + formatNumber(rawVal) + ") melebihi stok tersedia (" + formatNumber(Math.floor(maxVal)) + ")!");
-                rawVal = Math.floor(maxVal).toString();
+    let currentStockData = null;
+
+    function handleBahanChange(idBahan) {
+        const methodDiv = document.getElementById('methodSelection');
+        const listDiv = document.getElementById('rawStockList');
+
+        if (!idBahan) {
+            methodDiv.classList.add('hidden');
+            listDiv.classList.add('hidden');
+            return;
+        }
+
+        fetch('api-get-raw-stock.php?id_bahan=' + idBahan)
+            .then(response => response.json())
+            .then(data => {
+                currentStockData = data;
+
+                // Update unit labels
+                document.querySelectorAll('.unit-label').forEach(el => el.textContent = data.satuan);
+
+                // Show method selection
+                methodDiv.classList.remove('hidden');
+                listDiv.classList.remove('hidden');
+
+                // Reset to "Gabungan" by default
+                document.querySelector('input[name="stok_method"][value="all"]').checked = true;
+                toggleSupplierFilter(false);
+            });
+    }
+
+    function toggleSupplierFilter(show) {
+        const viewAll = document.getElementById('viewAllSuppliers');
+        const viewSpecific = document.getElementById('viewSpecificSuppliers');
+        const container = document.getElementById('supplierRowContainer');
+
+        if (show) {
+            viewAll.classList.add('hidden');
+            viewSpecific.classList.remove('hidden');
+            if (container.children.length === 0) {
+                addSupplierRow();
             }
-        }
-
-        if (!isNaN(rawVal) && rawVal !== "") {
-            e.target.value = formatNumber(rawVal);
+        } else {
+            viewAll.classList.remove('hidden');
+            viewSpecific.classList.add('hidden');
+            container.innerHTML = '';
+            renderPenampunganRows();
         }
     }
-});
 
-function openMulaiProduksi() {
-    document.getElementById('modalMulaiProduksi').classList.remove('hidden');
-}
-function closeMulaiProduksi() {
-    document.getElementById('modalMulaiProduksi').classList.add('hidden');
-}
-
-let currentStockData = null;
-
-function handleBahanChange(idBahan) {
-    const methodDiv = document.getElementById('methodSelection');
-    const listDiv = document.getElementById('rawStockList');
-    
-    if (!idBahan) {
-        methodDiv.classList.add('hidden');
-        listDiv.classList.add('hidden');
-        return;
-    }
-    
-    fetch('api-get-raw-stock.php?id_bahan=' + idBahan)
-        .then(response => response.json())
-        .then(data => {
-            currentStockData = data;
-            
-            // Update unit labels
-            document.querySelectorAll('.unit-label').forEach(el => el.textContent = data.satuan);
-            
-            // Show method selection
-            methodDiv.classList.remove('hidden');
-            listDiv.classList.remove('hidden');
-            
-            // Reset to "Gabungan" by default
-            document.querySelector('input[name="stok_method"][value="all"]').checked = true;
-            toggleSupplierFilter(false);
-        });
-}
-
-function toggleSupplierFilter(show) {
-    const viewAll = document.getElementById('viewAllSuppliers');
-    const viewSpecific = document.getElementById('viewSpecificSuppliers');
-    const container = document.getElementById('supplierRowContainer');
-    
-    if (show) {
-        viewAll.classList.add('hidden');
-        viewSpecific.classList.remove('hidden');
-        if (container.children.length === 0) {
-            addSupplierRow();
-        }
-    } else {
-        viewAll.classList.remove('hidden');
-        viewSpecific.classList.add('hidden');
+    function renderPenampunganRows() {
+        if (!currentStockData) return;
+        const container = document.getElementById('penampunganRowContainer');
+        const noMsg = document.getElementById('noPenampunganMsg');
         container.innerHTML = '';
-        renderPenampunganRows();
-    }
-}
 
-function renderPenampunganRows() {
-    if (!currentStockData) return;
-    const container = document.getElementById('penampunganRowContainer');
-    const noMsg = document.getElementById('noPenampunganMsg');
-    container.innerHTML = '';
+        // Filter hanya penampungan gabungan
+        const penampunganList = currentStockData.suppliers.filter(s => s.is_gabungan);
 
-    // Filter hanya penampungan gabungan
-    const penampunganList = currentStockData.suppliers.filter(s => s.is_gabungan);
+        if (penampunganList.length === 0) {
+            noMsg.classList.remove('hidden');
+            return;
+        }
+        noMsg.classList.add('hidden');
 
-    if (penampunganList.length === 0) {
-        noMsg.classList.remove('hidden');
-        return;
-    }
-    noMsg.classList.add('hidden');
-
-    penampunganList.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'bg-gray-50 border border-emerald-200 rounded-xl p-3 flex flex-wrap sm:flex-nowrap items-center gap-3';
-        div.innerHTML = `
+        penampunganList.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'bg-gray-50 border border-emerald-200 rounded-xl p-3 flex flex-wrap sm:flex-nowrap items-center gap-3';
+            div.innerHTML = `
             <div class="flex-1 min-w-[150px]">
                 <p class="text-xs text-gray-500 uppercase font-semibold">Penampungan</p>
                 <p class="text-sm font-bold text-emerald-700">${p.nama.replace(' [GABUNGAN]', '')}</p>
@@ -561,18 +569,18 @@ function renderPenampunganRows() {
                     class="format-number w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
             </div>
         `;
-        container.appendChild(div);
-    });
-}
+            container.appendChild(div);
+        });
+    }
 
-function addSupplierRow() {
-    if (!currentStockData) return;
-    
-    const container = document.getElementById('supplierRowContainer');
-    const div = document.createElement('div');
-    div.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-wrap sm:flex-nowrap items-center gap-3 shadow-sm';
-    
-    div.innerHTML = `
+    function addSupplierRow() {
+        if (!currentStockData) return;
+
+        const container = document.getElementById('supplierRowContainer');
+        const div = document.createElement('div');
+        div.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-wrap sm:flex-nowrap items-center gap-3 shadow-sm';
+
+        div.innerHTML = `
         <div class="flex-1 min-w-[150px]">
             <select name="supplier_ids[]" onchange="updateRowInfo(this); refreshSupplierOptions();" class="supplier-select w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 <!-- Options populated by refreshSupplierOptions -->
@@ -591,80 +599,81 @@ function addSupplierRow() {
             </svg>
         </button>
     `;
-    container.appendChild(div);
-    refreshSupplierOptions();
-}
-
-function refreshSupplierOptions() {
-    if (!currentStockData) return;
-
-    const selects = document.querySelectorAll('.supplier-select');
-    const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
-
-    selects.forEach(select => {
-        const currentValue = select.value;
-        let options = '<option value="">-- Pilih Supplier --</option>';
-        
-        currentStockData.suppliers.forEach(s => {
-            if (s.id == currentValue || !selectedValues.includes(String(s.id))) {
-                options += `<option value="${s.id}" data-stok="${s.total_stok}" ${s.id == currentValue ? 'selected' : ''}>${s.nama}</option>`;
-            }
-        });
-        
-        select.innerHTML = options;
-    });
-}
-
-function updateRowInfo(select) {
-    const row = select.parentElement.parentElement;
-    const option = select.options[select.selectedIndex];
-    const stok = option.dataset.stok || 0;
-    row.querySelector('.row-stok').textContent = formatNumber(Math.floor(stok));
-    row.querySelector('input[name="supplier_qty[]"]').dataset.max = stok;
-}
-
-function openProsesModal(kodeProduksi, idPembelian, nextStage, nextName, remaining, unit) {
-    document.getElementById('proses_kode_produksi').value = kodeProduksi;
-    document.getElementById('proses_id_pembelian').value = idPembelian;
-    document.getElementById('proses_next_stage').value = nextStage;
-    document.getElementById('proses_berat_masuk').value = formatNumber(Math.floor(remaining));
-    document.getElementById('prosesTitle').textContent = "Proses: " + nextName;
-    
-    // Validation for output weight
-    const beratKeluarInput = document.querySelector('input[name="berat_keluar"]');
-    beratKeluarInput.dataset.max = remaining;
-    beratKeluarInput.value = ''; 
-    
-    document.querySelectorAll('.unit-proses-label').forEach(el => el.textContent = unit || 'Kg');
-    
-    document.getElementById('modalProses').classList.remove('hidden');
-}
-function closeProsesModal() {
-    document.getElementById('modalProses').classList.add('hidden');
-}
-
-function confirmBatal(kodeProduksi, idPembelian) {
-    if (confirm('Apakah Anda yakin ingin membatalkan produksi ini? Semua proses untuk batch ini akan dibatalkan dan stok akan dikembalikan.')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'batal-produksi.php';
-        
-        const inputKode = document.createElement('input');
-        inputKode.type = 'hidden';
-        inputKode.name = 'kode_produksi';
-        inputKode.value = kodeProduksi;
-        form.appendChild(inputKode);
-        
-        const inputId = document.createElement('input');
-        inputId.type = 'hidden';
-        inputId.name = 'id_pembelian';
-        inputId.value = idPembelian;
-        form.appendChild(inputId);
-        
-        document.body.appendChild(form);
-        form.submit();
+        container.appendChild(div);
+        refreshSupplierOptions();
     }
-}
+
+    function refreshSupplierOptions() {
+        if (!currentStockData) return;
+
+        const selects = document.querySelectorAll('.supplier-select');
+        const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+
+        selects.forEach(select => {
+            const currentValue = select.value;
+            let options = '<option value="">-- Pilih Supplier --</option>';
+
+            currentStockData.suppliers.forEach(s => {
+                if (s.id == currentValue || !selectedValues.includes(String(s.id))) {
+                    options += `<option value="${s.id}" data-stok="${s.total_stok}" ${s.id == currentValue ? 'selected' : ''}>${s.nama}</option>`;
+                }
+            });
+
+            select.innerHTML = options;
+        });
+    }
+
+    function updateRowInfo(select) {
+        const row = select.parentElement.parentElement;
+        const option = select.options[select.selectedIndex];
+        const stok = option.dataset.stok || 0;
+        row.querySelector('.row-stok').textContent = formatNumber(Math.floor(stok));
+        row.querySelector('input[name="supplier_qty[]"]').dataset.max = stok;
+    }
+
+    function openProsesModal(kodeProduksi, idPembelian, nextStage, nextName, remaining, unit) {
+        document.getElementById('proses_kode_produksi').value = kodeProduksi;
+        document.getElementById('proses_id_pembelian').value = idPembelian;
+        document.getElementById('proses_next_stage').value = nextStage;
+        document.getElementById('proses_berat_masuk').value = formatNumber(Math.floor(remaining));
+        document.getElementById('prosesTitle').textContent = "Proses: " + nextName;
+
+        // Validation for output weight
+        const beratKeluarInput = document.querySelector('input[name="berat_keluar"]');
+        beratKeluarInput.dataset.max = remaining;
+        beratKeluarInput.value = '';
+
+        document.querySelectorAll('.unit-proses-label').forEach(el => el.textContent = unit || 'Kg');
+
+        document.getElementById('modalProses').classList.remove('hidden');
+    }
+
+    function closeProsesModal() {
+        document.getElementById('modalProses').classList.add('hidden');
+    }
+
+    function confirmBatal(kodeProduksi, idPembelian) {
+        if (confirm('Apakah Anda yakin ingin membatalkan produksi ini? Semua proses untuk batch ini akan dibatalkan dan stok akan dikembalikan.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'batal-produksi.php';
+
+            const inputKode = document.createElement('input');
+            inputKode.type = 'hidden';
+            inputKode.name = 'kode_produksi';
+            inputKode.value = kodeProduksi;
+            form.appendChild(inputKode);
+
+            const inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'id_pembelian';
+            inputId.value = idPembelian;
+            form.appendChild(inputId);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
 </script>
 
 <?php include "../partials/footer.php"; ?>

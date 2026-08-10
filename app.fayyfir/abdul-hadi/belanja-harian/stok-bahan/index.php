@@ -44,16 +44,16 @@ include "../partials/navbar.php";
     <div class="p-4 flex justify-between items-center flex-wrap gap-2">
       <input id="searchInput" type="text" placeholder="Cari bahan..." class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition">
       <div class="text-sm">
-        Tampilkan 
+        Tampilkan
         <select id="rowsPerPage" class="border border-gray-300 rounded px-2 py-1">
           <option value="10" selected>10</option>
           <option value="25">25</option>
           <option value="50">50</option>
-        </select> 
+        </select>
         baris
       </div>
     </div>
-    
+
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 text-sm">
         <thead class="bg-gray-800 text-yellow-400 text-center font-semibold">
@@ -67,7 +67,8 @@ include "../partials/navbar.php";
         </thead>
         <tbody id="materialTable" class="divide-y divide-gray-100">
           <?php if ($result && $result->num_rows > 0): ?>
-            <?php $no = 1; while ($row = $result->fetch_assoc()): ?>
+            <?php $no = 1;
+            while ($row = $result->fetch_assoc()): ?>
               <tr class="data-row hover:bg-gray-50 transition">
                 <td class="px-4 py-3 text-center text-gray-700"><?= $no++; ?></td>
                 <td class="px-4 py-3 font-medium text-gray-800"><?= htmlspecialchars($row["nama_bahan"]); ?></td>
@@ -80,9 +81,9 @@ include "../partials/navbar.php";
                 <td class="px-4 py-3 text-center">
                   <div class="flex justify-center gap-2">
                     <!-- Tombol Detail/View -->
-                    <a href="view-detail.php?id=<?= $row['id_bahan']; ?>" 
-                       class="inline-flex items-center p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition"
-                       title="Lihat Rincian Pembelian">
+                    <a href="view-detail.php?id=<?= $row['id_bahan']; ?>"
+                      class="inline-flex items-center p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition"
+                      title="Lihat Rincian Pembelian">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -91,9 +92,9 @@ include "../partials/navbar.php";
 
                     <!-- Tombol Hapus -->
                     <a href="hapus-bahan?id=<?= $row['id_bahan']; ?>"
-                       onclick="return confirm('Apakah Anda yakin ingin menghapus data bahan ini?')"
-                       class="inline-flex items-center p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition" 
-                       title="Hapus">
+                      onclick="return confirm('Apakah Anda yakin ingin menghapus data bahan ini?')"
+                      class="inline-flex items-center p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition"
+                      title="Hapus">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -115,12 +116,12 @@ include "../partials/navbar.php";
         </tbody>
       </table>
     </div>
-    
+
     <div class="p-4 flex justify-between items-center mt-4 text-sm text-gray-600">
       <div id="totalRowsInfo"></div>
       <div id="paginationControls" class="flex gap-1"></div>
     </div>
-    
+
   </div>
 
 </main>
@@ -128,15 +129,15 @@ include "../partials/navbar.php";
 <script src="../assets/js/table-pagination.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  initTablePagination({
-    tableId: "materialTable",
-    rowsPerPageId: "rowsPerPage",
-    searchInputId: "searchInput",
-    paginationId: "paginationControls",
-    infoId: "totalRowsInfo"
+  document.addEventListener("DOMContentLoaded", function() {
+    initTablePagination({
+      tableId: "materialTable",
+      rowsPerPageId: "rowsPerPage",
+      searchInputId: "searchInput",
+      paginationId: "paginationControls",
+      infoId: "totalRowsInfo"
+    });
   });
-});
 </script>
 
 <?php include "../partials/footer.php"; ?>

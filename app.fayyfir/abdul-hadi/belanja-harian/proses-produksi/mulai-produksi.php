@@ -36,7 +36,7 @@ foreach ($supplier_ids as $index => $sid) {
             LEFT JOIN (
                 SELECT id_pembelian, id_penampungan, SUM(berat_masuk) as total_terpakai
                 FROM bb_proses_detail
-                WHERE tahap_ke = 0 AND status = 'aktif'
+                WHERE tahap_ke = 0
                 GROUP BY id_pembelian, id_penampungan
             ) pd_agg ON pd_agg.id_pembelian = pnd.id_pembelian AND pd_agg.id_penampungan = pnd.id_penampungan
             WHERE pnd.id_penampungan = ?
@@ -68,7 +68,7 @@ foreach ($supplier_ids as $index => $sid) {
             LEFT JOIN (
                 SELECT id_pembelian, SUM(berat_masuk) as terpakai_prod
                 FROM bb_proses_detail
-                WHERE tahap_ke = 0 AND status = 'aktif'
+                WHERE tahap_ke = 0
                 GROUP BY id_pembelian
             ) pd_agg ON pd_agg.id_pembelian = pa.id
             LEFT JOIN (
@@ -119,14 +119,19 @@ try {
         $berat_keluar   = $berat_masuk;
 
         $sqlInsert = "INSERT INTO bb_proses_detail 
-                        (kode_produksi, id_pembelian, id_penampungan, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan) 
-                      VALUES (?, ?, ?, NULL, 0, ?, ?, ?, ?)";
+                        (kode_produksi, id_pembelian, id_penampungan, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan, status) 
+                      VALUES (?, ?, ?, NULL, 0, ?, ?, ?, ?, 'aktif')";
         $stmtInsert = $conn->prepare($sqlInsert);
+        if (!$stmtInsert) {
+            throw new Exception("Gagal prepare query insert: " . $conn->error);
+        }
         $stmtInsert->bind_param("siisdds",
             $kode_produksi, $id_pembelian, $id_penampungan,
             $tanggal_proses, $berat_masuk, $berat_keluar, $final_catatan
         );
-        $stmtInsert->execute();
+        if (!$stmtInsert->execute()) {
+            throw new Exception("Gagal menyimpan detail produksi: " . $stmtInsert->error);
+        }
 
         $conn->query("UPDATE bb_pembelian_awal SET status = 'proses' WHERE id = $id_pembelian AND status IN ('load', 'uang_terbayar')");
     }
