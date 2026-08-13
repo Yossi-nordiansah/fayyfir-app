@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2; // koneksi database aktif
+$conn = get_conn2(); // koneksi database aktif
 require "../includes/helpers.php";
 
 // Pastikan user sudah login
@@ -176,12 +176,11 @@ function calc_remaining_for_next_stage($conn, $idPembelian, $nextStage)
   }
 }
 
-// Ambil data pembelian awal (tampilkan semua status kecuali selesai_siap_jual)
+// Ambil data pembelian awal (tampilkan semua data transaksi pembelian)
 $query = "SELECT p.*, s.nama_supplier AS supplier_nama, bm.nama_bahan AS bahan_nama, bm.satuan AS bahan_satuan
           FROM bb_pembelian_awal p
           LEFT JOIN bb_supplier s ON p.id_supplier = s.id
           LEFT JOIN bb_bahan_master bm ON p.id_bahan = bm.id
-          WHERE p.status IS NULL OR p.status != 'selesai_siap_jual'
           ORDER BY p.tanggal_pembelian DESC, p.id DESC";
 $result = $conn->query($query);
 

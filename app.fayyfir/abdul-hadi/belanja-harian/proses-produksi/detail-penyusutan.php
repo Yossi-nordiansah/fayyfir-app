@@ -29,7 +29,7 @@ if ($kode_produksi) {
         FROM bb_proses_detail pd
         JOIN bb_pembelian_awal pa ON pd.id_pembelian = pa.id
         JOIN bb_bahan_master bm ON pa.id_bahan = bm.id
-        WHERE pd.kode_produksi = ? AND pd.status = 'aktif' AND pd.tahap_ke = 0
+        WHERE pd.kode_produksi = ? AND pd.status IN ('aktif','batal','dihentikan') AND pd.tahap_ke = 0
         GROUP BY bm.id
     ");
     $query_pembelian->bind_param("s", $kode_produksi);
@@ -53,7 +53,13 @@ if (!$data) {
   exit();
 }
 
-// Data Log Proses
+// Data Log Proses & Info Metode Batch
+$batch_metode = 'tertimbang';
+$batch_status = 'berjalan';
+$hpp_temp_val = 0;
+$hpp_final_val = 0;
+$susut_final_val = 0;
+
 if ($kode_produksi) {
     $query_log = $conn->prepare("
         SELECT 
@@ -63,12 +69,17 @@ if ($kode_produksi) {
             SUM(pd.berat_masuk) as berat_masuk,
             SUM(pd.berat_keluar) as berat_keluar,
             SUM(pd.penyusutan) as penyusutan,
+            MAX(pd.metode_produksi) as metode_produksi,
+            MAX(pd.status_batch) as status_batch,
+            MAX(pd.hpp_temporary) as hpp_temporary,
+            MAX(pd.hpp_final) as hpp_final,
+            MAX(pd.penyusutan_final) as penyusutan_final,
             GROUP_CONCAT(DISTINCT pd.catatan SEPARATOR '; ') as catatan,
             GROUP_CONCAT(pd.id) as ids,
             MAX(pd.id_penampungan) as has_penampungan
         FROM bb_proses_detail pd
         LEFT JOIN bb_proses_master pm ON pd.id_proses_master = pm.id
-        WHERE pd.kode_produksi = ? AND pd.status = 'aktif'
+        WHERE pd.kode_produksi = ? AND pd.status IN ('aktif','batal','dihentikan')
         GROUP BY pd.tahap_ke
         ORDER BY pd.tahap_ke ASC
     ");
@@ -78,7 +89,7 @@ if ($kode_produksi) {
         SELECT pd.*, pm.nama_proses, pd.id as ids 
         FROM bb_proses_detail pd
         JOIN bb_proses_master pm ON pd.id_proses_master = pm.id
-        WHERE pd.id_pembelian = ? AND pd.status = 'aktif'
+        WHERE pd.id_pembelian = ? AND pd.status IN ('aktif','batal','dihentikan')
         ORDER BY pd.tahap_ke ASC, pd.id ASC
     ");
     $query_log->bind_param("i", $id);
@@ -94,7 +105,14 @@ $harga_beli = $data["harga_per_kg"];
 $total_penyusutan = 0;
 $is_all_suppliers = false;
 $logs = [];
+$batch_status_record = 'aktif'; // default
 while ($row = $result_log->fetch_assoc()) {
+    if (!empty($row['metode_produksi'])) $batch_metode = $row['metode_produksi'];
+    if (!empty($row['status_batch'])) $batch_status = $row['status_batch'];
+    if (!empty($row['hpp_temporary'])) $hpp_temp_val = (float)$row['hpp_temporary'];
+    if (!empty($row['hpp_final'])) $hpp_final_val = (float)$row['hpp_final'];
+    if (!empty($row['penyusutan_final'])) $susut_final_val = (float)$row['penyusutan_final'];
+
     if (strpos($row['catatan'], '[ALL_SUPPLIERS]') !== false || !empty($row['has_penampungan']) || !empty($row['id_penampungan'])) {
         $is_all_suppliers = true;
         $row['catatan'] = trim(str_replace('[ALL_SUPPLIERS]', '', $row['catatan']));
@@ -103,9 +121,30 @@ while ($row = $result_log->fetch_assoc()) {
     $logs[] = $row;
 }
 
-$berat_bersih = $data["berat_awal"] - $total_penyusutan;
-$hpp_satuan = $berat_bersih > 0 ? $total_modal / $berat_bersih : $harga_beli;
-$penyusutan_hpp = $hpp_satuan - $harga_beli;
+// Deteksi apakah batch ini dibatalkan atau dihentikan dari record status
+if ($kode_produksi) {
+    $status_check = $conn->prepare("SELECT MAX(CASE WHEN status='aktif' THEN 1 ELSE 0 END) as has_aktif, MAX(CASE WHEN status='dihentikan' THEN 1 ELSE 0 END) as has_dihentikan, MAX(CASE WHEN status='batal' THEN 1 ELSE 0 END) as has_batal FROM bb_proses_detail WHERE kode_produksi=?");
+    $status_check->bind_param("s", $kode_produksi);
+    $status_check->execute();
+    $sc = $status_check->get_result()->fetch_assoc();
+    if ($sc['has_aktif'] == 0 && $sc['has_dihentikan'] == 1) $batch_status_record = 'dihentikan';
+    elseif ($sc['has_aktif'] == 0 && $sc['has_dihentikan'] == 0 && $sc['has_batal'] == 1) $batch_status_record = 'batal';
+}
+
+if ($batch_metode === 'belum_tertimbang') {
+    if ($batch_status === 'closed' && $hpp_final_val > 0) {
+        $hpp_satuan = $hpp_final_val;
+        $total_penyusutan = $susut_final_val;
+    } else {
+        $hpp_satuan = ($hpp_temp_val > 0) ? $hpp_temp_val : $harga_beli;
+    }
+    $berat_bersih = max(0, $data["berat_awal"] - $total_penyusutan);
+    $penyusutan_hpp = $hpp_satuan - $harga_beli;
+} else {
+    $berat_bersih = $data["berat_awal"] - $total_penyusutan;
+    $hpp_satuan = $berat_bersih > 0 ? $total_modal / $berat_bersih : $harga_beli;
+    $penyusutan_hpp = $hpp_satuan - $harga_beli;
+}
 
 // Data Supplier (Khusus untuk Batch Produksi)
 $suppliers = [];
@@ -119,7 +158,7 @@ if ($kode_produksi) {
         FROM bb_proses_detail pd
         JOIN bb_pembelian_awal pa ON pd.id_pembelian = pa.id
         JOIN bb_supplier s ON pa.id_supplier = s.id
-        WHERE pd.kode_produksi = ? AND pd.status = 'aktif'
+        WHERE pd.kode_produksi = ? AND pd.status IN ('aktif','batal','dihentikan')
           AND pd.tahap_ke = 0
         GROUP BY pa.id_supplier, pa.harga_per_kg
     ");
@@ -170,6 +209,42 @@ include "../partials/navbar.php";
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
         <span><?= $_SESSION['error']; unset($_SESSION['error']); ?></span>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($batch_metode === 'belum_tertimbang'): ?>
+    <div class="mb-6 p-4 rounded-xl border <?= ($batch_status === 'closed') ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-amber-50 border-amber-200 text-amber-900' ?> flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <span class="px-2.5 py-1 rounded-md text-xs font-bold uppercase <?= ($batch_status === 'closed') ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white' ?>">
+                <?= ($batch_status === 'closed') ? 'Revaluasi HPP Final (Batch Closed)' : 'HPP Sementara (Batch Active)' ?>
+            </span>
+            <span class="text-sm font-medium">
+                Metode Produksi: <strong>Belum Tertimbang</strong>
+            </span>
+        </div>
+        <?php if ($batch_status === 'closed'): ?>
+            <span class="text-xs font-semibold">Total Susut Final: <?= number_format($susut_final_val, 0, ',', '.') ?> Kg</span>
+        <?php else: ?>
+            <span class="text-xs italic text-amber-700">*Nilai HPP Final akan di-revaluasi otomatis setelah Closing Batch.</span>
+        <?php endif; ?>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($batch_status_record === 'batal'): ?>
+    <div class="mb-6 p-4 rounded-xl border border-gray-300 bg-gray-100 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <div>
+            <span class="font-bold text-gray-600 text-sm">Produksi Dibatalkan</span>
+            <p class="text-xs text-gray-500 mt-0.5">Batch ini dibatalkan sebelum memasuki tahap proses. Seluruh stok bahan baku telah dikembalikan ke gudang.</p>
+        </div>
+    </div>
+  <?php elseif ($batch_status_record === 'dihentikan'): ?>
+    <div class="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636"/></svg>
+        <div>
+            <span class="font-bold text-red-700 text-sm">Produksi Dihentikan</span>
+            <p class="text-xs text-red-600 mt-0.5">Produksi ini dihentikan setelah melewati beberapa tahap proses. Bahan baku yang sudah diproses tercatat di bawah ini.</p>
+        </div>
     </div>
   <?php endif; ?>
 

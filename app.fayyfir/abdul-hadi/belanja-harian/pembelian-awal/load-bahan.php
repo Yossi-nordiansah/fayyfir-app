@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2();
 
 if (!isset($_SESSION["user_id"])) {
   header("Location: ../../login");

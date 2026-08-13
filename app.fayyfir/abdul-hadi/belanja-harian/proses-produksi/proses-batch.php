@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../../config.php";
-$conn = $conn2;
+$conn = get_conn2();
 
 if (!isset($_SESSION["user_id"]) || $_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: index.php");
@@ -10,6 +10,7 @@ if (!isset($_SESSION["user_id"]) || $_SERVER["REQUEST_METHOD"] !== "POST") {
 
 $kode_produksi = $_POST['kode_produksi'] ?? '';
 $id_pembelian_fallback = (int)$_POST['id_pembelian']; // Used if kode_produksi is empty
+$redirect_to = $_POST['redirect_to'] ?? 'index.php';
 $next_stage = (int)$_POST['next_stage'];
 $total_raw = str_replace('.', '', $_POST['berat_keluar']);
 $total_berat_keluar = (float)$total_raw;
@@ -84,15 +85,19 @@ try {
     }
 
     // 3. Insert ke bb_proses_detail (Proportional distribution)
+    $metode_produksi = $items[0]['metode_produksi'] ?? 'tertimbang';
+    $status_batch    = $items[0]['status_batch'] ?? 'berjalan';
+    $hpp_temporary   = $items[0]['hpp_temporary'] ?? null;
+
     foreach ($items as $item) {
         $berat_masuk = (float)$item['berat_keluar'];
         $berat_keluar = ($berat_masuk / $total_berat_masuk_batch) * $total_berat_keluar;
         $id_pembelian = $item['id_pembelian'];
 
-        $sqlInsert = "INSERT INTO bb_proses_detail (kode_produksi, id_pembelian, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $sqlInsert = "INSERT INTO bb_proses_detail (kode_produksi, id_pembelian, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan, status, metode_produksi, status_batch, hpp_temporary) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'aktif', ?, ?, ?)";
         $stmtInsert = $conn->prepare($sqlInsert);
-        $stmtInsert->bind_param("siiisdds", $kode_produksi, $id_pembelian, $id_proses_master, $next_stage, $tanggal_proses, $berat_masuk, $berat_keluar, $catatan);
+        $stmtInsert->bind_param("siiisddsssd", $kode_produksi, $id_pembelian, $id_proses_master, $next_stage, $tanggal_proses, $berat_masuk, $berat_keluar, $catatan, $metode_produksi, $status_batch, $hpp_temporary);
         $stmtInsert->execute();
 
         // Update status pembelian
@@ -108,5 +113,5 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-header("Location: index.php");
+header("Location: " . $redirect_to);
 exit();

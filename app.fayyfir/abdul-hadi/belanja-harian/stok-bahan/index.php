@@ -38,6 +38,22 @@ include "../partials/navbar.php";
     <p class="text-sm text-gray-500 mt-2 sm:mt-0">Total stok bahan mentah yang belum masuk proses produksi.</p>
   </div>
 
+  <?php if (isset($_GET['delete']) && $_GET['delete'] === 'success'): ?>
+    <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      Data bahan berhasil dihapus dari sistem.
+    </div>
+  <?php elseif (isset($_GET['delete']) && $_GET['delete'] === 'error'): ?>
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      Gagal menghapus data bahan.
+    </div>
+  <?php endif; ?>
+
   <!-- Table Section -->
   <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
 

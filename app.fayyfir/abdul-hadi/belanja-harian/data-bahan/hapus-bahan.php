@@ -35,6 +35,10 @@ if (!$bahan) {
 }
 
 
+$ref = $_REQUEST['ref'] ?? '';
+$redirectTarget = ($ref === 'stok-bahan') ? '../stok-bahan/index.php' : 'index';
+$backLabel = ($ref === 'stok-bahan') ? 'Kembali ke stok bahan' : 'Kembali ke daftar bahan';
+
 // ==============================
 // PROSES HAPUS (SOFT DELETE)
 // ==============================
@@ -86,16 +90,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["konfirmasi_hapus"])) 
 
     $log->execute();
 
-    header("Location: index?delete=success");
+    header("Location: " . $redirectTarget . "?delete=success");
     exit();
 
   } else {
-    header("Location: index?delete=error");
+    header("Location: " . $redirectTarget . "?delete=error");
     exit();
   }
 }
 
-$activeMenu = "materials";
+$activeMenu = ($ref === 'stok-bahan') ? "stok-bahan" : "materials";
 $activeModule = "Hapus Bahan";
 
 include "../partials/header.php";
@@ -108,14 +112,14 @@ include "../partials/navbar.php";
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8">
 
-    <a href="index"
+    <a href="<?= $redirectTarget ?>"
       class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition text-sm font-medium">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round"
           d="M15 19l-7-7 7-7" />
       </svg>
-      Kembali ke daftar bahan
+      <?= htmlspecialchars($backLabel) ?>
     </a>
 
     <h1 class="mt-4 sm:mt-0 text-2xl font-semibold text-gray-900 tracking-tight">
@@ -187,6 +191,8 @@ include "../partials/navbar.php";
       <form method="POST"
         class="mt-8 flex flex-col sm:flex-row gap-3 justify-between">
 
+        <input type="hidden" name="ref" value="<?= htmlspecialchars($ref) ?>">
+
         <button
           type="submit"
           name="konfirmasi_hapus"
@@ -204,14 +210,14 @@ include "../partials/navbar.php";
 
         </button>
         
-        <a href="edit-bahan?id=<?= $bahan['id'] ?>"
+        <a href="edit-bahan?id=<?= $bahan['id'] ?>&ref=<?= htmlspecialchars($ref) ?>"
           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-white bg-yellow-400 hover:bg-yellow-500 font-medium transition focus:ring-4 focus:ring-yellow-200">
           <img src="/abdul-hadi/belanja-harian/assets/icons/edit-light.svg" class="w-5 h-5" alt="Edit">
           Edit Bahan
         </a>
         
         <a
-          href="index"
+          href="<?= $redirectTarget ?>"
           class="inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 font-medium transition">
 
           <svg xmlns="http://www.w3.org/2000/svg"
