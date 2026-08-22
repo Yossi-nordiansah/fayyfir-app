@@ -89,24 +89,124 @@ try {
     $status_batch    = $items[0]['status_batch'] ?? 'berjalan';
     $hpp_temporary   = $items[0]['hpp_temporary'] ?? null;
 
-    foreach ($items as $item) {
-        $berat_masuk = (float)$item['berat_keluar'];
-        $berat_keluar = ($berat_masuk / $total_berat_masuk_batch) * $total_berat_keluar;
-        $id_pembelian = $item['id_pembelian'];
+    // Check if next_stage is the final stage for this material
+    $resMax = $conn->query("SELECT MAX(urutan_tahap) as max_u FROM bb_proses_master WHERE id_bahan = " . (int)$id_bahan);
+    $max_stage_urutan = (int)($resMax->fetch_assoc()['max_u'] ?? 0);
+    $is_final_stage = ($max_stage_urutan > 0 && $next_stage == $max_stage_urutan);
 
-        $sqlInsert = "INSERT INTO bb_proses_detail (kode_produksi, id_pembelian, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan, status, metode_produksi, status_batch, hpp_temporary) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'aktif', ?, ?, ?)";
+    // For weighted mode (tertimbang), if final stage is reached, automatically close the batch
+    $auto_close_weighted = ($is_final_stage && $metode_produksi === 'tertimbang');
+    if ($auto_close_weighted) {
+        $status_batch = 'closed';
+    }
+
+    foreach ($items as $item) {
+        $berat_masuk    = (float)$item['berat_keluar'];
+        $berat_keluar   = ($berat_masuk / $total_berat_masuk_batch) * $total_berat_keluar;
+        $id_pembelian   = $item['id_pembelian'];
+        $id_penampungan = $item['id_penampungan'] ?? null;
+
+        $sqlInsert = "INSERT INTO bb_proses_detail (kode_produksi, id_pembelian, id_penampungan, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan, status, metode_produksi, status_batch, hpp_temporary) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'aktif', ?, ?, ?)";
         $stmtInsert = $conn->prepare($sqlInsert);
-        $stmtInsert->bind_param("siiisddsssd", $kode_produksi, $id_pembelian, $id_proses_master, $next_stage, $tanggal_proses, $berat_masuk, $berat_keluar, $catatan, $metode_produksi, $status_batch, $hpp_temporary);
+        $stmtInsert->bind_param("siiiisddsssd", 
+            $kode_produksi, $id_pembelian, $id_penampungan, 
+            $id_proses_master, $next_stage, $tanggal_proses, 
+            $berat_masuk, $berat_keluar, $catatan, 
+            $metode_produksi, $status_batch, $hpp_temporary
+        );
         $stmtInsert->execute();
 
         // Update status pembelian
-        $new_status = "tahap" . $next_stage;
-        $conn->query("UPDATE bb_pembelian_awal SET status = '$new_status' WHERE id = $id_pembelian");
+        if ($auto_close_weighted) {
+            // Hanya set selesai_siap_jual jika sisa stok mentah sudah benar-benar habis (<= 0)
+            // Stok sisa = berat_awal - terpakai_produksi_tahap0 - terpakai_penampungan
+            $conn->query("
+                UPDATE bb_pembelian_awal pa
+                LEFT JOIN (
+                    SELECT id_pembelian, SUM(berat_masuk) AS terpakai_prod
+                    FROM bb_proses_detail
+                    WHERE tahap_ke = 0 AND id_penampungan IS NULL AND status != 'batal'
+                    GROUP BY id_pembelian
+                ) pd_agg ON pd_agg.id_pembelian = pa.id
+                LEFT JOIN (
+                    SELECT id_pembelian, SUM(berat_masuk) AS terpakai_penampungan
+                    FROM bb_penampungan_detail
+                    GROUP BY id_pembelian
+                ) pnd_agg ON pnd_agg.id_pembelian = pa.id
+                SET pa.status = 'selesai_siap_jual'
+                WHERE pa.id = $id_pembelian
+                AND (pa.berat_awal - COALESCE(pd_agg.terpakai_prod, 0) - COALESCE(pnd_agg.terpakai_penampungan, 0)) <= 0
+            ");
+        } else {
+            $new_status = "tahap" . $next_stage;
+            $conn->query("UPDATE bb_pembelian_awal SET status = '$new_status' WHERE id = $id_pembelian");
+        }
+    }
+
+    if ($auto_close_weighted) {
+        // Calculate HPP Final & Penyusutan Final for the auto-closed weighted batch
+        if ($kode_produksi) {
+            $sqlRaw = "
+                SELECT 
+                    SUM(pd.berat_masuk) as total_raw_intake,
+                    SUM(pd.berat_masuk * COALESCE(wac.wac_harga, pa.harga_per_kg)) as total_raw_cost
+                FROM bb_proses_detail pd
+                JOIN bb_pembelian_awal pa ON pd.id_pembelian = pa.id
+                LEFT JOIN (
+                    SELECT pnd.id_penampungan, SUM(pnd.berat_masuk * pa2.harga_per_kg) / SUM(pnd.berat_masuk) as wac_harga
+                    FROM bb_penampungan_detail pnd
+                    JOIN bb_pembelian_awal pa2 ON pa2.id = pnd.id_pembelian
+                    GROUP BY pnd.id_penampungan
+                ) wac ON wac.id_penampungan = pd.id_penampungan
+                WHERE pd.kode_produksi = ? AND pd.tahap_ke = 0 AND pd.status = 'aktif'
+            ";
+            $stmtRaw = $conn->prepare($sqlRaw);
+            $stmtRaw->bind_param("s", $kode_produksi);
+            $stmtRaw->execute();
+            $rowRaw = $stmtRaw->get_result()->fetch_assoc();
+            $total_raw_intake = (float)($rowRaw['total_raw_intake'] ?? 0);
+            $total_raw_cost   = (float)($rowRaw['total_raw_cost'] ?? 0);
+
+            $penyusutan_final = max(0, round($total_raw_intake - $total_berat_keluar, 2));
+            $hpp_final = ($total_berat_keluar > 0) ? round($total_raw_cost / $total_berat_keluar, 2) : 0;
+
+            $stmtUpd = $conn->prepare("UPDATE bb_proses_detail SET status_batch = 'closed', hpp_final = ?, penyusutan_final = ?, closed_at = NOW() WHERE kode_produksi = ? AND status = 'aktif'");
+            $stmtUpd->bind_param("dds", $hpp_final, $penyusutan_final, $kode_produksi);
+            $stmtUpd->execute();
+        } else {
+            $sqlRaw = "
+                SELECT 
+                    SUM(pd.berat_masuk) as total_raw_intake,
+                    SUM(pd.berat_masuk * COALESCE(wac.wac_harga, pa.harga_per_kg)) as total_raw_cost
+                FROM bb_proses_detail pd
+                JOIN bb_pembelian_awal pa ON pd.id_pembelian = pa.id
+                LEFT JOIN (
+                    SELECT pnd.id_penampungan, SUM(pnd.berat_masuk * pa2.harga_per_kg) / SUM(pnd.berat_masuk) as wac_harga
+                    FROM bb_penampungan_detail pnd
+                    JOIN bb_pembelian_awal pa2 ON pa2.id = pnd.id_pembelian
+                    GROUP BY pnd.id_penampungan
+                ) wac ON wac.id_penampungan = pd.id_penampungan
+                WHERE pd.id_pembelian = ? AND pd.tahap_ke = 0 AND pd.status = 'aktif'
+            ";
+            $stmtRaw = $conn->prepare($sqlRaw);
+            $stmtRaw->bind_param("i", $id_pembelian_fallback);
+            $stmtRaw->execute();
+            $rowRaw = $stmtRaw->get_result()->fetch_assoc();
+            $total_raw_intake = (float)($rowRaw['total_raw_intake'] ?? 0);
+            $total_raw_cost   = (float)($rowRaw['total_raw_cost'] ?? 0);
+
+            $penyusutan_final = max(0, round($total_raw_intake - $total_berat_keluar, 2));
+            $hpp_final = ($total_berat_keluar > 0) ? round($total_raw_cost / $total_berat_keluar, 2) : 0;
+
+            $stmtUpd = $conn->prepare("UPDATE bb_proses_detail SET status_batch = 'closed', hpp_final = ?, penyusutan_final = ?, closed_at = NOW() WHERE id_pembelian = ? AND status = 'aktif'");
+            $stmtUpd->bind_param("ddi", $hpp_final, $penyusutan_final, $id_pembelian_fallback);
+            $stmtUpd->execute();
+        }
     }
 
     $conn->commit();
-    $_SESSION['success'] = "Berhasil memproses ke tahap $next_stage.";
+    $_SESSION['success'] = "Berhasil memproses ke tahap $next_stage" . ($auto_close_weighted ? " (Tahap Akhir — Produksi Selesai)." : ".");
 
 } catch (Exception $e) {
     $conn->rollback();

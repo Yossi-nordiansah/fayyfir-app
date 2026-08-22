@@ -1,4 +1,13 @@
--- Recreate view bb_v_stok_bahan with accurate calculation
+-- ============================================================
+-- Migration: Fix View bb_v_stok_bahan Calculation
+-- File      : 005_fix_stok_bahan_view.sql
+-- Tanggal   : 2026-08-18
+-- Dibuat    : Antigravity AI
+-- Deskripsi : Memperbaiki kalkulasi stok_tersedia dan total_proses
+--             agar akurat & konsisten dengan detail stok mandiri
+--             maupun stok gabungan penampungan.
+-- ============================================================
+
 CREATE OR REPLACE VIEW `bb_v_stok_bahan` AS
 SELECT
     bm.id AS id_bahan,

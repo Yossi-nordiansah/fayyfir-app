@@ -30,22 +30,31 @@ $resCount = $conn->query("SELECT COUNT(DISTINCT kode_produksi) as total FROM bb_
 $nextNum  = ($resCount->fetch_assoc()['total'] ?? 0) + 1;
 $kode_produksi = $prefix . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
 
-$berat_masuk  = (float)$pembelian['berat_awal'];
+$resTerpakai = $conn->query("SELECT IFNULL(SUM(berat_masuk), 0) as terpakai FROM bb_proses_detail WHERE id_pembelian = $id_pembelian AND tahap_ke = 0 AND status != 'batal'");
+$terpakai = $resTerpakai ? (float)$resTerpakai->fetch_assoc()['terpakai'] : 0;
+$available_stok = max(0, (float)$pembelian['berat_awal'] - $terpakai);
+$berat_masuk  = ($available_stok > 0) ? $available_stok : (float)$pembelian['berat_awal'];
 $berat_keluar = $berat_masuk;
 $harga_per_kg = (float)$pembelian['harga_per_kg'];
+
+$id_penampungan = null;
+$resPen = $conn->query("SELECT id_penampungan FROM bb_penampungan_detail WHERE id_pembelian = $id_pembelian LIMIT 1");
+if ($resPen && $rP = $resPen->fetch_assoc()) {
+    $id_penampungan = (int)$rP['id_penampungan'];
+}
 
 $conn->begin_transaction();
 try {
     $sqlInsert = "INSERT INTO bb_proses_detail 
                     (kode_produksi, id_pembelian, id_penampungan, id_proses_master, tahap_ke, tanggal_proses, berat_masuk, berat_keluar, catatan, status, metode_produksi, status_batch, hpp_temporary) 
-                  VALUES (?, ?, NULL, NULL, 0, ?, ?, ?, ?, 'aktif', 'belum_tertimbang', 'berjalan', ?)";
+                  VALUES (?, ?, ?, NULL, 0, ?, ?, ?, ?, 'aktif', 'belum_tertimbang', 'berjalan', ?)";
     $stmtInsert = $conn->prepare($sqlInsert);
     if (!$stmtInsert) {
         throw new Exception("Gagal prepare query: " . $conn->error);
     }
-    // Types: s=kode_produksi, i=id_pembelian, s=tanggal_proses, d=berat_masuk, d=berat_keluar, s=catatan, d=hpp_temporary
-    $stmtInsert->bind_param("sisddsd",
-        $kode_produksi, $id_pembelian,
+    // Types: s=kode_produksi, i=id_pembelian, i=id_penampungan, s=tanggal_proses, d=berat_masuk, d=berat_keluar, s=catatan, d=hpp_temporary
+    $stmtInsert->bind_param("siisddsd",
+        $kode_produksi, $id_pembelian, $id_penampungan,
         $tanggal_proses, $berat_masuk, $berat_keluar,
         $catatan, $harga_per_kg
     );

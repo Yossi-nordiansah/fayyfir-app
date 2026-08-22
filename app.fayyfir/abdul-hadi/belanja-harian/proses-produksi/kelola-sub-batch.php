@@ -28,7 +28,8 @@ $sqlGroup = "
         bm.nama_bahan,
         bm.satuan,
         s.nama_supplier,
-        pn.nama_penampungan
+        pn.nama_penampungan,
+        pnd.id_penampungan
     FROM bb_pembelian_awal pa
     JOIN bb_bahan_master bm ON bm.id = pa.id_bahan
     LEFT JOIN bb_supplier s ON s.id = pa.id_supplier
@@ -76,7 +77,19 @@ function get_stage_name($conn, $id_bahan, $urutan)
     return $res['nama_proses'] ?? '-';
 }
 
-// Fetch list sub-batch untuk kelompok id_pembelian ini
+// Fetch list sub-batch untuk kelompok id_pembelian / penampungan ini
+$id_penampungan_group = (int)($groupInfo['id_penampungan'] ?? 0);
+if ($id_penampungan_group <= 0) {
+    $resPnd = $conn->query("SELECT id_penampungan FROM bb_proses_detail WHERE id_pembelian = $id_pembelian AND id_penampungan IS NOT NULL AND id_penampungan > 0 LIMIT 1");
+    if ($resPnd && $rPd = $resPnd->fetch_assoc()) {
+        $id_penampungan_group = (int)$rPd['id_penampungan'];
+    }
+}
+
+$whereCondition = ($id_penampungan_group > 0)
+    ? "(pd.id_penampungan = $id_penampungan_group OR pd.id_pembelian IN (SELECT id_pembelian FROM bb_penampungan_detail WHERE id_penampungan = $id_penampungan_group))"
+    : "pd.id_pembelian = $id_pembelian";
+
 $querySubBatches = "
     SELECT 
         COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian)) as batch_key,
@@ -110,16 +123,13 @@ $querySubBatches = "
         LEFT JOIN bb_proses_master pm3 ON pm3.id = pd3.id_proses_master
         GROUP BY bk3
     ) last_stage ON COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian)) = last_stage.bk3
-    WHERE pd.id_pembelian = ?
+    WHERE $whereCondition
     GROUP BY batch_key
     ORDER BY MIN(pd.created_at) ASC
 ";
-$stmtSB = $conn->prepare($querySubBatches);
-$stmtSB->bind_param("i", $id_pembelian);
-$stmtSB->execute();
-$resultSubBatches = $stmtSB->get_result();
+$resultSubBatches = $conn->query($querySubBatches);
 
-$sumber_nama = !empty($groupInfo['nama_penampungan']) 
+$sumber_nama = !empty($groupInfo['nama_penampungan'])
     ? 'Penampungan: ' . htmlspecialchars($groupInfo['nama_penampungan']) . ' [GABUNGAN]'
     : (!empty($groupInfo['nama_supplier']) ? 'Supplier: ' . htmlspecialchars($groupInfo['nama_supplier']) : 'Pembelian #' . $id_pembelian);
 ?>
@@ -157,7 +167,7 @@ include "../partials/navbar.php";
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
-                    + Tambah Sub-Batch
+                    Tambah Sub-Batch
                 </button>
                 <button onclick="openClosingModal('', <?= $id_pembelian ?>, '<?= htmlspecialchars(addslashes($groupInfo['nama_bahan'])) ?>', 0)"
                     class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition" title="Gudang Habis - Hitung HPP Final Akurat & Opname">
@@ -424,6 +434,7 @@ include "../partials/navbar.php";
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
+
     function unformatNumber(str) {
         return str.toString().replace(/\./g, "");
     }
@@ -440,6 +451,7 @@ include "../partials/navbar.php";
     function openTambahSubBatchModal() {
         document.getElementById('modalTambahSubBatch').classList.remove('hidden');
     }
+
     function closeTambahSubBatchModal() {
         document.getElementById('modalTambahSubBatch').classList.add('hidden');
     }
@@ -451,7 +463,7 @@ include "../partials/navbar.php";
         document.getElementById('prosesTitle').textContent = "Proses: " + nextName;
 
         const beratMasukInput = document.getElementById('proses_berat_masuk');
-        const beratMasukHelp  = document.getElementById('proses_berat_masuk_help');
+        const beratMasukHelp = document.getElementById('proses_berat_masuk_help');
 
         if (metodeProduksi === 'belum_tertimbang' && (remaining <= 0 || nextStage <= 1)) {
             beratMasukInput.value = "(berat tidak diketahui)";

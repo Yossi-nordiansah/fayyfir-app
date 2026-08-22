@@ -36,7 +36,7 @@ $query_mandiri = "
     LEFT JOIN (
         SELECT id_pembelian, SUM(berat_masuk) AS terpakai_produksi
         FROM bb_proses_detail
-        WHERE tahap_ke = 0 AND id_penampungan IS NULL AND status != 'batal' AND COALESCE(metode_produksi, 'tertimbang') = 'tertimbang'
+        WHERE tahap_ke = 0 AND id_penampungan IS NULL AND status != 'batal'
         GROUP BY id_pembelian
     ) pd_agg ON pd_agg.id_pembelian = pa.id
     LEFT JOIN (

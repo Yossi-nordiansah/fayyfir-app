@@ -102,7 +102,10 @@ $queryProduksi = "
     SELECT 
         CASE 
             WHEN COALESCE(pd.metode_produksi, 'tertimbang') = 'belum_tertimbang' 
-            THEN CONCAT('GROUP-BT-', pd.id_pembelian)
+            THEN CASE 
+                WHEN pd.id_penampungan IS NOT NULL AND pd.id_penampungan > 0 THEN CONCAT('GROUP-BT-PN-', pd.id_penampungan)
+                ELSE CONCAT('GROUP-BT-PA-', pd.id_pembelian)
+            END
             ELSE COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian))
         END as batch_key,
         MAX(pd.kode_produksi) as kode_produksi,
@@ -137,12 +140,30 @@ $queryProduksi = "
     LEFT JOIN bb_penampungan pn ON pn.id = pd.id_penampungan
     LEFT JOIN bb_proses_master pm ON pm.id = pd.id_proses_master
     LEFT JOIN (
-        SELECT COALESCE(pd3.kode_produksi, CONCAT('SINGLE-', pd3.id_pembelian)) as bk3, COALESCE(MAX(pm3.urutan_tahap), 0) as max_urutan
+        SELECT 
+            CASE 
+                WHEN COALESCE(pd3.metode_produksi, 'tertimbang') = 'belum_tertimbang' 
+                THEN CASE 
+                    WHEN pd3.id_penampungan IS NOT NULL AND pd3.id_penampungan > 0 THEN CONCAT('GROUP-BT-PN-', pd3.id_penampungan)
+                    ELSE CONCAT('GROUP-BT-PA-', pd3.id_pembelian)
+                END
+                ELSE COALESCE(pd3.kode_produksi, CONCAT('SINGLE-', pd3.id_pembelian))
+            END as bk3, 
+            COALESCE(MAX(pm3.urutan_tahap), 0) as max_urutan
         FROM bb_proses_detail pd3
         LEFT JOIN bb_proses_master pm3 ON pm3.id = pd3.id_proses_master
         GROUP BY bk3
-    ) last_stage ON COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian)) = last_stage.bk3
-    WHERE pa.status != 'selesai_siap_jual'
+    ) last_stage ON (
+        CASE 
+            WHEN COALESCE(pd.metode_produksi, 'tertimbang') = 'belum_tertimbang' 
+            THEN CASE 
+                WHEN pd.id_penampungan IS NOT NULL AND pd.id_penampungan > 0 THEN CONCAT('GROUP-BT-PN-', pd.id_penampungan)
+                ELSE CONCAT('GROUP-BT-PA-', pd.id_pembelian)
+            END
+            ELSE COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian))
+        END
+    ) = last_stage.bk3
+    WHERE COALESCE(pd.status_batch, 'berjalan') != 'closed'
     GROUP BY batch_key
     ORDER BY MAX(pd.created_at) DESC
 ";
@@ -153,7 +174,10 @@ $querySelesai = "
     SELECT 
         CASE 
             WHEN COALESCE(pd.metode_produksi, 'tertimbang') = 'belum_tertimbang' 
-            THEN CONCAT('GROUP-BT-', pd.id_pembelian)
+            THEN CASE 
+                WHEN pd.id_penampungan IS NOT NULL AND pd.id_penampungan > 0 THEN CONCAT('GROUP-BT-PN-', pd.id_penampungan)
+                ELSE CONCAT('GROUP-BT-PA-', pd.id_pembelian)
+            END
             ELSE COALESCE(pd.kode_produksi, CONCAT('SINGLE-', pd.id_pembelian))
         END as batch_key,
         MAX(pd.kode_produksi) as kode_produksi,
@@ -175,7 +199,7 @@ $querySelesai = "
     JOIN bb_bahan_master bm ON bm.id = pa.id_bahan
     LEFT JOIN bb_supplier s ON s.id = pa.id_supplier
     LEFT JOIN bb_penampungan pn ON pn.id = pd.id_penampungan
-    WHERE pa.status = 'selesai_siap_jual' OR pd.status_batch = 'closed'
+    WHERE COALESCE(pd.status_batch, 'berjalan') = 'closed'
     GROUP BY batch_key
     ORDER BY MAX(pd.created_at) DESC
 ";
@@ -495,6 +519,8 @@ include "../partials/navbar.php";
                                 $sumber_sel      = !empty($sel['penampungan_names'])
                                     ? 'Penampungan: ' . htmlspecialchars($sel['penampungan_names'])
                                     : (!empty($sel['supplier_names']) ? 'Supplier: ' . htmlspecialchars($sel['supplier_names']) : 'Pembelian #' . $id_p_sel);
+                                // belum_tertimbang → buka ringkasan gabungan (tanpa kode_produksi)
+                                // tertimbang → buka detail sub-batch spesifik (dengan kode_produksi)
                                 $detail_url_sel  = "detail-penyusutan.php?id=" . $id_p_sel . ($kode_sel && $metode_sel !== 'belum_tertimbang' ? "&kode_produksi=" . urlencode($kode_sel) : "");
                             ?>
                                 <tr class="hover:bg-gray-50 transition">
@@ -531,10 +557,6 @@ include "../partials/navbar.php";
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                     </svg>
-                                                </a>
-                                                <a href="kelola-sub-batch.php?id_pembelian=<?= $id_p_sel ?>"
-                                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
-                                                    Sub-Batch (<?= $sel['total_sub_batches'] ?>)
                                                 </a>
                                             </div>
                                         </td>
@@ -685,7 +707,7 @@ include "../partials/navbar.php";
 
             <div class="flex justify-end gap-3">
                 <button type="button" onclick="closeMulaiProduksi()" class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition">Batal</button>
-                <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition">Simpan Produksi</button>
+                <button type="button" onclick="submitMulaiProduksi()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition">Simpan Produksi</button>
             </div>
         </form>
     </div>
@@ -967,33 +989,101 @@ include "../partials/navbar.php";
         noMsg.classList.add('hidden');
 
         const isBelumTertimbang = document.querySelector('input[name="metode_produksi"]:checked')?.value === 'belum_tertimbang';
-        const stokDisplayClass = isBelumTertimbang ? 'w-28 text-center stok-col hidden' : 'w-28 text-center stok-col';
-        const inputStyle = isBelumTertimbang ?
-            'w-full bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm outline-none font-semibold text-amber-900 cursor-not-allowed' :
-            'format-number w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500';
-        const inputVal = isBelumTertimbang ? 'value="(jumlah tidak diketahui)" readonly' : 'placeholder="0"';
 
-        penampunganList.forEach(p => {
+        penampunganList.forEach((p, idx) => {
+            const radioId = `radio_penampungan_${idx}`;
             const div = document.createElement('div');
-            div.className = 'bg-gray-50 border border-emerald-200 rounded-xl p-3 flex flex-wrap sm:flex-nowrap items-center gap-3';
+            div.className = 'border rounded-xl overflow-hidden transition-all';
+
+            const stokFormatted = formatNumber(Math.floor(p.total_stok));
+            const satuan = currentStockData.satuan;
+
             div.innerHTML = `
-            <div class="flex-1 min-w-[150px]">
-                <p class="text-xs text-gray-500 uppercase font-semibold">Penampungan</p>
-                <p class="text-sm font-bold text-emerald-700">${p.nama.replace(' [GABUNGAN]', '')}</p>
-                <input type="hidden" name="supplier_ids[]" value="${p.id}">
+            <!-- Radio pilih penampungan -->
+            <label for="${radioId}" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-emerald-50 transition group">
+                <input type="radio" id="${radioId}" name="pilih_penampungan" value="${p.id}"
+                    class="w-4 h-4 text-emerald-600 accent-emerald-600"
+                    onchange="onSelectPenampungan('${p.id}', ${p.total_stok}, ${JSON.stringify(isBelumTertimbang)})">
+                <div class="flex-1 min-w-0">
+                    <p class="text-[10px] text-gray-500 uppercase font-semibold">Penampungan Gabungan</p>
+                    <p class="text-sm font-bold text-emerald-700">${p.nama.replace(' [GABUNGAN]', '')}</p>
+                </div>
+                <div class="text-right shrink-0">
+                    <p class="text-[10px] text-gray-500 uppercase font-semibold">Stok Tersedia</p>
+                    <p class="text-sm font-bold text-gray-800">${stokFormatted} <span class="text-gray-400 font-normal text-xs">${satuan}</span></p>
+                </div>
+            </label>
+            <!-- Input qty — muncul setelah dipilih -->
+            <div id="qty_area_${p.id}" class="hidden px-3 pb-3 bg-emerald-50/60 border-t border-emerald-100">
+                <input type="hidden" name="supplier_ids[]" value="${p.id}" id="hidden_id_${p.id}" disabled>
+                <label class="text-[10px] text-gray-600 uppercase font-semibold mt-2 block">Jumlah yang Digunakan (${satuan})</label>
+                ${isBelumTertimbang
+                    ? `<input type="text" name="supplier_qty[]" id="qty_input_${p.id}" disabled
+                        value="(jumlah tidak diketahui)" readonly
+                        class="w-full bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm outline-none font-semibold text-amber-900 cursor-not-allowed mt-1">`
+                    : `<input type="text" name="supplier_qty[]" id="qty_input_${p.id}" disabled
+                        placeholder="Masukkan jumlah..." data-max="${p.total_stok}"
+                        class="format-number w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 mt-1">`
+                }
             </div>
-            <div class="${stokDisplayClass}">
-                <p class="text-[10px] text-gray-500 uppercase font-semibold">Stok (<span class="unit-label">${currentStockData.satuan}</span>)</p>
-                <p class="text-sm font-bold text-gray-800">${formatNumber(Math.floor(p.total_stok))}</p>
-            </div>
-            <div class="flex-1 min-w-[120px]">
-                <label class="text-[10px] text-gray-500 uppercase font-semibold">Gunakan</label>
-                <input type="text" name="supplier_qty[]" ${inputVal} ${isBelumTertimbang ? '' : `data-max="${p.total_stok}"`}
-                    class="${inputStyle}">
-            </div>
-        `;
+            `;
+            div.style.borderColor = '#d1fae5';
             container.appendChild(div);
         });
+    }
+
+    function onSelectPenampungan(selectedId, maxStok, isBelumTertimbang) {
+        // Disable semua hidden input & qty input di penampungan gabungan dulu
+        document.querySelectorAll('#penampunganRowContainer [id^="qty_area_"]').forEach(area => {
+            area.classList.add('hidden');
+        });
+        document.querySelectorAll('#penampunganRowContainer [id^="hidden_id_"]').forEach(inp => {
+            inp.disabled = true;
+        });
+        document.querySelectorAll('#penampunganRowContainer [id^="qty_input_"]').forEach(inp => {
+            inp.disabled = true;
+        });
+
+        // Aktifkan yang dipilih
+        const qtyArea = document.getElementById(`qty_area_${selectedId}`);
+        const hiddenId = document.getElementById(`hidden_id_${selectedId}`);
+        const qtyInput = document.getElementById(`qty_input_${selectedId}`);
+
+        if (qtyArea) qtyArea.classList.remove('hidden');
+        if (hiddenId) hiddenId.disabled = false;
+        if (qtyInput) qtyInput.disabled = false;
+
+        // Fokus ke input qty
+        if (!isBelumTertimbang && qtyInput) {
+            setTimeout(() => qtyInput.focus(), 100);
+        }
+    }
+
+    function submitMulaiProduksi() {
+        const form = document.querySelector('#modalMulaiProduksi form');
+        const stokMethod = document.querySelector('input[name="stok_method"]:checked')?.value;
+        const metode = document.querySelector('input[name="metode_produksi"]:checked')?.value;
+
+        // Validasi: jika mode Gabungan, pastikan penampungan sudah dipilih
+        if (stokMethod === 'all') {
+            const penampunganRadio = document.querySelector('input[name="pilih_penampungan"]:checked');
+            if (!penampunganRadio) {
+                alert('⚠️ Pilih penampungan gabungan yang akan digunakan terlebih dahulu.');
+                return;
+            }
+            // Validasi: pastikan qty terisi (jika tertimbang)
+            if (metode === 'tertimbang') {
+                const selectedId = penampunganRadio.value;
+                const qtyInput = document.getElementById(`qty_input_${selectedId}`);
+                if (!qtyInput || !qtyInput.value.trim() || qtyInput.value.trim() === '0') {
+                    alert('⚠️ Masukkan jumlah bahan yang akan digunakan dari penampungan ini.');
+                    if (qtyInput) qtyInput.focus();
+                    return;
+                }
+            }
+        }
+
+        form.submit();
     }
 
     function addSupplierRow() {
@@ -1038,12 +1128,15 @@ include "../partials/navbar.php";
 
         const selects = document.querySelectorAll('.supplier-select');
         const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+        const mandiriSuppliers = currentStockData.suppliers.filter(s => !s.is_gabungan && s.total_stok > 0);
 
         selects.forEach(select => {
             const currentValue = select.value;
-            let options = '<option value="">-- Pilih Supplier --</option>';
+            let options = mandiriSuppliers.length > 0 
+                ? '<option value="">-- Pilih Supplier --</option>'
+                : '<option value="">-- Tidak ada supplier dengan stok mandiri --</option>';
 
-            currentStockData.suppliers.forEach(s => {
+            mandiriSuppliers.forEach(s => {
                 if (s.id == currentValue || !selectedValues.includes(String(s.id))) {
                     options += `<option value="${s.id}" data-stok="${s.total_stok}" ${s.id == currentValue ? 'selected' : ''}>${s.nama}</option>`;
                 }

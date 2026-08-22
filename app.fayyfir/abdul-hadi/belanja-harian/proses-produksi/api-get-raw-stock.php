@@ -35,7 +35,7 @@ $query_mandiri = "
     LEFT JOIN (
         SELECT id_pembelian, SUM(berat_masuk) as terpakai_produksi
         FROM bb_proses_detail
-        WHERE tahap_ke = 0 AND status != 'batal' AND COALESCE(metode_produksi, 'tertimbang') = 'tertimbang'
+        WHERE tahap_ke = 0 AND status != 'batal'
         GROUP BY id_pembelian
     ) pd_agg ON pd_agg.id_pembelian = pa.id
     LEFT JOIN (
@@ -110,8 +110,12 @@ while ($row = $res->fetch_assoc()) {
     ];
 }
 
+$filtered_sources = array_filter(array_values($sources), function($s) {
+    return $s['total_stok'] > 0;
+});
+
 echo json_encode([
     'satuan'     => $satuan,
     'total_stok' => round($total_stok, 2),
-    'suppliers'  => array_values($sources)
+    'suppliers'  => array_values($filtered_sources)
 ]);

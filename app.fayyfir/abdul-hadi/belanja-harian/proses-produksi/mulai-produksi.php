@@ -28,11 +28,15 @@ foreach ($supplier_ids as $index => $sid) {
 
     $raw_val = $supplier_qtys[$index] ?? '0';
     $needed = 0.0;
-    if ($metode_produksi === 'belum_tertimbang' || $raw_val === '(jumlah tidak diketahui)') {
+    if ($metode_produksi === 'belum_tertimbang') {
         $needed = 999999999.0;
     } else {
-        $qty_raw = str_replace('.', '', $raw_val);
-        $needed  = (float)$qty_raw;
+        if ($raw_val === '(jumlah tidak diketahui)' || trim($raw_val) === '') {
+            $needed = 0.0;
+        } else {
+            $qty_raw = str_replace('.', '', $raw_val);
+            $needed  = (float)$qty_raw;
+        }
     }
 
     if ($needed <= 0 && $metode_produksi !== 'belum_tertimbang') {
@@ -55,7 +59,7 @@ foreach ($supplier_ids as $index => $sid) {
                 WHERE tahap_ke = 0 AND status != 'batal'
                 GROUP BY id_pembelian, id_penampungan
             ) pd_agg ON pd_agg.id_pembelian = pnd.id_pembelian AND pd_agg.id_penampungan = pnd.id_penampungan
-            WHERE pnd.id_penampungan = ? AND pa.status != 'selesai_siap_jual'
+            WHERE pnd.id_penampungan = ?
             ORDER BY pnd.created_at ASC
         ";
         $stmt = $conn->prepare($query);
@@ -64,10 +68,17 @@ foreach ($supplier_ids as $index => $sid) {
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) {
             $available = max(0, (float)$row['berat_masuk'] - (float)$row['terpakai']);
-            $take = ($metode_produksi === 'belum_tertimbang') ? (($available > 0) ? $available : (float)$row['berat_masuk']) : min($available, $needed);
-            if ($take <= 0 && $metode_produksi === 'belum_tertimbang') {
-                $take = (float)$row['berat_masuk'];
+            if ($available <= 0 && $metode_produksi === 'belum_tertimbang') {
+                if (empty($active_pembelian)) {
+                    $take = (float)$row['berat_masuk'];
+                } else {
+                    continue;
+                }
+            } else {
+                $take = ($metode_produksi === 'belum_tertimbang') ? $available : min($available, $needed);
             }
+            if ($take <= 0) continue;
+
             $active_pembelian[] = [
                 'id_pembelian'   => $row['id_pembelian'],
                 'id_penampungan' => $actual_id,
@@ -143,11 +154,24 @@ try {
         $berat_masuk    = $data['qty'];
         $berat_keluar   = $berat_masuk;
 
-        // Ambil harga per kg sebagai HPP sementara awal
-        $resPrice = $conn->query("SELECT harga_per_kg FROM bb_pembelian_awal WHERE id = $id_pembelian");
+        // Ambil harga per kg sebagai HPP sementara awal (Gunakan WAC jika dari Penampungan Gabungan)
         $harga_per_kg = 0.0;
-        if ($resPrice && $rP = $resPrice->fetch_assoc()) {
-            $harga_per_kg = (float)$rP['harga_per_kg'];
+        if (!empty($id_penampungan) && (int)$id_penampungan > 0) {
+            $id_pen = (int)$id_penampungan;
+            $resWac = $conn->query("
+                SELECT SUM(pnd.berat_masuk * pa.harga_per_kg) / SUM(pnd.berat_masuk) as wac_harga
+                FROM bb_penampungan_detail pnd
+                JOIN bb_pembelian_awal pa ON pa.id = pnd.id_pembelian
+                WHERE pnd.id_penampungan = $id_pen
+            ");
+            if ($resWac && $rW = $resWac->fetch_assoc()) {
+                $harga_per_kg = (float)($rW['wac_harga'] ?? 0);
+            }
+        } else {
+            $resPrice = $conn->query("SELECT harga_per_kg FROM bb_pembelian_awal WHERE id = $id_pembelian");
+            if ($resPrice && $rP = $resPrice->fetch_assoc()) {
+                $harga_per_kg = (float)$rP['harga_per_kg'];
+            }
         }
 
         $sqlInsert = "INSERT INTO bb_proses_detail 
