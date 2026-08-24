@@ -7,6 +7,8 @@ if (!isset($_SESSION["user_id"])) {
   exit();    
 }    
 
+$role_id = $_SESSION["role_id"] ?? null;
+
 $transaction_id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;    
 if ($transaction_id === 0) {    
   echo "Transaksi tidak ditemukan.";    
@@ -28,18 +30,28 @@ if (!$transaksi) {
 $container_id = $transaksi["container_id"];    
 $supplier_result = $conn->query("SELECT id, name FROM suppliers");    
 
+// Cek apakah harga harus disembunyikan untuk role admin (selain owner)
+// Jika role bukan owner (misal admin / role_id != 3) dan harga sudah diisi oleh owner (price_input_by_role == 3)
+$is_price_hidden = ($role_id != 3 && $transaksi["price_input_by_role"] == 3);
+
+// Helper untuk membersihkan input numerik dari format database (2400.00) maupun ribuan (2.400)
+function clean_numeric_input($val) {
+  if ($val === null || $val === '') return 0;
+  $val = trim((string)$val);
+  if (preg_match('/^\d+\.\d{2}$/', $val)) {
+    return (float) $val;
+  }
+  $clean = str_replace('.', '', $val);
+  return (float) $clean;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {    
   $date = $_POST["tanggal"];    
   $driver_name = $_POST["nama_driver"];    
   $driver_phone = $_POST["no_telp_driver"];    
   $vehicle_plate = $_POST["plat_nomor"];    
-  $sack_count = $_POST["jumlah_karung"];    
-  $weight = $_POST["berat"];    
-  $price_per_kg = $_POST["harga_per_kg"];    
-  $total_price = $_POST["total_harga"];    
-  $fee_per_kg = $_POST["fee_per_kg"];    
-  $total_fee = $_POST["total_fee"];    
-  $grand_total = $_POST["grand_total"];    
+  $sack_count = (int) clean_numeric_input($_POST["jumlah_karung"] ?? 0);    
+  $weight = clean_numeric_input($_POST["berat"] ?? 0);    
   $notes = $_POST["catatan"];    
 
   if ($_POST["supplier"] == "lainnya" && !empty($_POST["supplierBaru"])) {    
@@ -52,17 +64,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $supplier_id = intval($_POST["supplier"]);    
   }    
 
-  $weight_input_by_role = $_SESSION["role_id"] ?? null;
-  $price_input_by_role = $_SESSION["role_id"] ?? null;
+  $weight_input_by_role = $role_id;
+
+  // Jika harga disembunyikan dari admin karena sudah diisi owner, jangan timpa harga
+  if ($is_price_hidden) {
+    $price_per_kg = $transaksi["price_per_kg"];
+    $fee_per_kg = $transaksi["fee_per_kg"];
+    $total_price = $transaksi["total_price"];
+    $total_fee = $transaksi["total_fee"];
+    $grand_total = $transaksi["grand_total"];
+    $price_input_by_role = $transaksi["price_input_by_role"];
+  } else {
+    $price_per_kg = clean_numeric_input($_POST["harga_per_kg"] ?? 0);
+    $fee_per_kg = clean_numeric_input($_POST["fee_per_kg"] ?? 0);
+    $total_price = !empty($_POST["total_harga"]) ? clean_numeric_input($_POST["total_harga"]) : ($weight * $price_per_kg);
+    $total_fee = !empty($_POST["total_fee"]) ? clean_numeric_input($_POST["total_fee"]) : ($weight * $fee_per_kg);
+    $grand_total = !empty($_POST["grand_total"]) ? clean_numeric_input($_POST["grand_total"]) : ($total_price + $total_fee);
+    $price_input_by_role = ($price_per_kg > 0) ? $role_id : null;
+  }
 
   $stmt = $conn->prepare("UPDATE transactions SET transaction_date=?, driver_name=?, driver_phone=?, vehicle_plate=?, sack_count=?, weight_kg=?, price_per_kg=?, fee_per_kg=?, total_price=?, total_fee=?, grand_total=?, notes=?, supplier_id=?, weight_input_by_role=?, price_input_by_role=? WHERE id=?");    
-  $stmt->bind_param("ssssiiidddisiiii", $date, $driver_name, $driver_phone, $vehicle_plate, $sack_count, $weight, $price_per_kg, $fee_per_kg, $total_price, $total_fee, $grand_total, $notes, $supplier_id, $weight_input_by_role, $price_input_by_role, $transaction_id);    
+  $stmt->bind_param("ssssiddddddsiiii", $date, $driver_name, $driver_phone, $vehicle_plate, $sack_count, $weight, $price_per_kg, $fee_per_kg, $total_price, $total_fee, $grand_total, $notes, $supplier_id, $weight_input_by_role, $price_input_by_role, $transaction_id);    
 
   if ($stmt->execute()) {    
     header("Location: riwayat-kontainer2.php?id=" . $container_id);    
     exit();    
   } else {    
-    echo "Gagal memperbarui transaksi.";    
+    echo "Gagal memperbarui transaksi: " . $stmt->error;    
   }    
 }    
 ?>
@@ -178,45 +206,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div>  
       <label class="block text-sm font-medium">Jumlah Karung</label>  
-      <input type="text" id="jumlah_karung_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['sack_count'], 0, ',', '.') ?>" />  
-      <input type="hidden" id="jumlah_karung" name="jumlah_karung" value="<?= $transaksi['sack_count'] ?>"/>
+      <input type="text" id="jumlah_karung_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= !empty($transaksi['sack_count']) ? number_format($transaksi['sack_count'], 0, ',', '.') : '' ?>" />  
+      <input type="hidden" id="jumlah_karung" name="jumlah_karung" value="<?= (int)($transaksi['sack_count'] ?? 0) ?>"/>
     </div>  
 
     <div>  
       <label class="block text-sm font-medium">Total Berat (kg)</label>  
-      <input type="text" id="berat_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['weight_kg'], 0, ',', '.') ?>" />  
-      <input type="hidden" id="berat" name="berat" value="<?= $transaksi['weight_kg'] ?>"/>
+      <input type="text" id="berat_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= !empty($transaksi['weight_kg']) ? number_format($transaksi['weight_kg'], 0, ',', '.') : '' ?>" />  
+      <input type="hidden" id="berat" name="berat" value="<?= (float)($transaksi['weight_kg'] ?? 0) ?>"/>
     </div>  
 
+    <?php if (!$is_price_hidden): ?>
     <div>  
       <label class="block text-sm font-medium">Harga per Kg</label>  
-      <input type="text" id="harga_per_kg_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['price_per_kg'], 0, ',', '.') ?>" />  
-      <input type="hidden" id="harga_per_kg" name="harga_per_kg" value="<?= $transaksi['price_per_kg'] ?>"/>
+      <input type="text" id="harga_per_kg_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= !empty($transaksi['price_per_kg']) ? number_format($transaksi['price_per_kg'], 0, ',', '.') : '' ?>" />  
+      <input type="hidden" id="harga_per_kg" name="harga_per_kg" value="<?= (float)($transaksi['price_per_kg'] ?? 0) ?>"/>
     </div>  
 
     <div>  
       <label class="block text-sm font-medium">Total Harga</label>  
-      <input type="text" id="total_harga_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= number_format($transaksi['total_price'], 0, ',', '.') ?>" readonly />
-      <input type="hidden" id="total_harga" name="total_harga" value="<?= $transaksi['total_price'] ?>"/>
+      <input type="text" id="total_harga_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= !empty($transaksi['total_price']) ? number_format($transaksi['total_price'], 0, ',', '.') : '' ?>" readonly />
+      <input type="hidden" id="total_harga" name="total_harga" value="<?= (float)($transaksi['total_price'] ?? 0) ?>"/>
     </div>
     
     <div>  
       <label class="block text-sm font-medium">Fee per Kg</label>  
-      <input type="text" id="fee_per_kg_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= number_format($transaksi['fee_per_kg'], 0, ',', '.') ?>" />  
-      <input type="hidden" id="fee_per_kg" name="fee_per_kg" value="<?= $transaksi['fee_per_kg'] ?>"/>
+      <input type="text" id="fee_per_kg_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" value="<?= !empty($transaksi['fee_per_kg']) ? number_format($transaksi['fee_per_kg'], 0, ',', '.') : '' ?>" />  
+      <input type="hidden" id="fee_per_kg" name="fee_per_kg" value="<?= (float)($transaksi['fee_per_kg'] ?? 0) ?>"/>
     </div>  
 
     <div>  
       <label class="block text-sm font-medium">Total Fee</label>  
-      <input type="text" id="total_fee_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= number_format($transaksi['total_fee'], 0, ',', '.') ?>" readonly />
-      <input type="hidden" id="total_fee" name="total_fee" value="<?= $transaksi['total_fee'] ?>"/>
+      <input type="text" id="total_fee_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= !empty($transaksi['total_fee']) ? number_format($transaksi['total_fee'], 0, ',', '.') : '' ?>" readonly />
+      <input type="hidden" id="total_fee" name="total_fee" value="<?= (float)($transaksi['total_fee'] ?? 0) ?>"/>
     </div>
     
     <div>  
       <label class="block text-sm font-medium">Grand Total</label>  
-      <input type="text" id="grand_total_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= number_format($transaksi['grand_total'], 0, ',', '.') ?>" readonly />
-      <input type="hidden" id="grand_total" name="grand_total" value="<?= $transaksi['grand_total'] ?>"/>
+      <input type="text" id="grand_total_display" class="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" value="<?= !empty($transaksi['grand_total']) ? number_format($transaksi['grand_total'], 0, ',', '.') : '' ?>" readonly />
+      <input type="hidden" id="grand_total" name="grand_total" value="<?= (float)($transaksi['grand_total'] ?? 0) ?>"/>
     </div>
+    <?php endif; ?>
     
     <div>  
       <label class="block text-sm font-medium">Keterangan</label>  
@@ -269,10 +299,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Fungsi untuk membersihkan format ribuan (misalnya "1.234" => 1234)
   function parseRibuan(str) {
-    return parseInt(str.replace(/\./g, "")) || 0;
+    if (!str) return 0;
+    return parseInt(str.toString().replace(/\D/g, ""), 10) || 0;
   }
 
   function updateFormattedInput(display, hidden) {
+    if (!display || !hidden) return;
     const value = parseRibuan(display.value);
     hidden.value = value;
     display.value = value ? formatter.format(value) : "";
@@ -301,56 +333,72 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   const jumlahKarung = document.getElementById("jumlah_karung");
 
   function updateTotalHarga() {
-    const beratVal = parseRibuan(beratDisplay.value);
+    if (!hargaDisplay || !totalDisplay || !total) return;
+    const beratVal = beratDisplay ? parseRibuan(beratDisplay.value) : 0;
     const hargaVal = parseRibuan(hargaDisplay.value);
     const totalVal = beratVal * hargaVal;
 
     total.value = totalVal;
-    totalDisplay.value = formatter.format(totalVal);
+    totalDisplay.value = totalVal ? formatter.format(totalVal) : "";
     updateGrandTotal();
   }
 
   function updateTotalFee() {
-    const beratVal = parseRibuan(beratDisplay.value);
+    if (!feeDisplay || !totalFeeDisplay || !totalFee) return;
+    const beratVal = beratDisplay ? parseRibuan(beratDisplay.value) : 0;
     const feeVal = parseRibuan(feeDisplay.value);
     const totalVal = beratVal * feeVal;
 
     totalFee.value = totalVal;
-    totalFeeDisplay.value = formatter.format(totalVal);
+    totalFeeDisplay.value = totalVal ? formatter.format(totalVal) : "";
     updateGrandTotal();
   }
 
   function updateGrandTotal() {
-    const totalHargaVal = parseRibuan(totalDisplay.value);
-    const totalFeeVal = parseRibuan(totalFeeDisplay.value);
+    if (!grandTotalDisplay || !grandTotal) return;
+    const totalHargaVal = totalDisplay ? parseRibuan(totalDisplay.value) : 0;
+    const totalFeeVal = totalFeeDisplay ? parseRibuan(totalFeeDisplay.value) : 0;
     const grandTotalVal = totalHargaVal + totalFeeVal;
 
     grandTotal.value = grandTotalVal;
-    grandTotalDisplay.value = formatter.format(grandTotalVal);
+    grandTotalDisplay.value = grandTotalVal ? formatter.format(grandTotalVal) : "";
   }
 
   // Event listener untuk input real-time
-  jumlahKarungDisplay.addEventListener("input", function () {
-    updateFormattedInput(jumlahKarungDisplay, jumlahKarung);
-  });
+  if (jumlahKarungDisplay) {
+    jumlahKarungDisplay.addEventListener("input", function () {
+      updateFormattedInput(jumlahKarungDisplay, jumlahKarung);
+    });
+  }
 
-  beratDisplay.addEventListener("input", function () {
-    updateFormattedInput(beratDisplay, berat);
-    updateTotalHarga();
-    updateTotalFee();
-  });
+  if (beratDisplay) {
+    beratDisplay.addEventListener("input", function () {
+      updateFormattedInput(beratDisplay, berat);
+      updateTotalHarga();
+      updateTotalFee();
+    });
+  }
 
-  hargaDisplay.addEventListener("input", function () {
-    updateFormattedInput(hargaDisplay, harga);
-    updateTotalHarga();
-  });
+  if (hargaDisplay) {
+    hargaDisplay.addEventListener("input", function () {
+      updateFormattedInput(hargaDisplay, harga);
+      updateTotalHarga();
+    });
+  }
 
-  feeDisplay.addEventListener("input", function () {
-    updateFormattedInput(feeDisplay, fee);
-    updateTotalFee();
-  });
+  if (feeDisplay) {
+    feeDisplay.addEventListener("input", function () {
+      updateFormattedInput(feeDisplay, fee);
+      updateTotalFee();
+    });
+  }
 
-  // Inisialisasi saat pertama kali halaman dimuat
+  // Inisialisasi dan sinkronisasi nilai hidden saat pertama kali halaman dimuat
+  if (jumlahKarungDisplay && jumlahKarung) jumlahKarung.value = parseRibuan(jumlahKarungDisplay.value);
+  if (beratDisplay && berat) berat.value = parseRibuan(beratDisplay.value);
+  if (hargaDisplay && harga) harga.value = parseRibuan(hargaDisplay.value);
+  if (feeDisplay && fee) fee.value = parseRibuan(feeDisplay.value);
+
   updateTotalHarga();
   updateTotalFee();
   updateGrandTotal();

@@ -23,62 +23,83 @@ $product_result = $conn->query($product_query);
 $user_query = "SELECT * FROM users";
 $user_result = $conn->query($user_query);
 
+$error_message = "";
+
 // Cek apakah form disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $container_number = $_POST["kontainer"];
-  $region_name = trim($_POST["area"] ?? "");
-  $fill_date = $_POST["tanggal"];
-  $expedition = $_POST["ekspedisi"];
-  $shipping_line = $_POST["pelayaran"];
-  $description = $_POST["keterangan"];
-  $product_id = $_POST["produk"];
-  $selling_price = str_replace('.', '', $_POST["harga_jual"]); // hilangkan titik
-  if ($selling_price === "") $selling_price = 0; // Default ke 0 jika kosong
+  $container_number = trim($_POST["kontainer"] ?? "");
+  $region_name = !empty($_POST["area"]) ? trim($_POST["area"]) : null;
+  $fill_date = !empty($_POST["tanggal"]) ? $_POST["tanggal"] : date('Y-m-d H:i:s');
+  $expedition = !empty($_POST["ekspedisi"]) ? trim($_POST["ekspedisi"]) : null;
+  $shipping_line = !empty($_POST["pelayaran"]) ? trim($_POST["pelayaran"]) : null;
+  $description = !empty($_POST["keterangan"]) ? trim($_POST["keterangan"]) : null;
+  $product_id = !empty($_POST["produk"]) ? intval($_POST["produk"]) : null;
+  $selling_price = str_replace('.', '', $_POST["harga_jual"] ?? '');
+  $selling_price = ($selling_price !== "") ? (int)$selling_price : 0;
   $created_by = $_SESSION["user_id"];
-  $filled_by = $_POST["user"];
+  $filled_by = !empty($_POST["user"]) ? intval($_POST["user"]) : null;
 
-  // Simpan ke database
-  $stmt = $conn->prepare(
-    "INSERT INTO containers (container_number, region_name, fill_date, expedition, shipping_line, description, status, filled_by, created_by, product_id, selling_price) 
-     VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)"
-  );
-  $stmt->bind_param(
-    "ssssssiiis",
-    $container_number,
-    $region_name,
-    $fill_date,
-    $expedition,
-    $shipping_line,
-    $description,
-    $filled_by,
-    $created_by,
-    $product_id,
-    $selling_price
-  );
-
-  if ($stmt->execute()) {
-    $new_container_id = $conn->insert_id; // ID kontainer baru
-
-    // Cek apakah ada biaya tetap sesuai expedition (region_name)
-    $check_fixed = $conn->prepare("SELECT expense_type, amount, notes FROM fixed_expenses WHERE region_name = ?");
-    $check_fixed->bind_param("s", $region_name);
-    $check_fixed->execute();
-    $fixed_result = $check_fixed->get_result();
-
-    while ($row = $fixed_result->fetch_assoc()) {
-      $insert_exp = $conn->prepare("INSERT INTO expenses (container_id, expense_date, expense_type, amount, notes, created_by) VALUES (?, ?, ?, ?, ?, ?)");
-      $today = date("Y-m-d");
-      $insert_exp->bind_param("issisi", $new_container_id, $today, $row['expense_type'], $row['amount'], $row['notes'], $created_by);
-      $insert_exp->execute();
-      $insert_exp->close();
-    }
-
-    $check_fixed->close();
-
-    header("Location: index");
-    exit();
+  if (empty($container_number)) {
+    $error_message = "Nomor Kontainer wajib diisi.";
   } else {
-    echo "Gagal menyimpan data kontainer.";
+    // Cek apakah nomor kontainer sudah ada
+    $check_exist = $conn->prepare("SELECT id FROM containers WHERE container_number = ? LIMIT 1");
+    $check_exist->bind_param("s", $container_number);
+    $check_exist->execute();
+    $check_exist->store_result();
+
+    if ($check_exist->num_rows > 0) {
+      $error_message = "Nomor Kontainer sudah pernah digunakan. Silakan gunakan nomor lain.";
+      $check_exist->close();
+    } else {
+      $check_exist->close();
+
+      // Simpan ke database
+      $stmt = $conn->prepare(
+        "INSERT INTO containers (container_number, region_name, fill_date, expedition, shipping_line, description, status, filled_by, created_by, product_id, selling_price) 
+         VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)"
+      );
+      $stmt->bind_param(
+        "ssssssiiis",
+        $container_number,
+        $region_name,
+        $fill_date,
+        $expedition,
+        $shipping_line,
+        $description,
+        $filled_by,
+        $created_by,
+        $product_id,
+        $selling_price
+      );
+
+      if ($stmt->execute()) {
+        $new_container_id = $conn->insert_id; // ID kontainer baru
+
+        // Cek apakah ada biaya tetap sesuai expedition (region_name)
+        if (!empty($region_name)) {
+          $check_fixed = $conn->prepare("SELECT expense_type, amount, notes FROM fixed_expenses WHERE region_name = ?");
+          $check_fixed->bind_param("s", $region_name);
+          $check_fixed->execute();
+          $fixed_result = $check_fixed->get_result();
+
+          while ($row = $fixed_result->fetch_assoc()) {
+            $insert_exp = $conn->prepare("INSERT INTO expenses (container_id, expense_date, expense_type, amount, notes, created_by) VALUES (?, ?, ?, ?, ?, ?)");
+            $today = date("Y-m-d");
+            $insert_exp->bind_param("issisi", $new_container_id, $today, $row['expense_type'], $row['amount'], $row['notes'], $created_by);
+            $insert_exp->execute();
+            $insert_exp->close();
+          }
+
+          $check_fixed->close();
+        }
+
+        header("Location: index");
+        exit();
+      } else {
+        $error_message = "Gagal menyimpan data kontainer: " . $stmt->error;
+      }
+    }
   }
 }
 ?>
@@ -108,10 +129,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <!-- Main Content -->
   <main class="pt-24 px-6 pb-32 max-w-xl mx-auto">
+    <?php if (!empty($error_message)): ?>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm" role="alert">
+        <strong class="font-bold">Gagal! </strong>
+        <span class="block sm:inline"><?= htmlspecialchars($error_message) ?></span>
+      </div>
+    <?php endif; ?>
+
     <form class="space-y-6 bg-white shadow rounded-lg p-6" method="POST">
       <div>
-        <label class="block text-sm font-medium">Nomor Kontainer</label>
-        <input type="text" name="kontainer" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none" />
+        <label class="block text-sm font-medium">Nomor Kontainer <span class="text-red-500">*</span></label>
+        <input type="text" name="kontainer" required class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring focus:ring-yellow-300 focus:outline-none" value="<?= htmlspecialchars($_POST['kontainer'] ?? '') ?>" />
       </div>
 
       <!-- Area – Custom Dropdown -->
@@ -135,13 +163,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- Daftar area (scrollable) -->
             <ul id="areaList" class="max-h-44 overflow-y-auto">
               <?php if ($area_result): while ($r = $area_result->fetch_assoc()): ?>
-                <li>
-                  <button type="button" class="area-option w-full text-left px-4 py-2 hover:bg-yellow-50 text-sm"
-                    data-value="<?= htmlspecialchars($r['region_name']) ?>">
-                    <?= htmlspecialchars($r['region_name']) ?>
-                  </button>
-                </li>
-              <?php endwhile; endif; ?>
+                  <li>
+                    <button type="button" class="area-option w-full text-left px-4 py-2 hover:bg-yellow-50 text-sm"
+                      data-value="<?= htmlspecialchars($r['region_name']) ?>">
+                      <?= htmlspecialchars($r['region_name']) ?>
+                    </button>
+                  </li>
+              <?php endwhile;
+              endif; ?>
             </ul>
 
             <!-- Input tambah baru di paling bawah dropdown -->
@@ -226,36 +255,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <script>
     // ── Custom Area Dropdown ────────────────────────────────────
-    const areaDropdownBtn     = document.getElementById("areaDropdownBtn");
-    const areaDropdownPanel   = document.getElementById("areaDropdownPanel");
-    const areaDropdownLabel   = document.getElementById("areaDropdownLabel");
+    const areaDropdownBtn = document.getElementById("areaDropdownBtn");
+    const areaDropdownPanel = document.getElementById("areaDropdownPanel");
+    const areaDropdownLabel = document.getElementById("areaDropdownLabel");
     const areaDropdownWrapper = document.getElementById("areaDropdownWrapper");
-    const areaValue           = document.getElementById("areaValue");
-    const areaList            = document.getElementById("areaList");
-    const areaNewInput        = document.getElementById("areaNewInput");
-    const btnSimpanArea       = document.getElementById("btnSimpanArea");
-    const areaFeedback        = document.getElementById("areaFeedback");
+    const areaValue = document.getElementById("areaValue");
+    const areaList = document.getElementById("areaList");
+    const areaNewInput = document.getElementById("areaNewInput");
+    const btnSimpanArea = document.getElementById("btnSimpanArea");
+    const areaFeedback = document.getElementById("areaFeedback");
 
     // Buka / tutup dropdown
-    areaDropdownBtn.addEventListener("click", function (e) {
+    areaDropdownBtn.addEventListener("click", function(e) {
       e.stopPropagation();
       areaDropdownPanel.classList.toggle("hidden");
     });
 
     // Tutup saat klik di luar
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
       if (!areaDropdownWrapper.contains(e.target)) {
         areaDropdownPanel.classList.add("hidden");
       }
     });
 
     // Cegah panel tertutup saat klik di dalamnya
-    areaDropdownPanel.addEventListener("click", function (e) {
+    areaDropdownPanel.addEventListener("click", function(e) {
       e.stopPropagation();
     });
 
     // Pilih area dari daftar
-    areaList.addEventListener("click", function (e) {
+    areaList.addEventListener("click", function(e) {
       const btn = e.target.closest(".area-option");
       if (!btn) return;
       selectArea(btn.dataset.value);
@@ -269,7 +298,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Simpan area baru via AJAX
-    btnSimpanArea.addEventListener("click", function () {
+    btnSimpanArea.addEventListener("click", function() {
       const nama = areaNewInput.value.trim();
       if (!nama) {
         showFeedback("Nama area tidak boleh kosong.", "red");
@@ -282,7 +311,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       const fd = new FormData();
       fd.append("region_name", nama);
 
-      fetch("save-area.php", { method: "POST", body: fd })
+      fetch("save-area.php", {
+          method: "POST",
+          body: fd
+        })
         .then(r => r.json())
         .then(data => {
           if (data.success) {
@@ -307,8 +339,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
 
     // Enter di input area baru
-    areaNewInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") { e.preventDefault(); btnSimpanArea.click(); }
+    areaNewInput.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        btnSimpanArea.click();
+      }
     });
 
     function showFeedback(msg, color) {
@@ -318,7 +353,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // ── Format angka ribuan di input harga ──────────────────────
-    document.getElementById("harga_jual").addEventListener("input", function (e) {
+    document.getElementById("harga_jual").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\./g, "").replace(/\D/g, "");
       e.target.value = value !== "" ? parseInt(value).toLocaleString("id-ID") : "";
     });

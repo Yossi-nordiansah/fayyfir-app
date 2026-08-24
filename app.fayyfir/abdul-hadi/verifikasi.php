@@ -7,8 +7,25 @@ if (!isset($_SESSION["user_id"])) {
 
 require "config.php";
 
-// Proses ubah status kontainer menjadi 'lunas'
+// Proses ubah status kontainer
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  // Proses kembalikan status kontainer dari verified ke status sebelumnya (full)
+  if (isset($_POST["revert_status"])) {
+    $container_id = intval($_POST["container_id"]);
+    $user_id = $_SESSION["user_id"] ?? null;
+
+    if ($container_id && $user_id) {
+      $stmt = $conn->prepare("UPDATE containers SET status = 'full', verified_at = NULL, verified_by = NULL, updated_at = NOW() WHERE id = ?");
+      $stmt->bind_param("i", $container_id);
+      $stmt->execute();
+      $stmt->close();
+
+      $_SESSION['status_pesan'] = "Status kontainer berhasil dikembalikan ke status sebelumnya (Full).";
+      header("Location: verifikasi.php");
+      exit();
+    }
+  }
+
   if (isset($_POST["mark_accepted"])) {
     $container_id = intval($_POST["container_id"]);
     $user_id = $_SESSION["user_id"] ?? null;
@@ -189,7 +206,7 @@ if ($expenses_res) {
               </div>
             </div>
           </a>
-          <div class="flex items-center justify-between gap-1">
+          <div class="flex items-center justify-between gap-1 flex-wrap">
             <span class="text-sm text-gray-500">Status:
               <?php if ($row["status"] === "verified"): ?>
                 <span class="text-green-500 font-semibold">Verified</span>
@@ -197,11 +214,16 @@ if ($expenses_res) {
                 <span class="text-green-700 font-semibold">Lunas</span>
               <?php endif; ?>
             </span>
-            <div class="flex gap-1">
+            <div class="flex items-center gap-1 flex-wrap">
+              <!-- Tombol Batal Verifikasi (Kembali ke Full) -->
+              <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan verifikasi dan mengembalikan status kontainer ke Full?');" class="inline">
+                <input type="hidden" name="container_id" value="<?= $row["id"] ?>">
+                <button type="submit" name="revert_status" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2.5 py-1 rounded" title="Kembalikan status ke Full (Batal Verifikasi)">Batal Verif</button>
+              </form>
               <!-- Tombol Nomor -->
               <button onclick="openNomorModal(<?= $row['id'] ?>, '<?= htmlspecialchars($row['number']) ?>')" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">Nomor</button>
               <!-- Tombol Tandai Lunas -->
-              <form method="POST" onsubmit="return confirm('Apakah Anda yakin kontainer tersebut telah diterima?');">
+              <form method="POST" onsubmit="return confirm('Apakah Anda yakin kontainer tersebut telah diterima?');" class="inline">
                 <input type="hidden" name="container_id" value="<?= $row["id"] ?>">
                 <button type="submit" name="mark_accepted" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">Tandai Diterima</button>
               </form>

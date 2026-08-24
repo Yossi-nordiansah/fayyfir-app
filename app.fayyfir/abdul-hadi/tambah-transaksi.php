@@ -61,14 +61,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $supplier_id = intval($_POST["supplier"]);
   $weight_input_by_role = $_SESSION["role_id"] ?? null;
 
+  $raw_price = str_replace('.', '', $_POST["harga_per_kg"] ?? '');
+  $price_per_kg = $raw_price !== '' ? (float) $raw_price : 0;
+  $fee_per_kg = 0;
+  $total_price = $weight * $price_per_kg;
+  $total_fee = 0;
+  $grand_total = $total_price;
+  $price_input_by_role = ($price_per_kg > 0) ? ($role_id ?? null) : null;
+
   $stmt = $conn->prepare("
     INSERT INTO transactions (
       container_id, transaction_date, driver_name, driver_phone, vehicle_plate,
-      sack_count, weight_kg, notes, supplier_id, created_by, weight_input_by_role
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      sack_count, weight_kg, price_per_kg, fee_per_kg, total_price, total_fee, grand_total,
+      notes, supplier_id, created_by, weight_input_by_role, price_input_by_role
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   ");
   $stmt->bind_param(
-    "issssissiii",
+    "issssiddiiddsiiii",
     $container_id,
     $date,
     $driver_name,
@@ -76,10 +85,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $vehicle_plate,
     $sack_count,
     $weight,
+    $price_per_kg,
+    $fee_per_kg,
+    $total_price,
+    $total_fee,
+    $grand_total,
     $notes,
     $supplier_id,
     $created_by,
-    $weight_input_by_role
+    $weight_input_by_role,
+    $price_input_by_role
   );
 
   if ($stmt->execute()) {
@@ -230,6 +245,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
 
       <div>
+        <label class="block text-sm font-medium">Harga per Kg</label>
+        <input type="text" id="harga_per_kg_display" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Masukkan harga per kg (opsional)" />
+        <input type="hidden" id="harga_per_kg" name="harga_per_kg" />
+      </div>
+
+      <div>
         <label class="block text-sm font-medium">Keterangan</label>
         <textarea name="catatan" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
       </div>
@@ -285,6 +306,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
     document.getElementById("berat_display").addEventListener("input", function() {
       updateFormattedInput(this, document.getElementById("berat"));
+    });
+    document.getElementById("harga_per_kg_display").addEventListener("input", function() {
+      updateFormattedInput(this, document.getElementById("harga_per_kg"));
     });
   </script>
 
