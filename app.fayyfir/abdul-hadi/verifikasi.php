@@ -126,7 +126,7 @@ if ($expenses_res) {
     $cid = $e_row['container_id'];
     $amount = floatval($e_row['amount']);
     $type = $e_row['expense_type'];
-    
+
     if (strcasecmp(trim($type), 'Bayar timbang') === 0) {
       $total_berat = $weights[$cid] ?? 0;
       $amount = $total_berat * 50;
@@ -214,18 +214,18 @@ if ($expenses_res) {
                 <span class="text-green-700 font-semibold">Lunas</span>
               <?php endif; ?>
             </span>
-            <div class="flex items-center gap-1 flex-wrap">
+            <div class="flex items-center gap-1 flex-nowrap">
               <!-- Tombol Batal Verifikasi (Kembali ke Full) -->
               <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan verifikasi dan mengembalikan status kontainer ke Full?');" class="inline">
                 <input type="hidden" name="container_id" value="<?= $row["id"] ?>">
-                <button type="submit" name="revert_status" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2.5 py-1 rounded" title="Kembalikan status ke Full (Batal Verifikasi)">Batal Verif</button>
+                <button type="submit" name="revert_status" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded" title="Kembalikan status ke Full (Batal Verifikasi)">Batal Verif</button>
               </form>
               <!-- Tombol Nomor -->
-              <button onclick="openNomorModal(<?= $row['id'] ?>, '<?= htmlspecialchars($row['number']) ?>')" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">Nomor</button>
+              <button onclick="openNomorModal(<?= $row['id'] ?>, '<?= htmlspecialchars($row['number']) ?>')" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded">Nomor</button>
               <!-- Tombol Tandai Lunas -->
               <form method="POST" onsubmit="return confirm('Apakah Anda yakin kontainer tersebut telah diterima?');" class="inline">
                 <input type="hidden" name="container_id" value="<?= $row["id"] ?>">
-                <button type="submit" name="mark_accepted" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">Tandai Diterima</button>
+                <button type="submit" name="mark_accepted" class="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded">Tandai Diterima</button>
               </form>
             </div>
           </div>
