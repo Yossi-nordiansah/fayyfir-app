@@ -194,7 +194,6 @@ $html = <<<EOD
     <td style="padding-left:16px;">Pengeluaran tidak tetap</td>
     <td align="right">Rp. $pengeluaran_bulanan_var_fmt</td>
   </tr>
-
   <tr>
     <td style="padding-left:16px;"><strong>Total Beban Operasional</strong></td>
     <td style="border-bottom: 1px solid #000;" align="right"><strong>Rp. $total_beban_operasional_fmt</strong></td>
@@ -230,4 +229,4 @@ EOD;
 $pdf->writeHTML($html, true, false, true, false, "");
 
 // output
-$pdf->Output("Laporan_Laba_Rugi_Custom_$start_date-$end_date.pdf", "I");
+$pdf->Output("Laporan_Laba_Rugi_Gaharu_Custom_$start_date-$end_date.pdf", "I");

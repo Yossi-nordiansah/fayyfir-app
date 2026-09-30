@@ -27,10 +27,12 @@ $history = $conn->query("
     s.buyer_id,      
     MAX(s.dp) AS dp,      
     SUM(s.qty) AS qty,
+    SUM(s.qty_shrinkage) AS qty_shrinkage,
     MAX(s.status) AS status,      
     MAX(s.selling_date) AS selling_date,       
     SUM(s.total_selling) AS total_selling,      
-    GROUP_CONCAT(ps.product_name SEPARATOR ', ') AS product_list      
+    GROUP_CONCAT(ps.product_name SEPARATOR ', ') AS product_list,
+    COALESCE((SELECT SUM(ip.jumlah) FROM invoice_payments ip WHERE ip.invoice_number = s.invoice_number), 0) AS total_angsuran
   FROM selling_products s      
   LEFT JOIN product_stocks ps ON s.product_id = ps.id
   WHERE s.buyer_id = {$buyer_id}      
@@ -117,8 +119,9 @@ ORDER BY ps.product_name ASC;
       <form id="orderForm" method="post" action="transaksi-simpan.php">
         <input type="hidden" name="buyer_id" value="<?= $buyer_id ?>">
         <div id="orderItems" class="space-y-4">
-          <div class="grid grid-cols-12 gap-2 items-center order-row">
-            <div class="col-span-12 md:col-span-4">
+          <div class="grid grid-cols-12 gap-2 items-end order-row">
+            <div class="col-span-12 md:col-span-3">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Produk</label>
               <select name="product_id[]" class="w-full border rounded px-2 py-1">
                 <option value="">-- Pilih Produk --</option>
                 <?php while ($p = $productions->fetch_assoc()): ?>
@@ -131,13 +134,24 @@ ORDER BY ps.product_name ASC;
                 <?php endwhile; ?>
               </select>
             </div>
-            <div class="col-span-3 md:col-span-2">
-              <input type="text" name="qty[]" step="0.01" class="w-full border rounded px-2 py-1 qty" placeholder="Qty...">
+            <div class="col-span-4 md:col-span-2">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Qty Kirim (g)</label>
+              <input type="text" name="qty[]" step="0.01" class="w-full border rounded px-2 py-1 qty text-right" placeholder="Contoh: 20.000" title="Bobot barang keluar dari gudang (gram)">
             </div>
-            <div class="col-span-4 md:col-span-2"><input type="text" name="price[]" step="0.01" class="w-full border rounded px-2 py-1 price" placeholder="Harga/Kg..."></div>
-            <div class="col-span-4 md:col-span-3"><input type="text" class="w-full border rounded px-2 py-1 subtotal" readonly></div>
-            <div class="col-span-1 text-center">
-              <button type="button" class="remove-row text-red-500">✕</button>
+            <div class="col-span-4 md:col-span-2">
+              <label class="block text-xs font-semibold text-red-600 mb-1">Susut (g)</label>
+              <input type="text" name="qty_shrinkage[]" step="0.01" class="w-full border rounded px-2 py-1 qty-shrinkage text-right text-red-600 font-medium" placeholder="0" value="0" title="Susut pengiriman yang ditanggung penjual (gram)">
+            </div>
+            <div class="col-span-4 md:col-span-2">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Harga / Kg (Rp)</label>
+              <input type="text" name="price[]" step="0.01" class="w-full border rounded px-2 py-1 price text-right" placeholder="Contoh: 1.500.000">
+            </div>
+            <div class="col-span-11 md:col-span-2">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Subtotal (Rp)</label>
+              <input type="text" class="w-full border rounded px-2 py-1 subtotal text-right bg-gray-50 font-semibold" placeholder="Rp 0" readonly>
+            </div>
+            <div class="col-span-1 text-center pb-1">
+              <button type="button" class="remove-row text-red-500 font-bold hover:text-red-700" title="Hapus Baris">✕</button>
             </div>
             <div class="col-span-12">
               <small class="text-red-500 text-xs stock-warning hidden"></small>
@@ -148,9 +162,9 @@ ORDER BY ps.product_name ASC;
           <button type="button" id="addRow" class="bg-gray-800 text-white px-4 py-2 rounded">+ Tambah</button>
           <div class="w-50">
             <div class="text-right font-semibold">Total: <span id="grandTotal">0</span></div>
-            <div class="text-right mt-2">
-              <label class="text-sm font-semibold mr-2">DP:</label>
-              <input id="dpInput" name="dpInput" type="text" class="border text-right rounded px-2 py-1 w-40" step="0.01" value="0">
+            <div class="text-right mt-2 flex items-center justify-end">
+              <label for="dpInput" class="text-sm font-semibold mr-2">DP (Rp):</label>
+              <input id="dpInput" name="dpInput" type="text" class="border text-right rounded px-2 py-1 w-40" step="0.01" value="0" placeholder="0">
             </div>
             <div class="text-right font-semibold mt-2">Remaining: <span id="remaining">0</span></div>
           </div>
@@ -182,22 +196,48 @@ ORDER BY ps.product_name ASC;
             <?php if ($history->num_rows > 0): ?>
               <?php while ($h = $history->fetch_assoc()): ?>
                 <?php
-                // Remaining = total - dp      
-                $qty = $h['qty'] / 1000;
-                $remaining = $h['total_selling'] - $h['dp'];
+                // Qty netto yang dibayar (Kg)
+                $shrinkage_val = (float)($h['qty_shrinkage'] ?? 0);
+                $net_qty_kg = ($h['qty'] - $shrinkage_val) / 1000;
+                $total_angsuran = (float)($h['total_angsuran'] ?? 0);
+                $total_dibayar = (float)$h['dp'] + $total_angsuran;
+                $raw_status = $h['status'] ?? 'Lunas';
+                $calc_remaining = max(0, (float)$h['total_selling'] - $total_dibayar);
+                $is_lunas = (strcasecmp($raw_status, 'lunas') === 0) || ($calc_remaining <= 0.01);
+
+                if ($is_lunas) {
+                    $status_display = 'Lunas';
+                    $remaining = 0;
+                    if ((float)$h['dp'] <= 0 && $total_angsuran <= 0) {
+                        $total_dibayar = (float)$h['total_selling'];
+                    }
+                } else {
+                    $status_display = 'DP';
+                    $remaining = $calc_remaining;
+                }
                 // Tambahkan class merah kalau status DP  
-                $rowClass = (strtolower($h['status']) === 'dp') ? 'text-red-600' : '';
+                $rowClass = (strtolower($status_display) === 'dp') ? 'text-red-600' : '';
                 ?>
                 <tr class="<?= $rowClass ?>">
                   <td class="px-4 py-2 whitespace-nowrap"><?= date("d M Y", strtotime($h['selling_date'])) ?></td>
                   <td class="px-4 py-2 whitespace-nowrap"><?= htmlspecialchars($h['invoice_number']) ?></td>
-                  <td class="px-4 py-2 text-right whitespace-nowrap"><?= number_format($qty, 2, ',', '.') ?></td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap">
+                    <?= number_format($net_qty_kg, 2, ',', '.') ?>
+                    <?php if ($shrinkage_val > 0): ?>
+                      <span class="block text-[10px] text-red-500 font-normal">(Kirim: <?= number_format($h['qty'] / 1000, 2, ',', '.') ?>, Susut: <?= number_format($shrinkage_val / 1000, 2, ',', '.') ?> kg)</span>
+                    <?php endif; ?>
+                  </td>
                   <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($h['total_selling'], 0, ',', '.') ?></td>
-                  <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($h['dp'], 0, ',', '.') ?></td>
-                  <td class="px-4 py-2 text-right whitespace-nowrap">Rp <?= number_format($remaining, 0, ',', '.') ?></td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap">
+                    Rp <?= number_format($h['dp'], 0, ',', '.') ?>
+                    <?php if ($total_angsuran > 0): ?>
+                      <span class="block text-[10px] text-blue-600 font-normal">(+ Angsuran: Rp <?= number_format($total_angsuran, 0, ',', '.') ?>)</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="px-4 py-2 text-right whitespace-nowrap font-semibold">Rp <?= number_format($remaining, 0, ',', '.') ?></td>
                   <td class="px-4 py-2 text-center whitespace-nowrap">
-                    <span class="px-2 py-1 rounded text-xs <?= $h['status'] == 'Lunas' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                      <?= htmlspecialchars($h['status']) ?>
+                    <span class="px-2 py-1 rounded text-xs <?= $status_display == 'Lunas' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                      <?= htmlspecialchars($status_display) ?>
                     </span>
                   </td>
                   <td class="px-4 py-2 text-center whitespace-nowrap">
@@ -205,7 +245,7 @@ ORDER BY ps.product_name ASC;
 
                       <!-- Lihat Detail -->
                       <button
-                        class="<?= $h['status'] == 'Lunas' ? 'text-blue-500 hover:text-blue-700' : 'text-red-600 hover:text-red-800' ?> view-invoice"
+                        class="<?= $status_display == 'Lunas' ? 'text-blue-500 hover:text-blue-700' : 'text-red-600 hover:text-red-800' ?> view-invoice"
                         data-invoice="<?= htmlspecialchars($h['invoice_number']) ?>"
                         title="Lihat Detail">
                         <span class="material-symbols-outlined">visibility</span>
@@ -298,8 +338,10 @@ ORDER BY ps.product_name ASC;
 
     function calculateRow(row) {
       let qty = parseNum(row.querySelector(".qty")?.value);
+      let shrinkage = parseNum(row.querySelector(".qty-shrinkage")?.value);
       let price = parseNum(row.querySelector(".price")?.value);
-      let subtotal = qty * price / 1000;
+      let billedQty = Math.max(0, qty - shrinkage);
+      let subtotal = billedQty * price / 1000;
       let subEl = row.querySelector(".subtotal");
       if (subEl) subEl.value = formatIDR(subtotal);
       return subtotal;
@@ -341,11 +383,12 @@ ORDER BY ps.product_name ASC;
     });
 
     document.addEventListener("input", (e) => {
-      if (e.target.classList.contains("price") || e.target.classList.contains("qty")) {
+      if (e.target.classList.contains("price") || e.target.classList.contains("qty") || e.target.classList.contains("qty-shrinkage")) {
         let raw = e.target.value.replace(/\./g, '');
         if (raw) e.target.value = formatIDR(parseInt(raw));
       }
       if (e.target.classList.contains("qty") ||
+        e.target.classList.contains("qty-shrinkage") ||
         e.target.classList.contains("price") ||
         e.target.id === "dpInput") {
         calculateTotal();
@@ -365,6 +408,8 @@ ORDER BY ps.product_name ASC;
 
       // reset semua input
       clone.querySelectorAll("input").forEach(i => i.value = "");
+      const shInput = clone.querySelector(".qty-shrinkage");
+      if (shInput) shInput.value = "0";
 
       // reset dropdown produk
       const sel = clone.querySelector('select[name="product_id[]"]');
@@ -400,6 +445,8 @@ ORDER BY ps.product_name ASC;
           row.remove();
         } else {
           row.querySelectorAll("input").forEach(i => i.value = "");
+          const shInput = row.querySelector(".qty-shrinkage");
+          if (shInput) shInput.value = "0";
           const sel = row.querySelector('select[name="product_id[]"]');
           if (sel) sel.selectedIndex = 0;
         }
@@ -506,11 +553,14 @@ ORDER BY ps.product_name ASC;
       }
     });
 
-    document.querySelector("form").addEventListener("submit", () => {
-      document.querySelectorAll(".price, .qty, #dpInput").forEach(input => {
-        input.value = parseNum(input.value);
+    const orderForm = document.getElementById("orderForm") || document.querySelector("form");
+    if (orderForm) {
+      orderForm.addEventListener("submit", () => {
+        document.querySelectorAll(".price, .qty, .qty-shrinkage, #dpInput").forEach(input => {
+          input.value = parseNum(input.value);
+        });
       });
-    });
+    }
 
     // ============ Pelunasan Modal ============
     function unformatIDR(val) {

@@ -22,6 +22,7 @@ $buyer_id = $_POST['buyer_id'] ?? null;
 $item_ids = $_POST['item_id'] ?? [];
 $product_ids = $_POST['product_id'] ?? [];
 $qtys = $_POST['qty'] ?? [];
+$qty_shrinkages = $_POST['qty_shrinkage'] ?? [];
 $prices = $_POST['price'] ?? [];
 $dp = $_POST['dp'] ?? 0;
 $selling_date_input = $_POST['selling_date'] ?? null;
@@ -40,7 +41,35 @@ if (!$invoice) {
 ========================== */
 
 function num($v){
-    return floatval($v);
+    if (empty($v) && $v !== '0' && $v !== 0) return 0.0;
+    if (is_int($v) || is_float($v)) return (float)$v;
+    $str = trim((string)$v);
+    
+    // Jika ada titik dan koma (misal: "25.000,50" atau "25,000.50")
+    if (strpos($str, '.') !== false && strpos($str, ',') !== false) {
+        if (strrpos($str, ',') > strrpos($str, '.')) {
+            // Format ID: titik ribuan, koma desimal
+            $str = str_replace('.', '', $str);
+            $str = str_replace(',', '.', $str);
+        } else {
+            // Format US: koma ribuan, titik desimal
+            $str = str_replace(',', '', $str);
+        }
+    } elseif (strpos($str, ',') !== false) {
+        // Hanya koma: desimal Indonesia ("25,5")
+        $str = str_replace(',', '.', $str);
+    } elseif (strpos($str, '.') !== false) {
+        // Hanya titik: cek apakah ribuan atau desimal standar
+        $parts = explode('.', $str);
+        if (count($parts) > 2) {
+            // Banyak titik ("1.000.000") -> ribuan
+            $str = str_replace('.', '', $str);
+        } elseif (strlen($parts[1]) === 3 && (int)$parts[0] > 0) {
+            // Format ribuan 3 digit seperti "25.000"
+            $str = str_replace('.', '', $str);
+        }
+    }
+    return (float)$str;
 }
 
 /* ==========================
@@ -53,7 +82,7 @@ try {
 
     /* ==========================
        Ambil data lama
-    ========================== */
+========================== */
 
     $stmt_old = $conn->prepare("
         SELECT id, product_id, qty
@@ -128,11 +157,13 @@ try {
     foreach ($item_ids as $i => $item_id) {
 
         $qty = num($qtys[$i]);
+        $qty_shrinkage = num($qty_shrinkages[$i] ?? 0);
         $price = num($prices[$i]);
 
         if ($qty <= 0) continue;
 
-        $subtotal = ($qty * $price) / 1000;
+        $qty_billed = max(0.0, $qty - $qty_shrinkage);
+        $subtotal = ($qty_billed * $price) / 1000;
 
         /* ======================
            ITEM BARU
@@ -179,19 +210,20 @@ try {
             /* insert item */
             $stmt_insert = $conn->prepare("
                 INSERT INTO selling_products
-                (selling_date,invoice_number,product_id,buyer_id,qty,price,total_selling,dp,status)
-                VALUES (?,?,?,?,?,?,?,0,'Lunas')
+                (selling_date,invoice_number,product_id,buyer_id,qty,qty_shrinkage,price,total_selling,dp,status)
+                VALUES (?,?,?,?,?,?,?,?,0,'Lunas')
             ");
 
             $buyer_id = $_POST['buyer_id'];
 
             $stmt_insert->bind_param(
-                "ssiiddd",
+                "ssiidddd",
                 $selling_date_formatted,
                 $invoice,
                 $product_id,
                 $buyer_id,
                 $qty,
+                $qty_shrinkage,
                 $price,
                 $subtotal
             );
@@ -199,10 +231,6 @@ try {
             $stmt_insert->execute();
             $stmt_insert->close();
         }
-
-        /* ======================
-           ITEM LAMA
-        ====================== */
 
         /* ======================
            ITEM LAMA (Bisa ganti produk/qty)
@@ -239,13 +267,13 @@ try {
             $stmt_reduce->execute();
             $stmt_reduce->close();
 
-            // 3. UPDATE ITEM (Termasuk product_id)
+            // 3. UPDATE ITEM (Termasuk product_id dan qty_shrinkage)
             $stmt_update = $conn->prepare("
                 UPDATE selling_products
-                SET product_id=?, qty=?, price=?, total_selling=?
+                SET product_id=?, qty=?, qty_shrinkage=?, price=?, total_selling=?
                 WHERE id=?
             ");
-            $stmt_update->bind_param("idddi", $new_product_id, $qty, $price, $subtotal, $item_id);
+            $stmt_update->bind_param("iddddi", $new_product_id, $qty, $qty_shrinkage, $price, $subtotal, $item_id);
             $stmt_update->execute();
             $stmt_update->close();
         }
@@ -260,8 +288,22 @@ try {
 
     $dp = num($dp);
 
-    // 🔥 LOGIKA FINAL SESUAI REQUIREMENT
-    $status = ($dp > 0) ? "DP" : "Lunas";
+    // Ambil total angsuran dari tabel invoice_payments jika ada
+    $stmt_ip = $conn->prepare("SELECT COALESCE(SUM(jumlah), 0) AS total_angsuran FROM invoice_payments WHERE invoice_number = ?");
+    $stmt_ip->bind_param("s", $invoice);
+    $stmt_ip->execute();
+    $res_ip = $stmt_ip->get_result()->fetch_assoc();
+    $total_angsuran = (float)($res_ip['total_angsuran'] ?? 0);
+    $stmt_ip->close();
+
+    $total_dibayar = $dp + $total_angsuran;
+    $sisa_tagihan  = $total_selling - $total_dibayar;
+
+    if ($dp <= 0 && $total_angsuran <= 0) {
+        $status = "Lunas";
+    } else {
+        $status = ($sisa_tagihan <= 0.01) ? "Lunas" : "DP";
+    }
 
     $stmt_dp = $conn->prepare("
         UPDATE selling_products

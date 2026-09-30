@@ -9,6 +9,22 @@ if (!isset($_GET["invoice"])) {
 
 $invoice_number = $conn->real_escape_string($_GET["invoice"]);
 
+// AUTO-CREATE tabel invoice_payments jika belum ada
+$conn->query("
+    CREATE TABLE IF NOT EXISTS `invoice_payments` (
+      `id`             INT NOT NULL AUTO_INCREMENT,
+      `invoice_number` VARCHAR(100) NOT NULL,
+      `payment_date`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `jumlah`         DECIMAL(14,2) NOT NULL DEFAULT 0.00,
+      `keterangan`     TEXT NULL,
+      `created_by`     INT NULL,
+      `created_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`),
+      KEY `idx_invoice_number` (`invoice_number`),
+      KEY `idx_payment_date`   (`payment_date`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+");
+
 // Ambil data utama invoice
 $invoice = $conn->query("
   SELECT 
@@ -19,12 +35,12 @@ $invoice = $conn->query("
     b.contact,
     MAX(s.selling_date) AS selling_date,
     SUM(s.total_selling) AS total_selling,
-    SUM(s.dp) AS total_dp,
-    s.status
+    MAX(s.dp) AS total_dp,
+    MAX(s.status) AS status
   FROM selling_products s
   JOIN buyer_products b ON s.buyer_id = b.id
   WHERE s.invoice_number = '$invoice_number'
-  GROUP BY s.invoice_number, s.buyer_id, b.name, b.address, b.contact, s.status
+  GROUP BY s.invoice_number, s.buyer_id, b.name, b.address, b.contact
 ")->fetch_assoc();
 
 if (!$invoice) {
@@ -36,6 +52,7 @@ $details = $conn->query("
   SELECT   
     ps.product_name,  
     sp.qty,  
+    sp.qty_shrinkage,
     sp.price,  
     sp.total_selling,  
     u.symbol  
@@ -45,11 +62,38 @@ $details = $conn->query("
   WHERE sp.invoice_number = '$invoice_number'  
 ");
 
-$total_harga = $invoice["total_selling"];
-$pph = $total_harga * 0.0025;
-$sub_total = $total_harga - $pph;
-$dp = $invoice["total_dp"];
-$remaining = $total_harga - $dp;
+// Ambil riwayat angsuran dari invoice_payments
+$payments_q = $conn->query("
+    SELECT payment_date, jumlah, keterangan
+    FROM invoice_payments
+    WHERE invoice_number = '$invoice_number'
+    ORDER BY payment_date ASC, id ASC
+");
+$payments = [];
+$total_angsuran = 0;
+if ($payments_q) {
+  while ($p = $payments_q->fetch_assoc()) {
+    $payments[] = $p;
+    $total_angsuran += (float)$p['jumlah'];
+  }
+}
+
+$total_harga    = (float)$invoice["total_selling"];
+$dp             = (float)$invoice["total_dp"];
+$total_dibayar  = $dp + $total_angsuran;
+$raw_sisa       = max(0, $total_harga - $total_dibayar);
+$is_lunas       = (strcasecmp($invoice["status"] ?? '', 'lunas') === 0) || ($raw_sisa <= 0.01);
+
+if ($is_lunas) {
+  $status_now   = 'Lunas';
+  $sisa_tagihan = 0;
+  if ($dp <= 0 && $total_angsuran <= 0) {
+    $total_dibayar = $total_harga;
+  }
+} else {
+  $status_now   = 'DP';
+  $sisa_tagihan = $raw_sisa;
+}
 
 // Inisialisasi TCPDF
 $pdf = new TCPDF("P", "mm", "A4", true, "UTF-8", false);
@@ -57,10 +101,11 @@ $pdf->SetMargins(0, 0, 0);
 $pdf->SetAutoPageBreak(false, 0);
 $pdf->AddPage();
 
-// Background (opsional, kalau ada)
-$bg_image = 'assets/background-invoice.png';
+// Background
+$bg_image = 'assets/Kop Surat Fayyfir New.png';
 if (file_exists($bg_image)) {
   $pdf->Image($bg_image, 0, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
+  $pdf->setPageMark();
 }
 
 $pdf->SetMargins(15, 15, 15);
@@ -71,7 +116,7 @@ $pdf->SetFont("helvetica", "", 10);
 // HTML Invoice
 $html = '
 <style>
-  .garis { border: 1px solid #ddd; border-collapse: collapse; }
+  .garis { border: 1px solid #000; border-collapse: collapse; }
 </style>
 
 <table>
@@ -82,7 +127,7 @@ $html = '
 </table>
 <br><br>
 
-<table cellpadding="4">
+<table border="1" cellpadding="4">
   <tr>
     <td class="garis"><strong>INVOICE TO:</strong></td>
     <td class="garis">' . htmlspecialchars($invoice["buyer_name"]) . '</td>
@@ -99,12 +144,12 @@ $html = '
     <td class="garis"><strong>CONTACT :</strong></td>
     <td class="garis">' . htmlspecialchars($invoice["contact"]) . '</td>
     <td class="garis"><strong>STATUS :</strong></td>
-    <td class="garis">' . htmlspecialchars($invoice["status"]) . '</td>
+    <td class="garis"><strong>' . htmlspecialchars($status_now) . '</strong></td>
   </tr>
 </table>
 
 <br><br>
-<table cellpadding="5">
+<table border="1" cellpadding="5">
   <thead>
     <tr style="background-color:#000078; color: #fff;">
       <th align="center" class="garis"><strong>PRODUCT</strong></th>
@@ -116,10 +161,17 @@ $html = '
   <tbody>';
 
 while ($d = $details->fetch_assoc()) {
+  $shrinkage = (float)($d["qty_shrinkage"] ?? 0);
+  $net_qty = max(0.0, (float)$d["qty"] - $shrinkage);
+  $qty_text = number_format($net_qty, 2, ",", ".") . ' ' . htmlspecialchars($d["symbol"]);
+  if ($shrinkage > 0) {
+    $qty_text .= '<br><span style="font-size:8pt; color:#666;">(Kirim: ' . number_format($d["qty"], 2, ",", ".") . ', Susut: ' . number_format($shrinkage, 2, ",", ".") . ')</span>';
+  }
+
   $html .= '
     <tr>
       <td class="garis">' . htmlspecialchars($d["product_name"]) . '</td>
-      <td align="right" class="garis">' . number_format($d["qty"], 2, ",", ".") . ' ' . htmlspecialchars($d["symbol"]) . '</td>
+      <td align="right" class="garis">' . $qty_text . '</td>
       <td align="right" class="garis">Rp ' . number_format($d["price"], 0, ",", ".") . '</td>
       <td align="right" class="garis">Rp ' . number_format($d["total_selling"], 0, ",", ".") . '</td>
     </tr>';
@@ -129,34 +181,41 @@ $html .= '
     <tr>
       <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Total :</td>
       <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($total_harga, 0, ",", ".") . '</td>
-    </tr>
-    <!-- <tr>
-      <td colspan="3" align="right" class="garis">PPh 0,25% :</td>
-      <td align="right" class="garis">Rp ' . number_format($pph, 0, ",", ".") . '</td>
-    </tr>
+    </tr>';
+
+if ($dp > 0) {
+  $html .= '
     <tr>
-      <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Sub Total :</td>
-      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($sub_total, 0, ",", ".") . '</td>
-    </tr> -->
-    <tr>
-      <td colspan="3" align="right" class="garis">Down Payment :</td>
+      <td colspan="3" align="right" class="garis">Down Payment (DP) :</td>
       <td align="right" class="garis">Rp ' . number_format($dp, 0, ",", ".") . '</td>
+    </tr>';
+}
+
+// Tampilkan baris angsuran jika ada
+if (!empty($payments)) {
+  foreach ($payments as $i => $pay) {
+    $ket_label = htmlspecialchars($pay['keterangan'] ?: ('Angsuran ' . ($i + 1)));
+    $html .= '
+    <tr>
+      <td colspan="3" align="right" class="garis">' . $ket_label . ' (' . date('d/m/Y', strtotime($pay['payment_date'])) . ') :</td>
+      <td align="right" class="garis">Rp ' . number_format($pay['jumlah'], 0, ",", ".") . '</td>
+    </tr>';
+  }
+}
+
+$html .= '
+    <tr>
+      <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Total Dibayar :</td>
+      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($total_dibayar, 0, ",", ".") . '</td>
     </tr>
     <tr>
-      <td colspan="3" align="right" class="garis" style="background-color:#eee; font-weight:bold;">Remaining :</td>
-      <td align="right" class="garis" style="background-color:#eee; font-weight:bold;">Rp ' . number_format($remaining, 0, ",", ".") . '</td>
+      <td colspan="3" align="right" class="garis" style="font-weight:bold; color: ' . ($sisa_tagihan > 0 ? '#cc0000' : '#006600') . ';">Sisa Tagihan :</td>
+      <td align="right" class="garis" style="font-weight:bold; color: ' . ($sisa_tagihan > 0 ? '#cc0000' : '#006600') . ';">Rp ' . number_format($sisa_tagihan, 0, ",", ".") . '</td>
     </tr>
   </tbody>
-</table>
+</table>';
 
-<br><br>
-<table cellpadding="4">
-  <tr><td><strong style="font-size: 12pt;">PAYMENT INFO</strong></td></tr>
-  <tr><td><strong>Bank Name :</strong> BCA</td></tr>
-  <tr><td><strong>Account Name :</strong> Abdul Hadi Alsharif</td></tr>
-  <tr><td><strong>Account Number :</strong> xxxx xxxx xx</td></tr>
-  <tr><td><br><br><br><strong style="font-size: 12pt; font-style: italic;">Thank you for your business</strong></td></tr>
-</table>
+$html .= '
 ';
 
 // Cetak PDF

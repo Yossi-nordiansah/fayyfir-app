@@ -60,7 +60,7 @@ try {
     $stmt_stock->close();
 
     /* ==========================
-       Hapus transaksi
+       Hapus transaksi & angsuran
     ========================== */
     $stmt_delete = $conn->prepare("
         DELETE FROM selling_products
@@ -69,6 +69,14 @@ try {
     $stmt_delete->bind_param("s", $invoice);
     $stmt_delete->execute();
     $stmt_delete->close();
+
+    $stmt_del_pay = $conn->prepare("
+        DELETE FROM invoice_payments
+        WHERE invoice_number = ?
+    ");
+    $stmt_del_pay->bind_param("s", $invoice);
+    $stmt_del_pay->execute();
+    $stmt_del_pay->close();
 
     /* ==========================
        Commit

@@ -7,12 +7,28 @@ if (!isset($_SESSION["user_id"])) {
     
 require "config.php";    
     
+function clean_number($val) {
+    if (empty($val) && $val !== '0' && $val !== 0) return 0.0;
+    if (is_int($val) || is_float($val)) return (float)$val;
+    $str = trim((string)$val);
+    if (strpos($str, '.') !== false && strpos($str, ',') !== false) {
+        $str = str_replace('.', '', $str);
+        $str = str_replace(',', '.', $str);
+    } elseif (strpos($str, '.') !== false) {
+        $str = str_replace('.', '', $str);
+    } elseif (strpos($str, ',') !== false) {
+        $str = str_replace(',', '.', $str);
+    }
+    return (float)$str;
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {    
   $buyer_id    = intval($_POST["buyer_id"] ?? 0);    
   $product_ids = $_POST["product_id"] ?? [];    
   $qtys        = $_POST["qty"] ?? [];    
-  $prices      = $_POST["price"] ?? [];    
-  $dp_total    = (float)($_POST["dpInput"] ?? 0);    
+  $qty_shrinkages = $_POST["qty_shrinkage"] ?? [];
+  $prices         = $_POST["price"] ?? [];    
+  $dp_total       = clean_number($_POST["dpInput"] ?? 0);    
     
   if (!$buyer_id || empty($product_ids)) die("Data tidak valid.");    
 
@@ -21,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
      ======================================================= */
   foreach ($product_ids as $i => $pid) {
       $pid = intval($pid);
-      $qty = floatval($qtys[$i] ?? 0);
+      $qty = clean_number($qtys[$i] ?? 0);
 
       if ($pid <= 0 || $qty <= 0) continue;
 
@@ -60,9 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
      ======================================================= */
   $stmt = $conn->prepare("    
     INSERT INTO selling_products    
-      (selling_date, invoice_number, product_id, buyer_id, qty, price, total_selling, dp, status)    
+      (selling_date, invoice_number, product_id, buyer_id, qty, qty_shrinkage, price, total_selling, dp, status)    
     VALUES    
-      (NOW(), ?, ?, ?, ?, ?, ?, ?, ?)    
+      (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)    
   ");    
   if (!$stmt) die("Prepare gagal: " . $conn->error);    
     
@@ -71,14 +87,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $grand_total = 0;    
     
   for ($i = 0; $i < count($product_ids); $i++) {    
-    $pid   = intval($product_ids[$i]);    
-    $qty   = (float)($qtys[$i] ?? 0);    
-    $price = (float)($prices[$i] ?? 0);    
-    $dp    = (float)($dps[$i] ?? 0);    
+    $pid           = intval($product_ids[$i]);    
+    $qty           = clean_number($qtys[$i] ?? 0);    
+    $qty_shrinkage = clean_number($qty_shrinkages[$i] ?? 0);
+    $price         = clean_number($prices[$i] ?? 0);    
+    $dp            = clean_number($dps[$i] ?? 0);    
     
     if ($pid <= 0 || $qty <= 0 || $price <= 0) continue;    
     
-    $total = $qty * $price / 1000;    
+    // Qty yang dibayar oleh buyer = (qty keluar - susut ditanggung penjual)
+    $qty_billed = max(0.0, $qty - $qty_shrinkage);
+    $total = $qty_billed * $price / 1000;    
     $grand_total += $total;    
     $pph = $grand_total * 0.0025;    
     
@@ -92,13 +111,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }    
     
     $stmt->bind_param(    
-      "siidddss",    
-      $invoice_number, $pid, $buyer_id, $qty, $price, $total, $dp, $status    
+      "siiddddds",    
+      $invoice_number, $pid, $buyer_id, $qty, $qty_shrinkage, $price, $total, $dp, $status    
     );    
     
     if (!$stmt->execute()) die("Gagal simpan: " . $stmt->error);    
     
-    // 🔽 Update stok produk  
+    // 🔽 Update stok produk (memotong stok sebesar $qty keluar gudang)
     $updateStock = $conn->prepare("UPDATE product_stocks SET quantity = quantity - ? WHERE id = ?");  
     if ($updateStock) {  
         $updateStock->bind_param("di", $qty, $pid);  
