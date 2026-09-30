@@ -90,10 +90,10 @@ while ($p = $payments_result->fetch_assoc()) {
 }
 $stmt_pay->close();
 
-$raw_status    = $items[0]['status'] ?? 'Lunas';
+$raw_status    = $items[0]['status'] ?? 'Belum Lunas';
 $total_dibayar = (float)$dp + $total_angsuran;
 $raw_sisa      = max(0, (float)$total - $total_dibayar);
-$is_lunas      = (strcasecmp($raw_status, 'lunas') === 0) || ($raw_sisa <= 0.01);
+$is_lunas      = (strcasecmp($raw_status, 'lunas') === 0) || ($raw_sisa <= 0.01 && $total_dibayar > 0);
 
 if ($is_lunas) {
    $status_inv   = 'Lunas';
@@ -101,9 +101,22 @@ if ($is_lunas) {
    if ((float)$dp <= 0 && $total_angsuran <= 0) {
       $total_dibayar = (float)$total;
    }
+} elseif (strcasecmp($raw_status, 'belum lunas') === 0 || ((float)$dp <= 0 && $total_angsuran <= 0)) {
+   $status_inv   = 'Belum Lunas';
+   $sisa_tagihan = $raw_sisa;
 } else {
    $status_inv   = 'DP';
    $sisa_tagihan = $raw_sisa;
+}
+
+// Tentukan pilihan radio awal saat edit
+$current_status_radio = 'belum_lunas';
+if ($is_lunas) {
+   $current_status_radio = 'lunas';
+} elseif ((float)$dp > 0 || strcasecmp($raw_status, 'dp') === 0) {
+   $current_status_radio = 'dp';
+} else {
+   $current_status_radio = 'belum_lunas';
 }
 
 // Tentukan URL Cetak Tagihan (transaksi pembayaran terbaru/terakhir)
@@ -236,15 +249,47 @@ if ($res) {
                <button type="button" id="addProductBtn" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">Tambah Produk</button>
             </div>
 
-            <div class="flex justify-between items-start mt-6">
+            <div class="flex flex-col md:flex-row justify-between items-start mt-6 pt-4 border-t gap-4">
                <div></div>
-               <div class="w-64 space-y-2">
-                  <div class="text-right font-semibold">Total : <span id="grandTotal">0</span></div>
-                  <div class="text-right">
-                     <label class="text-sm font-semibold mr-2">DP Awal:</label>
-                     <input type="text" id="dpInput" name="dp" class="border rounded px-2 py-1 w-40 text-right" value="<?= number_format($dp, 0, ',', '.') ?>">
+               <div class="w-full md:w-80 bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+                  <div class="flex justify-between items-center text-sm font-semibold">
+                     <span class="text-gray-700">Total :</span>
+                     <span class="text-gray-900 font-bold">Rp <span id="grandTotal">0</span></span>
                   </div>
-                  <div class="text-right font-semibold text-gray-600">Remaining : <span id="remaining">0</span></div>
+
+                  <!-- Radio Button Pilihan Status Pembayaran -->
+                  <div class="border-t border-gray-200 pt-3">
+                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Status Pembayaran :</label>
+                     <div class="space-y-2">
+                        <label class="flex items-center space-x-2 text-sm cursor-pointer hover:text-gray-900">
+                           <input type="radio" name="payment_status" value="belum_lunas" class="text-yellow-600 focus:ring-yellow-500 h-4 w-4" <?= $current_status_radio === 'belum_lunas' ? 'checked' : '' ?>>
+                           <span class="text-gray-800 font-medium">1. Belum Lunas</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-sm cursor-pointer hover:text-gray-900">
+                           <input type="radio" name="payment_status" value="dp" class="text-yellow-600 focus:ring-yellow-500 h-4 w-4" <?= $current_status_radio === 'dp' ? 'checked' : '' ?>>
+                           <span class="text-gray-800 font-medium">2. DP (Uang Muka)</span>
+                        </label>
+                        <!-- Field Input DP (keluar saat DP dipilih) -->
+                        <div id="dpContainer" class="<?= $current_status_radio === 'dp' ? '' : 'hidden' ?> pl-6 pt-1">
+                           <div class="flex items-center justify-between gap-2">
+                              <label for="dpInput" class="text-xs font-semibold text-gray-600">Nominal DP:</label>
+                              <div class="relative w-36">
+                                 <span class="absolute left-2 top-1.5 text-xs text-gray-500">Rp</span>
+                                 <input type="text" id="dpInput" name="dp" class="border border-gray-300 text-right rounded pl-7 pr-2 py-1 w-full text-sm font-semibold text-gray-800 focus:outline-none focus:ring-1 focus:ring-yellow-500" value="<?= number_format($dp, 0, ',', '.') ?>" placeholder="0">
+                              </div>
+                           </div>
+                        </div>
+                        <label class="flex items-center space-x-2 text-sm cursor-pointer hover:text-gray-900">
+                           <input type="radio" name="payment_status" value="lunas" class="text-yellow-600 focus:ring-yellow-500 h-4 w-4" <?= $current_status_radio === 'lunas' ? 'checked' : '' ?>>
+                           <span class="text-gray-800 font-medium">3. Lunas</span>
+                        </label>
+                     </div>
+                  </div>
+
+                  <div class="flex justify-between items-center text-sm font-semibold border-t border-gray-200 pt-2">
+                     <span class="text-gray-700">Remaining (Sisa) :</span>
+                     <span class="<?= $sisa_tagihan > 0 ? 'text-red-600' : 'text-green-600' ?> font-bold" id="remainingWrapper">Rp <span id="remaining">0</span></span>
+                  </div>
                </div>
             </div>
 
@@ -267,7 +312,7 @@ if ($res) {
                   class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded text-sm font-medium transition shadow"
                   title="Cetak Tagihan / Bukti Pembayaran Terakhir">
                   <span class="material-symbols-outlined text-sm">print</span>
-                  Cetak Tagihan
+                  Cetak Bukti Pembayaran
                </a>
                <?php if ($sisa_tagihan > 0.01): ?>
                   <button id="btnTambahAngsuran"
@@ -573,7 +618,34 @@ if ($res) {
          return subtotal;
       }
 
-      const isOriginalLunas = <?= json_encode($is_lunas) ?>;
+      function getSelectedPaymentStatus() {
+         const checked = document.querySelector('input[name="payment_status"]:checked');
+         return checked ? checked.value : '<?= $current_status_radio ?>';
+      }
+
+      function toggleDPField() {
+         const status = getSelectedPaymentStatus();
+         const dpContainer = document.getElementById("dpContainer");
+         const dpInput = document.getElementById("dpInput");
+
+         if (status === 'dp') {
+            if (dpContainer) dpContainer.classList.remove("hidden");
+            if (dpInput && parseNum(dpInput.value) <= 0) {
+               dpInput.focus();
+            }
+         } else {
+            if (dpContainer) dpContainer.classList.add("hidden");
+            if (dpInput) {
+               dpInput.value = "0";
+            }
+         }
+         calculateTotal();
+      }
+
+      document.querySelectorAll('input[name="payment_status"]').forEach(radio => {
+         radio.addEventListener('change', toggleDPField);
+      });
+
       const totalAngsuran = <?= json_encode($total_angsuran) ?>;
 
       function calculateTotal() {
@@ -581,15 +653,30 @@ if ($res) {
          document.querySelectorAll(".order-row").forEach(r => {
             total += calculateRow(r);
          });
-         let dp = parseNum(document.getElementById("dpInput").value);
+
+         const status = getSelectedPaymentStatus();
+         let dp = 0;
          let remaining = 0;
-         if (isOriginalLunas && dp <= 0 && totalAngsuran <= 0) {
+
+         if (status === 'lunas') {
+            dp = 0;
             remaining = 0;
+         } else if (status === 'belum_lunas') {
+            dp = 0;
+            remaining = Math.max(total - totalAngsuran, 0);
          } else {
+            // dp
+            dp = parseNum(document.getElementById("dpInput")?.value);
             remaining = Math.max(total - dp - totalAngsuran, 0);
          }
+
          document.getElementById("grandTotal").textContent = formatIDR(total);
          document.getElementById("remaining").textContent = formatIDR(remaining);
+
+         const remWrapper = document.getElementById("remainingWrapper");
+         if (remWrapper) {
+            remWrapper.className = (remaining > 0 ? 'text-red-600' : 'text-green-600') + ' font-bold';
+         }
       }
 
       document.addEventListener("input", (e) => {
@@ -743,7 +830,9 @@ if ($res) {
       ================================================== */
       document.getElementById("editForm").addEventListener("submit", (e) => {
          let invalid = false;
+         let total = 0;
          document.querySelectorAll(".order-row").forEach(row => {
+            total += calculateRow(row);
             const prodSelect = row.querySelector(".productSelect");
             const qtyVal = parseNum(row.querySelector(".qty")?.value);
             if (prodSelect && prodSelect.value === "" && qtyVal > 0) {
@@ -755,6 +844,26 @@ if ($res) {
          if (invalid) {
             e.preventDefault();
             return false;
+         }
+
+         const paymentStatus = getSelectedPaymentStatus();
+         const dpVal = parseNum(document.getElementById("dpInput")?.value);
+
+         if (paymentStatus === 'dp') {
+            if (dpVal <= 0) {
+               e.preventDefault();
+               alert("Status pembayaran dipilih DP. Silakan masukkan nominal DP yang valid (> 0).");
+               const dpInp = document.getElementById("dpInput");
+               if (dpInp) dpInp.focus();
+               return false;
+            }
+            if (dpVal > total) {
+               e.preventDefault();
+               alert("Nominal DP (Rp " + formatIDR(dpVal) + ") tidak boleh melebihi Total (Rp " + formatIDR(total) + ").");
+               const dpInp = document.getElementById("dpInput");
+               if (dpInp) dpInp.focus();
+               return false;
+            }
          }
 
          document.querySelectorAll(".qty,.qty-shrinkage,.price,#dpInput").forEach(input => {

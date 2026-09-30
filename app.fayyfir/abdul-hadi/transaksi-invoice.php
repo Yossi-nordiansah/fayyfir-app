@@ -82,7 +82,7 @@ $total_harga    = (float)$invoice["total_selling"];
 $dp             = (float)$invoice["total_dp"];
 $total_dibayar  = $dp + $total_angsuran;
 $raw_sisa       = max(0, $total_harga - $total_dibayar);
-$is_lunas       = (strcasecmp($invoice["status"] ?? '', 'lunas') === 0) || ($raw_sisa <= 0.01);
+$is_lunas       = (strcasecmp($invoice["status"] ?? '', 'lunas') === 0) || ($raw_sisa <= 0.01 && $total_dibayar > 0);
 
 if ($is_lunas) {
   $status_now   = 'Lunas';
@@ -91,7 +91,8 @@ if ($is_lunas) {
     $total_dibayar = $total_harga;
   }
 } else {
-  $status_now   = 'DP';
+  // DP maupun Belum Lunas → tampil "Belum Lunas" di invoice
+  $status_now   = 'Belum Lunas';
   $sisa_tagihan = $raw_sisa;
 }
 

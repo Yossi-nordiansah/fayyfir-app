@@ -28,9 +28,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $qtys        = $_POST["qty"] ?? [];    
   $qty_shrinkages = $_POST["qty_shrinkage"] ?? [];
   $prices         = $_POST["price"] ?? [];    
-  $dp_total       = clean_number($_POST["dpInput"] ?? 0);    
+  $payment_status = trim($_POST["payment_status"] ?? '');
+  $raw_dp         = clean_number($_POST["dpInput"] ?? 0);    
+  
+  if ($payment_status === 'dp') {
+    $dp_total = $raw_dp;
+    $status_invoice = "DP";
+  } elseif ($payment_status === 'lunas') {
+    $dp_total = 0.0;
+    $status_invoice = "Lunas";
+  } else {
+    // Default 'belum_lunas'
+    $payment_status = 'belum_lunas';
+    $dp_total = 0.0;
+    $status_invoice = "Belum Lunas";
+  }
     
   if (!$buyer_id || empty($product_ids)) die("Data tidak valid.");    
+
+  /* =======================================================
+     Auto-migrate kolom status jika belum ada 'Belum Lunas'
+     ======================================================= */
+  $check_enum = $conn->query("SHOW COLUMNS FROM `selling_products` LIKE 'status'");
+  if ($check_enum && $col = $check_enum->fetch_assoc()) {
+    if (strpos($col['Type'] ?? '', 'Belum Lunas') === false) {
+      $conn->query("ALTER TABLE `selling_products` MODIFY COLUMN `status` ENUM('Belum Lunas', 'DP', 'Lunas') NOT NULL DEFAULT 'Belum Lunas'");
+    }
+  }
 
   /* =======================================================
      🚨 CEK STOK PRODUK SEBELUM SIMPAN
@@ -91,7 +115,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $qty           = clean_number($qtys[$i] ?? 0);    
     $qty_shrinkage = clean_number($qty_shrinkages[$i] ?? 0);
     $price         = clean_number($prices[$i] ?? 0);    
-    $dp            = clean_number($dps[$i] ?? 0);    
     
     if ($pid <= 0 || $qty <= 0 || $price <= 0) continue;    
     
@@ -101,14 +124,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $grand_total += $total;    
     $pph = $grand_total * 0.0025;    
     
-    // Tentukan status berdasarkan nilai DP (Simpan DP di baris pertama saja)
-    $dp = ($i === 0) ? $dp_total : 0;
-    
-    if ($dp_total === null || $dp_total <= 0) {    
-      $status = "Lunas";    
-    } else {    
-      $status = "DP";    
-    }    
+    // Simpan DP di baris pertama saja
+    $dp = ($i === 0) ? $dp_total : 0.0;
+    $status = $status_invoice;    
     
     $stmt->bind_param(    
       "siiddddds",    

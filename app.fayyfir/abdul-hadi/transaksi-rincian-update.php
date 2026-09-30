@@ -25,6 +25,7 @@ $qtys = $_POST['qty'] ?? [];
 $qty_shrinkages = $_POST['qty_shrinkage'] ?? [];
 $prices = $_POST['price'] ?? [];
 $dp = $_POST['dp'] ?? 0;
+$payment_status_raw = trim($_POST['payment_status'] ?? '');
 $selling_date_input = $_POST['selling_date'] ?? null;
 $selling_date_formatted = !empty($selling_date_input) 
     ? date("Y-m-d H:i:s", strtotime($selling_date_input)) 
@@ -211,7 +212,7 @@ try {
             $stmt_insert = $conn->prepare("
                 INSERT INTO selling_products
                 (selling_date,invoice_number,product_id,buyer_id,qty,qty_shrinkage,price,total_selling,dp,status)
-                VALUES (?,?,?,?,?,?,?,?,0,'Lunas')
+                VALUES (?,?,?,?,?,?,?,?,0,'Belum Lunas')
             ");
 
             $buyer_id = $_POST['buyer_id'];
@@ -286,8 +287,6 @@ try {
        Update DP, Status & Tanggal
     ========================== */
 
-    $dp = num($dp);
-
     // Ambil total angsuran dari tabel invoice_payments jika ada
     $stmt_ip = $conn->prepare("SELECT COALESCE(SUM(jumlah), 0) AS total_angsuran FROM invoice_payments WHERE invoice_number = ?");
     $stmt_ip->bind_param("s", $invoice);
@@ -296,13 +295,31 @@ try {
     $total_angsuran = (float)($res_ip['total_angsuran'] ?? 0);
     $stmt_ip->close();
 
-    $total_dibayar = $dp + $total_angsuran;
-    $sisa_tagihan  = $total_selling - $total_dibayar;
+    $payment_status = trim($_POST['payment_status'] ?? '');
 
-    if ($dp <= 0 && $total_angsuran <= 0) {
+    if ($payment_status === 'lunas') {
+        $dp = 0.0;
         $status = "Lunas";
-    } else {
+    } elseif ($payment_status === 'belum_lunas') {
+        $dp = 0.0;
+        $total_dibayar = $total_angsuran;
+        $sisa_tagihan  = $total_selling - $total_dibayar;
+        $status = ($sisa_tagihan <= 0.01 && $total_dibayar > 0) ? "Lunas" : "Belum Lunas";
+    } elseif ($payment_status === 'dp') {
+        $dp = num($dp);
+        $total_dibayar = $dp + $total_angsuran;
+        $sisa_tagihan  = $total_selling - $total_dibayar;
         $status = ($sisa_tagihan <= 0.01) ? "Lunas" : "DP";
+    } else {
+        // Fallback jika payment_status tidak dikirim
+        $dp = num($dp);
+        $total_dibayar = $dp + $total_angsuran;
+        $sisa_tagihan  = $total_selling - $total_dibayar;
+        if ($dp <= 0 && $total_angsuran <= 0) {
+            $status = "Belum Lunas";
+        } else {
+            $status = ($sisa_tagihan <= 0.01) ? "Lunas" : "DP";
+        }
     }
 
     $stmt_dp = $conn->prepare("

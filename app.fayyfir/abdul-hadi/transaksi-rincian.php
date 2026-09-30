@@ -158,19 +158,52 @@ ORDER BY ps.product_name ASC;
             </div>
           </div>
         </div>
-        <div class="flex justify-between items-start mt-4">
-          <button type="button" id="addRow" class="bg-gray-800 text-white px-4 py-2 rounded">+ Tambah</button>
-          <div class="w-50">
-            <div class="text-right font-semibold">Total: <span id="grandTotal">0</span></div>
-            <div class="text-right mt-2 flex items-center justify-end">
-              <label for="dpInput" class="text-sm font-semibold mr-2">DP (Rp):</label>
-              <input id="dpInput" name="dpInput" type="text" class="border text-right rounded px-2 py-1 w-40" step="0.01" value="0" placeholder="0">
+        <div class="flex flex-col md:flex-row justify-between items-start mt-6 pt-4 border-t gap-4">
+          <button type="button" id="addRow" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition">+ Tambah Produk</button>
+
+          <div class="w-full md:w-80 bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+            <div class="flex justify-between items-center text-sm font-semibold">
+              <span class="text-gray-700">Total:</span>
+              <span class="text-gray-900 font-bold">Rp <span id="grandTotal">0</span></span>
             </div>
-            <div class="text-right font-semibold mt-2">Remaining: <span id="remaining">0</span></div>
+
+            <!-- Radio Button Pilihan Status Pembayaran -->
+            <div class="border-t border-gray-200 pt-3">
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Status Pembayaran:</label>
+              <div class="space-y-2">
+                <label class="flex items-center space-x-2 text-sm cursor-pointer hover:text-gray-900">
+                  <input type="radio" name="payment_status" value="belum_lunas" class="text-yellow-600 focus:ring-yellow-500 h-4 w-4" checked>
+                  <span class="text-gray-800 font-medium">1. Belum Lunas</span>
+                </label>
+                <label class="flex items-center space-x-2 text-sm cursor-pointer hover:text-gray-900">
+                  <input type="radio" name="payment_status" value="dp" class="text-yellow-600 focus:ring-yellow-500 h-4 w-4">
+                  <span class="text-gray-800 font-medium">2. DP (Uang Muka)</span>
+                </label>
+                <!-- Field Input DP (keluar saat DP dipilih) -->
+                <div id="dpContainer" class="hidden pl-6 pt-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <label for="dpInput" class="text-xs font-semibold text-gray-600">Nominal DP:</label>
+                    <div class="relative w-36">
+                      <span class="absolute left-2 top-1.5 text-xs text-gray-500">Rp</span>
+                      <input id="dpInput" name="dpInput" type="text" class="border border-gray-300 text-right rounded pl-7 pr-2 py-1 w-full text-sm font-semibold text-gray-800 focus:outline-none focus:ring-1 focus:ring-yellow-500" step="0.01" value="0" placeholder="0">
+                    </div>
+                  </div>
+                </div>
+                <label class="flex items-center space-x-2 text-sm cursor-pointer hover:text-gray-900">
+                  <input type="radio" name="payment_status" value="lunas" class="text-yellow-600 focus:ring-yellow-500 h-4 w-4">
+                  <span class="text-gray-800 font-medium">3. Lunas</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center text-sm font-semibold border-t border-gray-200 pt-2">
+              <span class="text-gray-700">Remaining (Sisa):</span>
+              <span class="text-red-600 font-bold" id="remainingWrapper">Rp <span id="remaining">0</span></span>
+            </div>
           </div>
         </div>
         <div class="mt-4 text-right">
-          <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded">Simpan Pesanan</button>
+          <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-6 py-2.5 rounded-lg shadow transition hover:shadow-md">Simpan Pesanan</button>
         </div>
       </form>
     </section>
@@ -201,22 +234,25 @@ ORDER BY ps.product_name ASC;
                 $net_qty_kg = ($h['qty'] - $shrinkage_val) / 1000;
                 $total_angsuran = (float)($h['total_angsuran'] ?? 0);
                 $total_dibayar = (float)$h['dp'] + $total_angsuran;
-                $raw_status = $h['status'] ?? 'Lunas';
+                $raw_status = $h['status'] ?? 'Belum Lunas';
                 $calc_remaining = max(0, (float)$h['total_selling'] - $total_dibayar);
-                $is_lunas = (strcasecmp($raw_status, 'lunas') === 0) || ($calc_remaining <= 0.01);
+                $is_lunas = (strcasecmp($raw_status, 'lunas') === 0) || ($calc_remaining <= 0.01 && $total_dibayar > 0);
 
                 if ($is_lunas) {
-                    $status_display = 'Lunas';
-                    $remaining = 0;
-                    if ((float)$h['dp'] <= 0 && $total_angsuran <= 0) {
-                        $total_dibayar = (float)$h['total_selling'];
-                    }
+                  $status_display = 'Lunas';
+                  $remaining = 0;
+                  $badge_class = 'bg-green-100 text-green-700';
+                  $rowClass = '';
+                  if ((float)$h['dp'] <= 0 && $total_angsuran <= 0) {
+                    $total_dibayar = (float)$h['total_selling'];
+                  }
                 } else {
-                    $status_display = 'DP';
-                    $remaining = $calc_remaining;
+                  // DP maupun Belum Lunas → tampil "Belum Lunas"
+                  $status_display = 'Belum Lunas';
+                  $remaining = $calc_remaining;
+                  $badge_class = 'bg-red-100 text-red-700';
+                  $rowClass = 'text-red-700';
                 }
-                // Tambahkan class merah kalau status DP  
-                $rowClass = (strtolower($status_display) === 'dp') ? 'text-red-600' : '';
                 ?>
                 <tr class="<?= $rowClass ?>">
                   <td class="px-4 py-2 whitespace-nowrap"><?= date("d M Y", strtotime($h['selling_date'])) ?></td>
@@ -236,7 +272,7 @@ ORDER BY ps.product_name ASC;
                   </td>
                   <td class="px-4 py-2 text-right whitespace-nowrap font-semibold">Rp <?= number_format($remaining, 0, ',', '.') ?></td>
                   <td class="px-4 py-2 text-center whitespace-nowrap">
-                    <span class="px-2 py-1 rounded text-xs <?= $status_display == 'Lunas' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                    <span class="px-2 py-1 rounded text-xs font-semibold <?= $badge_class ?>">
                       <?= htmlspecialchars($status_display) ?>
                     </span>
                   </td>
@@ -352,6 +388,30 @@ ORDER BY ps.product_name ASC;
       return dpInput ? parseNum(dpInput.value) : 0;
     }
 
+    function getSelectedPaymentStatus() {
+      const checked = document.querySelector('input[name="payment_status"]:checked');
+      return checked ? checked.value : 'belum_lunas';
+    }
+
+    function toggleDPField() {
+      const status = getSelectedPaymentStatus();
+      const dpContainer = document.getElementById("dpContainer");
+      const dpInput = document.getElementById("dpInput");
+
+      if (status === 'dp') {
+        if (dpContainer) dpContainer.classList.remove("hidden");
+        if (dpInput && parseNum(dpInput.value) <= 0) {
+          dpInput.focus();
+        }
+      } else {
+        if (dpContainer) dpContainer.classList.add("hidden");
+        if (dpInput) {
+          dpInput.value = "0";
+        }
+      }
+      calculateTotal();
+    }
+
     function setText(id, value) {
       const el = document.getElementById(id);
       if (el) el.textContent = formatIDR(value);
@@ -363,11 +423,32 @@ ORDER BY ps.product_name ASC;
         total += calculateRow(r);
       });
 
-      const dp = getDP();
-      const remaining = Math.max(total - dp, 0);
+      const paymentStatus = getSelectedPaymentStatus();
+      let dp = 0;
+      let remaining = 0;
+
+      if (paymentStatus === 'belum_lunas') {
+        dp = 0;
+        remaining = total;
+      } else if (paymentStatus === 'dp') {
+        dp = getDP();
+        remaining = Math.max(total - dp, 0);
+      } else if (paymentStatus === 'lunas') {
+        dp = 0;
+        remaining = 0;
+      }
 
       setText("grandTotal", total);
       setText("remaining", remaining);
+
+      const remWrapper = document.getElementById("remainingWrapper");
+      if (remWrapper) {
+        if (remaining <= 0) {
+          remWrapper.className = "text-green-600 font-bold";
+        } else {
+          remWrapper.className = "text-red-600 font-bold";
+        }
+      }
     }
 
     // ===================== Event Listeners ======================
@@ -553,9 +634,43 @@ ORDER BY ps.product_name ASC;
       }
     });
 
+    document.querySelectorAll('input[name="payment_status"]').forEach(radio => {
+      radio.addEventListener('change', toggleDPField);
+    });
+
     const orderForm = document.getElementById("orderForm") || document.querySelector("form");
     if (orderForm) {
-      orderForm.addEventListener("submit", () => {
+      orderForm.addEventListener("submit", (e) => {
+        const paymentStatus = getSelectedPaymentStatus();
+        const dpVal = parseNum(document.getElementById("dpInput")?.value);
+        let total = 0;
+        document.querySelectorAll(".order-row").forEach(r => {
+          total += calculateRow(r);
+        });
+
+        if (total <= 0) {
+          e.preventDefault();
+          alert("Silakan masukkan produk dan qty yang valid terlebih dahulu.");
+          return;
+        }
+
+        if (paymentStatus === 'dp') {
+          if (dpVal <= 0) {
+            e.preventDefault();
+            alert("Status pembayaran dipilih DP. Silakan masukkan nominal DP yang valid (> 0).");
+            const dpInp = document.getElementById("dpInput");
+            if (dpInp) dpInp.focus();
+            return;
+          }
+          if (dpVal > total) {
+            e.preventDefault();
+            alert("Nominal DP (Rp " + formatIDR(dpVal) + ") tidak boleh melebihi Total pesanan (Rp " + formatIDR(total) + ").");
+            const dpInp = document.getElementById("dpInput");
+            if (dpInp) dpInp.focus();
+            return;
+          }
+        }
+
         document.querySelectorAll(".price, .qty, .qty-shrinkage, #dpInput").forEach(input => {
           input.value = parseNum(input.value);
         });
@@ -609,23 +724,24 @@ ORDER BY ps.product_name ASC;
             btnPreview.href = "transaksi-invoice.php?invoice=" + currentInv;
             btnPreview.target = "_blank";
             btnPreview.className = "bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm mr-2 inline-flex items-center gap-1";
-            btnPreview.innerHTML = '<span class="material-symbols-outlined text-sm">picture_as_pdf</span> Preview PDF';
+            btnPreview.innerHTML = '<span class="material-symbols-outlined text-sm">picture_as_pdf</span> Preview Invoice';
 
             const btnDownload = document.createElement("a");
             btnDownload.id = "downloadPdfBtn";
             btnDownload.href = "transaksi-invoice.php?invoice=" + currentInv + "&download=1";
             btnDownload.className = "bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 text-sm mr-2 inline-flex items-center gap-1";
-            btnDownload.innerHTML = '<span class="material-symbols-outlined text-sm">download</span> Download PDF';
+            btnDownload.innerHTML = '<span class="material-symbols-outlined text-sm">download</span> Download Invoice';
 
             footer.insertBefore(btnPreview, footer.querySelector("#closeModalFooter"));
             footer.insertBefore(btnDownload, footer.querySelector("#closeModalFooter"));
           }
 
-          if (statusEl && statusEl.value === "dp") {
+          const stVal = (statusEl ? statusEl.value : "").toLowerCase();
+          if (stVal === "dp" || stVal === "belum lunas" || stVal === "belum_lunas") {
             const btnLunas = document.createElement("button");
             btnLunas.id = "markAsLunas";
             btnLunas.className = "bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 text-sm mr-2";
-            btnLunas.textContent = "Lunas";
+            btnLunas.textContent = "Pelunasan";
 
             btnLunas.addEventListener("click", () => {
               // 1️⃣ Tutup modal invoice dulu

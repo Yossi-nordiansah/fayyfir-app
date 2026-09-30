@@ -83,7 +83,7 @@ $dp = 0;
 
     $total_dibayar = (float)$dp + $total_angsuran;
     $raw_remaining = max(0, (float)$grand_total - $total_dibayar);
-    $is_lunas = (strcasecmp($db_status ?? '', 'lunas') === 0) || ($raw_remaining <= 0.01);
+    $is_lunas = (strcasecmp($db_status ?? '', 'lunas') === 0) || ($raw_remaining <= 0.01 && $total_dibayar > 0);
 
     if ($is_lunas) {
         $status = 'lunas';
@@ -91,6 +91,9 @@ $dp = 0;
         if ((float)$dp <= 0 && $total_angsuran <= 0) {
             $total_dibayar = (float)$grand_total;
         }
+    } elseif ((float)$dp <= 0 && $total_angsuran <= 0) {
+        $status = 'belum lunas';
+        $remaining = $raw_remaining;
     } else {
         $status = 'dp';
         $remaining = $raw_remaining;

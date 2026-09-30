@@ -1039,6 +1039,7 @@ foreach ($stock_logs as $lg) {
           <label class="text-xs text-gray-600 font-medium">Status</label>
           <select name="status" class="mt-1 w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-blue-500">
             <option value="">Semua Status</option>
+            <option value="Belum Lunas" <?= $status_filter === 'Belum Lunas' ? 'selected' : '' ?>>Belum Lunas</option>
             <option value="DP" <?= $status_filter === 'DP' ? 'selected' : '' ?>>DP</option>
             <option value="Lunas" <?= $status_filter === 'Lunas' ? 'selected' : '' ?>>Lunas</option>
           </select>
@@ -1591,8 +1592,18 @@ foreach ($stock_logs as $lg) {
                 <td class="p-2 border text-right font-semibold" data-label="Total">Rp <?= fmtIDR($tr['total_selling']) ?></td>
                 <td class="p-2 border text-right" data-label="DP">Rp <?= fmtIDR($tr['dp']) ?></td>
                 <td class="p-2 border" data-label="Status">
-                  <span class="px-2 py-1 rounded text-xs <?= $tr['status'] == 'Lunas' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' ?>">
-                    <?= htmlspecialchars($tr['status']) ?>
+                  <?php
+                  $st = $tr['status'] ?? '';
+                  if ($st === 'Lunas') {
+                    $badge_cls = 'bg-green-100 text-green-700';
+                  } elseif ($st === 'DP') {
+                    $badge_cls = 'bg-yellow-100 text-yellow-800';
+                  } else {
+                    $badge_cls = 'bg-red-100 text-red-700';
+                  }
+                  ?>
+                  <span class="px-2 py-1 rounded text-xs font-semibold <?= $badge_cls ?>">
+                    <?= htmlspecialchars($st) ?>
                   </span>
                 </td>
                 <td class="p-2 border text-center whitespace-nowrap" data-label="PDF">
