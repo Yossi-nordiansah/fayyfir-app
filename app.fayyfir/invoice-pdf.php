@@ -1,5 +1,14 @@
 <?php
 require_once("tcpdf/tcpdf.php");
+if (file_exists("tcpdf/fpdi.php")) {
+  require_once("tcpdf/fpdi.php");
+} elseif (file_exists("../tcpdf/fpdi.php")) {
+  require_once("../tcpdf/fpdi.php");
+} elseif (file_exists(__DIR__ . "/../vendor/autoload.php")) {
+  require_once(__DIR__ . "/../vendor/autoload.php");
+}
+
+use setasign\Fpdi\Tcpdf\Fpdi;
 require "config.php";
 
 // Ambil ID invoice
@@ -40,15 +49,42 @@ while ($t = $transactions->fetch_assoc()) {
 }
 $total_harga = $total_berat * $container["selling_price"];
 
-// Inisialisasi TCPDF
-$pdf = new TCPDF("P", "mm", "A4", true, "UTF-8", false);
+// Inisialisasi FPDI (extends TCPDF)
+$pdf = new Fpdi("P", "mm", "A4", true, "UTF-8", false);
 $pdf->SetMargins(0, 0, 0);
 $pdf->SetAutoPageBreak(false, 0);
-$pdf->AddPage();
 
-// ====== Background ======
-$bg_image = 'assets/blank.png';
-$pdf->Image($bg_image, 0, 0, 210, 297, '', '', '', false, 300, '', false, false, 0, false, false, -1);
+// Cek apakah invoice ini menggunakan template PDF tertentu
+$template_file_pdf = null;
+if (!empty($invoice["template_id"])) {
+  try {
+    $t_res = $conn->query("SELECT * FROM invoice_templates WHERE id = " . intval($invoice["template_id"]));
+    if ($t_res && $t_row = $t_res->fetch_assoc()) {
+      $candidate_path = $t_row["file_path"];
+      if (!file_exists($candidate_path) && file_exists("../" . $candidate_path)) {
+        $candidate_path = "../" . $candidate_path;
+      }
+      if (file_exists($candidate_path)) {
+        $template_file_pdf = $candidate_path;
+      }
+    }
+  } catch (Throwable $e) {}
+}
+
+if ($template_file_pdf) {
+  // Import halaman pertama PDF template sebagai background
+  $pageCount = $pdf->setSourceFile($template_file_pdf);
+  $tplIdx = $pdf->importPage(1);
+  $pdf->AddPage();
+  $pdf->useTemplate($tplIdx, 0, 0, 210, 297);
+} else {
+  // Background bawaan untuk invoice lama / tanpa template
+  $pdf->AddPage();
+  $bg_image = 'assets/blank.png';
+  if (file_exists($bg_image)) {
+    $pdf->Image($bg_image, 0, 0, 210, 297, '', '', '', false, 300, '', false, false, 0, false, false, -1);
+  }
+}
 
 // 👉 Kunci background, konten berikutnya akan di atas
 $pdf->setPageMark();
