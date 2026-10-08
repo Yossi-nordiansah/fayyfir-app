@@ -49,6 +49,30 @@ $result = $conn->query($sql);
   <title>Biaya Operasional - Fayyfir</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    @media print {
+      header, .no-print, #detailModal, #modalCetak, #custom-period-container,
+      .flex.justify-between.items-center.flex-wrap.gap-4.mb-4,
+      .bg-white.p-4.rounded-lg.shadow-md,
+      th:last-child, td:last-child {
+        display: none !important;
+      }
+      body {
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+      main {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+      .shadow, .shadow-md {
+        box-shadow: none !important;
+      }
+      .rounded-lg {
+        border-radius: 0 !important;
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 text-gray-800 min-h-screen">
@@ -63,13 +87,19 @@ $result = $conn->query($sql);
   </header>
 
   <main class="pt-20 px-4 pb-32 max-w-6xl mx-auto space-y-6">
-    <!-- Header dan Tombol Tambah -->
+    <!-- Header dan Tombol Tambah & Cetak -->
     <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
       <h2 class="text-xl font-bold text-gray-800">Daftar Biaya Operasional</h2>
-      <a href="tambah-operasional" class="inline-flex items-center bg-gray-800 hover:bg-yellow-500 text-yellow-400 hover:text-black text-sm px-4 py-2 rounded shadow space-x-1">
-        <span class="material-symbols-outlined">add</span>
-        <span>Tambah Operasional</span>
-      </a>
+      <div class="flex items-center gap-2">
+        <button type="button" id="btnBukaModalCetak" class="inline-flex items-center bg-gray-800 hover:bg-yellow-500 text-yellow-400 hover:text-black text-sm px-4 py-2 rounded shadow space-x-1 transition">
+          <span class="material-symbols-outlined text-base">print</span>
+          <span>Cetak</span>
+        </button>
+        <a href="tambah-operasional" class="inline-flex items-center bg-gray-800 hover:bg-yellow-500 text-yellow-400 hover:text-black text-sm px-4 py-2 rounded shadow space-x-1 transition">
+          <span class="material-symbols-outlined text-base">add</span>
+          <span>Tambah Operasional</span>
+        </a>
+      </div>
     </div>
 
     <!-- Filter and Search Section -->
@@ -140,12 +170,12 @@ $result = $conn->query($sql);
 
             $total_amount += $amount; // jumlahkan angka asli
           ?>
-            <tr class="operasional-row" 
-                data-year="<?= date("Y", strtotime($date)) ?>"
-                data-date="<?= date("Y-m-d", strtotime($date)) ?>"
-                data-name="<?= htmlspecialchars($row["nama_biaya"]) ?>"
-                data-desc="<?= htmlspecialchars($row["deskripsi"]) ?>"
-                data-amount="<?= $amount ?>">
+            <tr class="operasional-row"
+              data-year="<?= date("Y", strtotime($date)) ?>"
+              data-date="<?= date("Y-m-d", strtotime($date)) ?>"
+              data-name="<?= htmlspecialchars($row["nama_biaya"]) ?>"
+              data-desc="<?= htmlspecialchars($row["deskripsi"]) ?>"
+              data-amount="<?= $amount ?>">
               <td class="px-4 py-2 text-center"><?= htmlspecialchars(date("d/m/Y", strtotime($date))) ?></td>
               <td class="px-4 py-2 text-left"><?= htmlspecialchars($row["nama_biaya"]) ?></td>
               <td class="px-4 py-2 text-right"><?= number_format($amount, 0, ",", ".") ?></td>
@@ -194,6 +224,65 @@ $result = $conn->query($sql);
           <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm">Hapus</button>
         </form>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Cetak Biaya Operasional -->
+  <div id="modalCetak" style="display: none;" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative text-gray-800">
+      <button type="button" onclick="closeModalCetak()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <div class="flex items-center space-x-2 text-gray-800 mb-4">
+        <span class="material-symbols-outlined text-yellow-500 text-2xl">print</span>
+        <h2 class="text-lg font-bold">Cetak Laporan Operasional</h2>
+      </div>
+
+      <form id="formCetak" action="cetak-operasional.php" method="GET" target="_blank">
+        <div class="space-y-4 text-sm">
+          <div>
+            <label for="modalCetakTahun" class="block font-semibold text-gray-700 mb-1">Periode Waktu</label>
+            <select name="tahun" id="modalCetakTahun" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm">
+              <option value="">Semua Periode</option>
+              <?php foreach ($years as $y): ?>
+                <option value="<?= $y ?>"><?= $y ?></option>
+              <?php endforeach; ?>
+              <option value="custom">Pilih Rentang Tanggal...</option>
+            </select>
+          </div>
+
+          <div id="modalCetakDates" class="hidden grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded border border-gray-200">
+            <div>
+              <label for="modalCetakStartDate" class="block text-xs font-semibold text-gray-600 mb-1">Dari Tanggal</label>
+              <input type="date" name="start_date" id="modalCetakStartDate" class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring focus:ring-yellow-300">
+            </div>
+            <div>
+              <label for="modalCetakEndDate" class="block text-xs font-semibold text-gray-600 mb-1">Sampai Tanggal</label>
+              <input type="date" name="end_date" id="modalCetakEndDate" class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring focus:ring-yellow-300">
+            </div>
+          </div>
+
+          <div>
+            <label for="modalCetakSearch" class="block font-semibold text-gray-700 mb-1">Filter Kata Kunci (Opsional)</label>
+            <input type="text" name="search" id="modalCetakSearch" placeholder="Cari nama atau keterangan..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-300 text-sm">
+          </div>
+
+          <div class="p-3 bg-yellow-50 text-yellow-800 rounded text-xs border border-yellow-200">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">info</span>
+            Dokumen cetak sudah dilengkapi KOP resmi Fayyfir, ringkasan pengeluaran, rincian biaya, dan lembar pengesahan.
+          </div>
+        </div>
+
+        <input type="hidden" name="auto_print" value="1">
+
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModalCetak()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold text-gray-700">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded text-sm font-bold flex items-center space-x-1 shadow">
+            <span class="material-symbols-outlined text-sm">print</span>
+            <span>Buka & Cetak</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -321,6 +410,55 @@ $result = $conn->query($sql);
     }
     if (endDateInput) {
       endDateInput.addEventListener('change', filterOperasional);
+    }
+
+    // Modal Cetak Controller
+    function bukaModalCetak() {
+      const currentYear = tahunSelect ? tahunSelect.value : '';
+      const currentStartDate = startDateInput ? startDateInput.value : '';
+      const currentEndDate = endDateInput ? endDateInput.value : '';
+      const currentSearch = searchInput ? searchInput.value.trim() : '';
+
+      const modalTahun = document.getElementById('modalCetakTahun');
+      const modalDates = document.getElementById('modalCetakDates');
+      const modalStart = document.getElementById('modalCetakStartDate');
+      const modalEnd = document.getElementById('modalCetakEndDate');
+      const modalSearch = document.getElementById('modalCetakSearch');
+
+      modalTahun.value = currentYear;
+      modalStart.value = currentStartDate;
+      modalEnd.value = currentEndDate;
+      modalSearch.value = currentSearch;
+
+      if (currentYear === 'custom' || currentStartDate || currentEndDate) {
+        modalTahun.value = 'custom';
+        modalDates.classList.remove('hidden');
+      } else {
+        modalDates.classList.add('hidden');
+      }
+
+      document.getElementById('modalCetak').style.display = 'flex';
+    }
+
+    function closeModalCetak() {
+      document.getElementById('modalCetak').style.display = 'none';
+    }
+
+    const btnBukaCetak = document.getElementById('btnBukaModalCetak');
+    if (btnBukaCetak) {
+      btnBukaCetak.addEventListener('click', bukaModalCetak);
+    }
+
+    const modalTahunSelect = document.getElementById('modalCetakTahun');
+    if (modalTahunSelect) {
+      modalTahunSelect.addEventListener('change', function() {
+        const modalDates = document.getElementById('modalCetakDates');
+        if (this.value === 'custom') {
+          modalDates.classList.remove('hidden');
+        } else {
+          modalDates.classList.add('hidden');
+        }
+      });
     }
 
     // Run filter automatically on page load

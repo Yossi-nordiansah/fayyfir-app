@@ -4,7 +4,8 @@ require "config.php";
 
 // Polyfill untuk PHP < 8.0 agar kompatibel dengan seluruh versi PHP
 if (!function_exists('str_ends_with')) {
-  function str_ends_with($haystack, $needle) {
+  function str_ends_with($haystack, $needle)
+  {
     $haystack = (string)($haystack ?? '');
     $needle = (string)($needle ?? '');
     if ($needle === '') return true;
@@ -12,7 +13,8 @@ if (!function_exists('str_ends_with')) {
   }
 }
 if (!function_exists('str_starts_with')) {
-  function str_starts_with($haystack, $needle) {
+  function str_starts_with($haystack, $needle)
+  {
     $haystack = (string)($haystack ?? '');
     $needle = (string)($needle ?? '');
     if ($needle === '') return true;
@@ -46,21 +48,43 @@ if (!$container) {
 $invoice_existing = $conn->query("SELECT * FROM invoice_info WHERE container_id = $container_id LIMIT 1")->fetch_assoc();
 
 // Helper: Dapatkan nomor urut berikutnya berdasarkan invoice_from
-function get_next_sequence_by_from($conn, $invoice_from) {
+function get_next_sequence_by_from($conn, $invoice_from, $last_seq_hint = null)
+{
   $invoice_from = trim($invoice_from ?? '');
   if ($invoice_from === '') {
     return '001';
   }
+
+  // 1. Jika hint last_sequence sudah tersedia langsung
+  if ($last_seq_hint !== null && is_numeric($last_seq_hint)) {
+    $next = intval($last_seq_hint) + 1;
+    return str_pad($next, 3, '0', STR_PAD_LEFT);
+  }
+
   $from_esc = $conn->real_escape_string($invoice_from);
 
-  // Ambil kode pengirim jika ada di invoice_senders
+  // 2. Ambil last_sequence yang tersimpan di tabel invoice_senders
+  try {
+    $q_seq = $conn->query("SELECT last_sequence FROM invoice_senders WHERE TRIM(name) = '$from_esc' LIMIT 1");
+    if ($q_seq && $r_s = $q_seq->fetch_assoc()) {
+      if (isset($r_s['last_sequence'])) {
+        $last_seq = intval($r_s['last_sequence']);
+        $next = $last_seq + 1;
+        return str_pad($next, 3, '0', STR_PAD_LEFT);
+      }
+    }
+  } catch (Throwable $e) {
+  }
+
+  // 3. Fallback: Cari kode pengirim jika ada di invoice_senders
   $sender_code = '';
   try {
     $q_code = $conn->query("SELECT code FROM invoice_senders WHERE TRIM(name) = '$from_esc' LIMIT 1");
     if ($q_code && $r_c = $q_code->fetch_assoc()) {
       $sender_code = strtoupper(trim($r_c['code'] ?? ''));
     }
-  } catch (Throwable $e) {}
+  } catch (Throwable $e) {
+  }
 
   $sql = "SELECT invoice_no FROM invoice_info WHERE TRIM(invoice_from) = '$from_esc'";
   $last_num = 0;
@@ -72,7 +96,7 @@ function get_next_sequence_by_from($conn, $invoice_from) {
         if (empty($inv)) continue;
 
         // Jika sender_code diketahui dan format invoice {prefix}/{kode}/{seq},
-        // abaikan nomor invoice yang kodenya tidak sesuai (misal AYS padahal sender Mizbah)
+        // abaikan nomor invoice yang kodenya tidak sesuai
         if (!empty($sender_code)) {
           $parts = explode('/', $inv);
           if (count($parts) === 3 && strtoupper(trim($parts[1])) !== $sender_code) {
@@ -82,13 +106,14 @@ function get_next_sequence_by_from($conn, $invoice_from) {
 
         if (preg_match('/(?:[\/\s])(\d+)$/', $inv, $m)) {
           $num = (int)$m[1];
-          if ($num > $last_num) {
+          if ($num < 10000 && $num > $last_num) {
             $last_num = $num;
           }
         }
       }
     }
-  } catch (Throwable $e) {}
+  } catch (Throwable $e) {
+  }
   $next = $last_num + 1;
   return str_pad($next, 3, '0', STR_PAD_LEFT);
 }
@@ -102,34 +127,60 @@ try {
     `file_path` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
 try {
   $conn->query("CREATE TABLE IF NOT EXISTS `invoice_senders` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `code` VARCHAR(50) NOT NULL,
+    `last_sequence` INT NOT NULL DEFAULT 0,
+    `bank_name` VARCHAR(100) NULL DEFAULT '',
+    `account_name` VARCHAR(100) NULL DEFAULT '',
+    `account_number` VARCHAR(100) NULL DEFAULT '',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY `uk_sender_name` (`name`)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+  $chk_seq = $conn->query("SHOW COLUMNS FROM `invoice_senders` LIKE 'last_sequence'");
+  if ($chk_seq && $chk_seq->num_rows === 0) {
+    $conn->query("ALTER TABLE `invoice_senders` ADD COLUMN `last_sequence` INT NOT NULL DEFAULT 0 AFTER `code`");
+    $conn->query("UPDATE `invoice_senders` SET `last_sequence` = 158 WHERE TRIM(`name`) = 'Abdulaziz Yahya Sagheer Darwesh'");
+    $conn->query("UPDATE `invoice_senders` SET `last_sequence` = 182 WHERE TRIM(`name`) = 'PT ALSHARIF GROUP INDONESIA'");
+    $conn->query("UPDATE `invoice_senders` SET `last_sequence` = 13 WHERE TRIM(`name`) = 'PT GLOBAL GATEWAY TRADING'");
+    $conn->query("UPDATE `invoice_senders` SET `last_sequence` = 32 WHERE TRIM(`name`) = 'Anggam Abdullah'");
+    $conn->query("UPDATE `invoice_senders` SET `last_sequence` = 3 WHERE TRIM(`name`) = 'PT ALANOOD INTERNATIONAL TRADING'");
+  }
+
+  $chk_cols = $conn->query("SHOW COLUMNS FROM `invoice_senders` LIKE 'bank_name'");
+  if ($chk_cols && $chk_cols->num_rows === 0) {
+    $conn->query("ALTER TABLE `invoice_senders` 
+      ADD COLUMN `bank_name` VARCHAR(100) NULL DEFAULT '' AFTER `last_sequence`,
+      ADD COLUMN `account_name` VARCHAR(100) NULL DEFAULT '' AFTER `bank_name`,
+      ADD COLUMN `account_number` VARCHAR(100) NULL DEFAULT '' AFTER `account_name`");
+  }
+
   $chk_s = $conn->query("SELECT COUNT(*) AS total FROM invoice_senders");
   if ($chk_s && ($r_s = $chk_s->fetch_assoc()) && intval($r_s['total']) === 0) {
-    $conn->query("INSERT IGNORE INTO `invoice_senders` (`name`, `code`) VALUES
-      ('Abdulaziz Yahya Sagheer Darwesh', 'AYS'),
-      ('PT ALSHARIF GROUP INDONESIA', 'AGI'),
-      ('PT GLOBAL GATEWAY TRADING', 'GGT'),
-      ('Anggam Abdullah', 'AAM')");
+    $conn->query("INSERT IGNORE INTO `invoice_senders` (`name`, `code`, `last_sequence`, `bank_name`, `account_name`, `account_number`) VALUES
+      ('Abdulaziz Yahya Sagheer Darwesh', 'AYS', 158, 'BRI', 'Abdulaziz Yahya Sagheer Darwesh', '408501000036562'),
+      ('PT ALSHARIF GROUP INDONESIA', 'AGI', 182, 'BRI', 'PT ALSHARIF GROUP INDONESIA', '016701002496566'),
+      ('PT GLOBAL GATEWAY TRADING', 'GGT', 13, 'BRI', 'GLOBAL GATEWAY TRADING', '010501222333306'),
+      ('Anggam Abdullah', 'AAM', 32, 'BRI', 'Anggam Abdullah Muhammad Al sharif', '775301000133568'),
+      ('PT ALANOOD INTERNATIONAL TRADING', 'AIT', 3, 'BRI', 'PT ALANOOD INTERNATIONAL TRADING', '324222312')");
   }
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
 try {
   $chk_col = $conn->query("SHOW COLUMNS FROM `invoice_info` LIKE 'template_id'");
   if ($chk_col && $chk_col->num_rows === 0) {
     $conn->query("ALTER TABLE `invoice_info` ADD COLUMN `template_id` INT NULL AFTER `container_id`");
   }
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
 // Ambil daftar template yang sudah tersimpan
 $invoice_templates = [];
@@ -140,11 +191,13 @@ try {
       $invoice_templates[] = $tpl;
     }
   }
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
-// Ambil daftar pengirim (FROM) yang tersimpan beserta kodenya dari invoice_senders
+// Ambil daftar pengirim (FROM) yang tersimpan beserta kodenya & payment info dari invoice_senders
 $invoice_senders = [];
 $sender_codes = [];
+$sender_payments = [];
 try {
   $senders_res = $conn->query("
     SELECT * FROM invoice_senders 
@@ -155,20 +208,31 @@ try {
       $s_name = trim($s['name']);
       $invoice_senders[] = $s;
       $sender_codes[$s_name] = strtoupper(trim($s['code']));
+      $sender_payments[$s_name] = [
+        'bank_name' => trim($s['bank_name'] ?? ''),
+        'account_name' => trim($s['account_name'] ?? ''),
+        'account_number' => trim($s['account_number'] ?? '')
+      ];
     }
   }
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
 // Fallback jika database belum ada data pengirim
 if (empty($invoice_senders)) {
   $invoice_senders = [
-    ['id' => 1, 'name' => 'Abdulaziz Yahya Sagheer Darwesh', 'code' => 'AYS'],
-    ['id' => 2, 'name' => 'PT ALSHARIF GROUP INDONESIA', 'code' => 'AGI'],
-    ['id' => 3, 'name' => 'PT GLOBAL GATEWAY TRADING', 'code' => 'GGT'],
-    ['id' => 4, 'name' => 'Anggam Abdullah', 'code' => 'AAM']
+    ['id' => 1, 'name' => 'Abdulaziz Yahya Sagheer Darwesh', 'code' => 'AYS', 'bank_name' => 'BRI', 'account_name' => 'Abdulaziz Yahya Sagheer Darwesh', 'account_number' => '408501000036562'],
+    ['id' => 2, 'name' => 'PT ALSHARIF GROUP INDONESIA', 'code' => 'AGI', 'bank_name' => 'BRI', 'account_name' => 'PT ALSHARIF GROUP INDONESIA', 'account_number' => '016701002496566'],
+    ['id' => 3, 'name' => 'PT GLOBAL GATEWAY TRADING', 'code' => 'GGT', 'bank_name' => 'BRI', 'account_name' => 'GLOBAL GATEWAY TRADING', 'account_number' => '010501222333306'],
+    ['id' => 4, 'name' => 'Anggam Abdullah', 'code' => 'AAM', 'bank_name' => 'BRI', 'account_name' => 'Anggam Abdullah Muhammad Al sharif', 'account_number' => '775301000133568']
   ];
   foreach ($invoice_senders as $s) {
     $sender_codes[$s['name']] = $s['code'];
+    $sender_payments[$s['name']] = [
+      'bank_name' => $s['bank_name'],
+      'account_name' => $s['account_name'],
+      'account_number' => $s['account_number']
+    ];
   }
 }
 
@@ -190,7 +254,8 @@ try {
       $material_data[] = $row;
     }
   }
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
 // Fungsi helper: ambil daftar unik dari kolom tertentu
 function get_unique_column($rows, $col)
@@ -208,7 +273,7 @@ function get_unique_column($rows, $col)
 }
 
 // Bersihkan data material dari nilai 'Lainnya' yang tidak valid
-$material_data = array_values(array_filter($material_data, function($row) {
+$material_data = array_values(array_filter($material_data, function ($row) {
   foreach ($row as $k => $v) {
     if ($v !== null && substr(trim($v), -7) === 'Lainnya') {
       return false;
@@ -222,17 +287,37 @@ $invoice_to_list       = get_unique_column($material_data, 'invoice_to');
 $address_list          = get_unique_column($material_data, 'address');
 $bank_name_list        = get_unique_column($material_data, 'bank_name');
 
+// Pastikan data invoice_to dan address dari invoice yang sedang diedit tersedia di dropdown
+if ($invoice_existing) {
+  if (!empty($invoice_existing['invoice_to']) && !in_array($invoice_existing['invoice_to'], $invoice_to_list)) {
+    $invoice_to_list[] = $invoice_existing['invoice_to'];
+  }
+  if (!empty($invoice_existing['address']) && !in_array($invoice_existing['address'], $address_list)) {
+    $address_list[] = $invoice_existing['address'];
+  }
+}
+
 // Pastikan data pengirim dari riwayat invoice_info tetap ada di $invoice_senders jika belum terdaftar
-$known_sender_names = array_map(function($s) { return trim($s['name']); }, $invoice_senders);
+$known_sender_names = array_map(function ($s) {
+  return trim($s['name']);
+}, $invoice_senders);
 foreach ($invoice_from_list_raw as $raw_from) {
   if (!empty($raw_from) && !in_array($raw_from, $known_sender_names)) {
     $auto_code = 'AYS';
     $invoice_senders[] = [
       'id' => 0,
       'name' => $raw_from,
-      'code' => $auto_code
+      'code' => $auto_code,
+      'bank_name' => '',
+      'account_name' => '',
+      'account_number' => ''
     ];
     $sender_codes[$raw_from] = $auto_code;
+    $sender_payments[$raw_from] = [
+      'bank_name' => '',
+      'account_name' => '',
+      'account_number' => ''
+    ];
     $known_sender_names[] = $raw_from;
   }
 }
@@ -241,7 +326,7 @@ foreach ($invoice_from_list_raw as $raw_from) {
 $from_sequences = [];
 foreach ($invoice_senders as $snd) {
   $s_name = trim($snd['name']);
-  $from_sequences[$s_name] = get_next_sequence_by_from($conn, $s_name);
+  $from_sequences[$s_name] = get_next_sequence_by_from($conn, $s_name, $snd['last_sequence'] ?? null);
 }
 
 // Tentukan pengirim terpilih saat ini (Default: Abdulaziz Yahya Sagheer Darwesh)
@@ -255,6 +340,24 @@ if ($invoice_existing && !empty($invoice_existing['invoice_from'])) {
 
 $current_from_code = $sender_codes[$current_from_val] ?? 'AYS';
 $current_from_seq = $from_sequences[$current_from_val] ?? '001';
+
+// Tentukan payment info pengirim terpilih
+$current_from_payment = $sender_payments[$current_from_val] ?? [
+  'bank_name' => '',
+  'account_name' => '',
+  'account_number' => ''
+];
+if ($invoice_existing) {
+  if (empty($current_from_payment['bank_name']) && !empty($invoice_existing['bank_name'])) {
+    $current_from_payment['bank_name'] = $invoice_existing['bank_name'];
+  }
+  if (empty($current_from_payment['account_name']) && !empty($invoice_existing['account_name'])) {
+    $current_from_payment['account_name'] = $invoice_existing['account_name'];
+  }
+  if (empty($current_from_payment['account_number']) && !empty($invoice_existing['account_number'])) {
+    $current_from_payment['account_number'] = $invoice_existing['account_number'];
+  }
+}
 
 // Generate nomor invoice otomatis
 // Format: {container_number}/{KODE}/{NO_URUT}
@@ -341,12 +444,55 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
   }
 }
 
-// Handle AJAX save/update pengirim (FROM) & Kode Invoice
+// Handle AJAX reset nomor urut sender ke 001 di database
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "reset_sender_sequence") {
+  header('Content-Type: application/json');
+  $sender_id = intval($_POST["sender_id"] ?? 0);
+  $sender_name = trim($_POST["sender_name"] ?? "");
+  $sender_code = "";
+
+  if ($sender_id > 0) {
+    $conn->query("UPDATE invoice_senders SET last_sequence = 0 WHERE id = $sender_id");
+    $chk = $conn->query("SELECT id, name, code FROM invoice_senders WHERE id = $sender_id LIMIT 1")->fetch_assoc();
+    if ($chk) {
+      $sender_name = $chk['name'] ?? $sender_name;
+      $sender_code = $chk['code'] ?? '';
+    }
+  } elseif (!empty($sender_name)) {
+    $s_esc = $conn->real_escape_string($sender_name);
+    $conn->query("UPDATE invoice_senders SET last_sequence = 0 WHERE TRIM(name) = '$s_esc'");
+    $chk = $conn->query("SELECT id, name, code FROM invoice_senders WHERE TRIM(name) = '$s_esc' LIMIT 1")->fetch_assoc();
+    if ($chk) {
+      $sender_id = $chk['id'] ?? 0;
+      $sender_code = $chk['code'] ?? '';
+    }
+  } else {
+    echo json_encode(["success" => false, "message" => "Data pengirim tidak valid."]);
+    exit();
+  }
+
+  echo json_encode([
+    "success" => true,
+    "message" => "Nomor urut pengirim berhasil direset ke 001 di database.",
+    "sender_id" => $sender_id,
+    "sender_name" => $sender_name,
+    "sender_code" => $sender_code,
+    "last_sequence" => 0,
+    "next_seq" => "001"
+  ]);
+  exit();
+}
+
+// Handle AJAX save/update pengirim (FROM) & Kode Invoice & Payment Info & Last Sequence
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "save_sender") {
   header('Content-Type: application/json');
   $sender_id = intval($_POST["sender_id"] ?? 0);
   $sender_name = trim($_POST["sender_name"] ?? "");
   $sender_code = strtoupper(trim($_POST["sender_code"] ?? ""));
+  $sender_last_seq = (isset($_POST["last_sequence"]) && $_POST["last_sequence"] !== "") ? intval($_POST["last_sequence"]) : null;
+  $bank_name = trim($_POST["bank_name"] ?? "");
+  $account_name = trim($_POST["account_name"] ?? "");
+  $account_number = trim($_POST["account_number"] ?? "");
 
   if (empty($sender_name) || empty($sender_code)) {
     echo json_encode(["success" => false, "message" => "Nama Pengirim dan Kode Invoice wajib diisi."]);
@@ -356,8 +502,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
   if ($sender_id > 0) {
     // Update pengirim lama
     $old_sender = $conn->query("SELECT * FROM invoice_senders WHERE id = $sender_id")->fetch_assoc();
-    $stmt = $conn->prepare("UPDATE invoice_senders SET name = ?, code = ? WHERE id = ?");
-    $stmt->bind_param("ssi", $sender_name, $sender_code, $sender_id);
+    if ($sender_last_seq !== null) {
+      $stmt = $conn->prepare("UPDATE invoice_senders SET name = ?, code = ?, last_sequence = ?, bank_name = ?, account_name = ?, account_number = ? WHERE id = ?");
+      $stmt->bind_param("ssisssi", $sender_name, $sender_code, $sender_last_seq, $bank_name, $account_name, $account_number, $sender_id);
+    } else {
+      $stmt = $conn->prepare("UPDATE invoice_senders SET name = ?, code = ?, bank_name = ?, account_name = ?, account_number = ? WHERE id = ?");
+      $stmt->bind_param("sssssi", $sender_name, $sender_code, $bank_name, $account_name, $account_number, $sender_id);
+    }
     if ($stmt->execute()) {
       if ($old_sender && trim($old_sender['name']) !== $sender_name) {
         $old_n = trim($old_sender['name']);
@@ -365,15 +516,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         $up_info->bind_param("ss", $sender_name, $old_n);
         $up_info->execute();
       }
-      $seq = get_next_sequence_by_from($conn, $sender_name);
+      $q_chk = $conn->query("SELECT last_sequence FROM invoice_senders WHERE id = $sender_id LIMIT 1");
+      $cur_last = ($q_chk && $r_cs = $q_chk->fetch_assoc()) ? intval($r_cs['last_sequence'] ?? 0) : 0;
+      $seq = str_pad($cur_last + 1, 3, '0', STR_PAD_LEFT);
       $prefix = !empty($container['number']) ? $container['number'] . '/' : '';
       echo json_encode([
         "success" => true,
-        "message" => "Data pengirim dan kode invoice berhasil diperbarui.",
+        "message" => "Data pengirim dan Payment Info berhasil diperbarui.",
         "sender" => [
           "id" => $sender_id,
           "name" => $sender_name,
           "code" => $sender_code,
+          "last_sequence" => $cur_last,
+          "bank_name" => $bank_name,
+          "account_name" => $account_name,
+          "account_number" => $account_number,
           "next_seq" => $seq,
           "next_invoice_no" => $prefix . $sender_code . '/' . $seq
         ]
@@ -385,8 +542,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     }
   } else {
     // Tambah pengirim baru
-    $stmt = $conn->prepare("INSERT INTO invoice_senders (name, code) VALUES (?, ?) ON DUPLICATE KEY UPDATE code = VALUES(code)");
-    $stmt->bind_param("ss", $sender_name, $sender_code);
+    $init_seq = ($sender_last_seq !== null) ? $sender_last_seq : 0;
+    $stmt = $conn->prepare("INSERT INTO invoice_senders (name, code, last_sequence, bank_name, account_name, account_number) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE code = VALUES(code), last_sequence = VALUES(last_sequence), bank_name = VALUES(bank_name), account_name = VALUES(account_name), account_number = VALUES(account_number)");
+    $stmt->bind_param("ssisss", $sender_name, $sender_code, $init_seq, $bank_name, $account_name, $account_number);
     if ($stmt->execute()) {
       $new_id = $stmt->insert_id;
       if (!$new_id) {
@@ -394,15 +552,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         $chk = $conn->query("SELECT id FROM invoice_senders WHERE name = '$s_esc'")->fetch_assoc();
         $new_id = $chk['id'] ?? 0;
       }
-      $seq = get_next_sequence_by_from($conn, $sender_name);
+      $q_chk = $conn->query("SELECT last_sequence FROM invoice_senders WHERE id = $new_id LIMIT 1");
+      $cur_last = ($q_chk && $r_cs = $q_chk->fetch_assoc()) ? intval($r_cs['last_sequence'] ?? 0) : $init_seq;
+      $seq = str_pad($cur_last + 1, 3, '0', STR_PAD_LEFT);
       $prefix = !empty($container['number']) ? $container['number'] . '/' : '';
       echo json_encode([
         "success" => true,
-        "message" => "Pengirim baru berhasil disimpan.",
+        "message" => "Pengirim baru dan Payment Info berhasil disimpan.",
         "sender" => [
           "id" => $new_id,
           "name" => $sender_name,
           "code" => $sender_code,
+          "last_sequence" => $cur_last,
+          "bank_name" => $bank_name,
+          "account_name" => $account_name,
+          "account_number" => $account_number,
           "next_seq" => $seq,
           "next_invoice_no" => $prefix . $sender_code . '/' . $seq
         ]
@@ -465,10 +629,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $invoice_from = trim($_POST["if_lainnya"] ?? "");
   }
 
+  // Payment Info: didapatkan dari form (terikat dengan pengirim terpilih) atau fallback ke database pengirim
+  $bank_name      = trim($_POST["bank_name"] ?? "");
+  $account_name   = trim($_POST["account_name"] ?? "");
+  $account_number = trim($_POST["account_number"] ?? "");
+
+  if ((empty($bank_name) || empty($account_name) || empty($account_number)) && !empty($invoice_from)) {
+    $from_safe = $conn->real_escape_string($invoice_from);
+    $q_snd_pay = $conn->query("SELECT bank_name, account_name, account_number FROM invoice_senders WHERE TRIM(name) = '$from_safe' LIMIT 1");
+    if ($q_snd_pay && $r_sp = $q_snd_pay->fetch_assoc()) {
+      if (empty($bank_name)) $bank_name = trim($r_sp['bank_name'] ?? '');
+      if (empty($account_name)) $account_name = trim($r_sp['account_name'] ?? '');
+      if (empty($account_number)) $account_number = trim($r_sp['account_number'] ?? '');
+    }
+  }
+
   // Simpan otomatis ke invoice_senders jika pengirim belum terdaftar
   if (!empty($invoice_from) && !isset($sender_codes[$invoice_from])) {
-    $ins = $conn->prepare("INSERT IGNORE INTO invoice_senders (name, code) VALUES (?, 'AYS')");
-    $ins->bind_param("s", $invoice_from);
+    $ins = $conn->prepare("INSERT IGNORE INTO invoice_senders (name, code, bank_name, account_name, account_number) VALUES (?, 'AYS', ?, ?, ?)");
+    $ins->bind_param("ssss", $invoice_from, $bank_name, $account_name, $account_number);
     $ins->execute();
   }
 
@@ -480,11 +659,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $address = trim($_POST["address"] ?? "");
   if ($address === "ADLainnya") {
     $address = trim($_POST["ad_lainnya"] ?? "");
-  }
-
-  $account_name = trim($_POST["account_name"] ?? "");
-  if ($account_name === "ANLainnya") {
-    $account_name = trim($_POST["an_lainnya"] ?? "");
   }
 
   $containers     = $_POST["containers"];
@@ -518,16 +692,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
   }
   $invoice_date   = $_POST["invoice_date"];
-
-  $account_number = trim($_POST["account_number"] ?? "");
-  if ($account_number === "ANumLainnya") {
-    $account_number = trim($_POST["anum_lainnya"] ?? "");
-  }
-
-  $bank_name      = trim($_POST["bank_name"] ?? "");
-  if ($bank_name === "BNLainnya") {
-    $bank_name = trim($_POST["bn_lainnya"] ?? "");
-  }
   $description    = $_POST["description"];
 
   if (!isset($error)) {
@@ -556,6 +720,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $container_id
       );
       if ($stmt->execute()) {
+        // Ekstrak digit urutan dari invoice_no yang disimpan (misal 453/AIT/004 -> 4)
+        $seq_num = 0;
+        $parts = explode('/', $invoice_no);
+        if (count($parts) === 3 && is_numeric($parts[2])) {
+          $seq_num = intval($parts[2]);
+        } elseif (preg_match('/(?:[\/\s])(\d+)$/', $invoice_no, $m_seq)) {
+          $seq_num = intval($m_seq[1]);
+        }
+
+        // Update last_sequence di tabel invoice_senders untuk pengirim terpilih
+        if ($seq_num > 0 && !empty($invoice_from)) {
+          $from_esc = $conn->real_escape_string($invoice_from);
+          $conn->query("UPDATE invoice_senders SET last_sequence = $seq_num WHERE TRIM(name) = '$from_esc'");
+        }
+
         header("Location: invoice-pdf.php?invoice_id=" . $invoice_existing['id']);
         exit();
       } else {
@@ -585,7 +764,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $description
       );
       if ($stmt->execute()) {
-        header("Location: invoice-pdf.php?invoice_id=" . $stmt->insert_id);
+        $new_inv_id = $stmt->insert_id;
+
+        // Ekstrak digit urutan dari invoice_no yang disimpan (misal 453/AIT/004 -> 4)
+        $seq_num = 0;
+        $parts = explode('/', $invoice_no);
+        if (count($parts) === 3 && is_numeric($parts[2])) {
+          $seq_num = intval($parts[2]);
+        } elseif (preg_match('/(?:[\/\s])(\d+)$/', $invoice_no, $m_seq)) {
+          $seq_num = intval($m_seq[1]);
+        }
+
+        // Update last_sequence di tabel invoice_senders untuk pengirim terpilih
+        if ($seq_num > 0 && !empty($invoice_from)) {
+          $from_esc = $conn->real_escape_string($invoice_from);
+          $conn->query("UPDATE invoice_senders SET last_sequence = $seq_num WHERE TRIM(name) = '$from_esc'");
+        }
+
+        header("Location: invoice-pdf.php?invoice_id=" . $new_inv_id);
         exit();
       } else {
         $error = "❌ Gagal menyimpan data invoice: " . $stmt->error;
@@ -634,12 +830,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Template Invoice (PDF)</label>
             <p class="text-xs text-gray-500 mb-1.5">Pilih template PDF sebagai latar belakang kop surat invoice.</p>
-            
+
             <!-- Hidden native select for form submit and state tracking -->
             <select name="template_id" id="TemplateSelect" class="hidden">
               <option value="" data-name="">-- Template Standar (Bawaan) --</option>
               <?php foreach ($invoice_templates as $tpl): ?>
-                <option value="<?= $tpl['id'] ?>" 
+                <option value="<?= $tpl['id'] ?>"
                   data-id="<?= $tpl['id'] ?>"
                   data-name="<?= htmlspecialchars($tpl['name']) ?>"
                   data-file="<?= htmlspecialchars($tpl['file_path']) ?>"
@@ -660,11 +856,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
                 <!-- Bagian Kanan: Tulisan Edit (jika template dipilih) & Panah Dropdown -->
                 <div class="flex items-center gap-2 flex-shrink-0">
-                  <button type="button" 
-                          id="customTemplateEditCurrentBtn" 
-                          onclick="event.stopPropagation(); openEditCurrentTemplate()" 
-                          class="hidden inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs" 
-                          title="Edit nama dan file template ini">
+                  <button type="button"
+                    id="customTemplateEditCurrentBtn"
+                    onclick="event.stopPropagation(); openEditCurrentTemplate()"
+                    class="hidden inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
+                    title="Edit nama dan file template ini">
                     <span class="material-symbols-outlined text-sm">edit</span>
                     <span>Edit</span>
                   </button>
@@ -674,7 +870,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
               <!-- Dropdown Menu List -->
               <div id="customTemplateList" class="hidden absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-30 max-h-64 overflow-y-auto divide-y divide-gray-100">
-                
+
                 <!-- Option: Template Standar (Bawaan) -->
                 <div class="template-item-row flex items-center justify-between px-3 py-2.5 hover:bg-gray-100 cursor-pointer transition" onclick="selectTemplateOption('')">
                   <span class="text-sm text-gray-600">-- Template Standar (Bawaan) --</span>
@@ -682,19 +878,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <!-- Loop Template Tersimpan -->
                 <?php foreach ($invoice_templates as $tpl): ?>
-                  <div class="template-item-row flex items-center justify-between px-3 py-2.5 hover:bg-yellow-50 cursor-pointer group transition" 
-                       id="tplRow_<?= $tpl['id'] ?>"
-                       onclick="selectTemplateOption('<?= $tpl['id'] ?>')">
+                  <div class="template-item-row flex items-center justify-between px-3 py-2.5 hover:bg-yellow-50 cursor-pointer group transition"
+                    id="tplRow_<?= $tpl['id'] ?>"
+                    onclick="selectTemplateOption('<?= $tpl['id'] ?>')">
                     <!-- Bagian Kiri: Nama Template -->
                     <div class="flex items-center space-x-2 text-sm text-gray-800 flex-1 truncate pr-3">
                       <span class="material-symbols-outlined text-gray-400 group-hover:text-yellow-600 text-base flex-shrink-0">description</span>
                       <span class="truncate font-medium tpl-name-display"><?= htmlspecialchars($tpl['name']) ?></span>
                     </div>
                     <!-- Bagian Kanan: Tulisan / Tombol Edit -->
-                    <button type="button" 
-                            onclick="event.stopPropagation(); openEditTemplateModalById('<?= $tpl['id'] ?>')" 
-                            class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
-                            title="Edit nama dan file template ini">
+                    <button type="button"
+                      onclick="event.stopPropagation(); openEditTemplateModalById('<?= $tpl['id'] ?>')"
+                      class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
+                      title="Edit nama dan file template ini">
                       <span class="material-symbols-outlined text-sm">edit</span>
                       <span>Edit</span>
                     </button>
@@ -739,10 +935,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <!-- Hidden native select for form submit and state tracking -->
           <select name="invoice_from" id="IFSelect" class="hidden">
             <?php foreach ($invoice_senders as $snd): ?>
-              <option value="<?= htmlspecialchars($snd['name']) ?>" 
+              <option value="<?= htmlspecialchars($snd['name']) ?>"
                 data-id="<?= $snd['id'] ?>"
                 data-name="<?= htmlspecialchars($snd['name']) ?>"
-                data-code="<?= htmlspecialchars($snd['code']) ?>" 
+                data-code="<?= htmlspecialchars($snd['code']) ?>"
+                data-lastseq="<?= intval($snd['last_sequence'] ?? 0) ?>"
+                data-nextseq="<?= htmlspecialchars($from_sequences[trim($snd['name'])] ?? '001') ?>"
+                data-bank="<?= htmlspecialchars($snd['bank_name'] ?? '') ?>"
+                data-accname="<?= htmlspecialchars($snd['account_name'] ?? '') ?>"
+                data-accnum="<?= htmlspecialchars($snd['account_number'] ?? '') ?>"
                 <?= ($current_from_val === trim($snd['name'])) ? 'selected' : '' ?>>
                 <?= htmlspecialchars($snd['name']) ?> (Kode: <?= htmlspecialchars($snd['code']) ?>)
               </option>
@@ -761,11 +962,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               </div>
               <!-- Bagian Kanan: Tombol Edit (SELALU MUNCUL ADA MAUPUN TIDAK DATANYA) & Panah Dropdown -->
               <div class="flex items-center gap-2 flex-shrink-0">
-                <button type="button" 
-                        id="customSenderEditCurrentBtn" 
-                        onclick="event.stopPropagation(); openEditCurrentSender()" 
-                        class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs" 
-                        title="Edit atau isi data pengirim dan kode invoice">
+                <button type="button"
+                  id="customSenderEditCurrentBtn"
+                  onclick="event.stopPropagation(); openEditCurrentSender()"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
+                  title="Edit atau isi data pengirim dan kode invoice">
                   <span class="material-symbols-outlined text-sm">edit</span>
                   <span>Edit</span>
                 </button>
@@ -778,12 +979,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
               <!-- Loop Senders -->
               <?php foreach ($invoice_senders as $snd): ?>
-                <div class="sender-item-row flex items-center justify-between px-3 py-2.5 hover:bg-yellow-50 cursor-pointer group transition" 
-                     id="senderRow_<?= $snd['id'] ?>"
-                     data-id="<?= $snd['id'] ?>"
-                     data-name="<?= htmlspecialchars($snd['name']) ?>"
-                     data-code="<?= htmlspecialchars($snd['code']) ?>"
-                     onclick="selectSenderOption(this.dataset.name)">
+                <div class="sender-item-row flex items-center justify-between px-3 py-2.5 hover:bg-yellow-50 cursor-pointer group transition"
+                  id="senderRow_<?= $snd['id'] ?>"
+                  data-id="<?= $snd['id'] ?>"
+                  data-name="<?= htmlspecialchars($snd['name']) ?>"
+                  data-code="<?= htmlspecialchars($snd['code']) ?>"
+                  data-lastseq="<?= intval($snd['last_sequence'] ?? 0) ?>"
+                  data-nextseq="<?= htmlspecialchars($from_sequences[trim($snd['name'])] ?? '001') ?>"
+                  data-bank="<?= htmlspecialchars($snd['bank_name'] ?? '') ?>"
+                  data-accname="<?= htmlspecialchars($snd['account_name'] ?? '') ?>"
+                  data-accnum="<?= htmlspecialchars($snd['account_number'] ?? '') ?>"
+                  onclick="selectSenderOption(this.dataset.name)">
                   <!-- Bagian Kiri: Nama Pengirim & Kode -->
                   <div class="flex items-center space-x-2 text-sm text-gray-800 flex-1 truncate pr-3">
                     <span class="material-symbols-outlined text-gray-400 group-hover:text-yellow-600 text-base flex-shrink-0">business</span>
@@ -791,10 +997,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <span class="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-mono flex-shrink-0 sender-code-display">Kode: <?= htmlspecialchars($snd['code']) ?></span>
                   </div>
                   <!-- Bagian Kanan: Tombol Edit Spesifik Baris Ini -->
-                  <button type="button" 
-                          onclick="event.stopPropagation(); openEditSenderModalById('<?= $snd['id'] ?>')" 
-                          class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
-                          title="Edit nama dan kode pengirim ini">
+                  <button type="button"
+                    onclick="event.stopPropagation(); openEditSenderModalById('<?= $snd['id'] ?>')"
+                    class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
+                    title="Edit nama dan kode pengirim ini">
                     <span class="material-symbols-outlined text-sm">edit</span>
                     <span>Edit</span>
                   </button>
@@ -815,31 +1021,57 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <!-- Invoice To -->
         <div>
-          <label class="block text-sm font-medium">Invoice To</label>
-          <select name="invoice_to" id="ITSelect" class="mt-1 w-full border px-3 py-2 rounded toggle-input">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-medium text-gray-700">Invoice To</label>
+            <!-- <button type="button" 
+                    onclick="enableNewOption('ITSelect', 'ITOther', 'ITLainnya')" 
+                    class="text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline inline-flex items-center gap-0.5"
+                    title="Ketik penerima invoice baru secara manual">
+              <span class="material-symbols-outlined text-sm leading-none">add</span>
+              <span>Ketik Penerima Baru</span>
+            </button> -->
+          </div>
+          <select name="invoice_to" id="ITSelect" onchange="handleToggleOther(this, 'ITOther', 'ITLainnya')" class="mt-1 w-full border px-3 py-2 rounded toggle-input bg-white focus:ring focus:ring-yellow-300">
             <option value="">-- Invoice untuk --</option>
             <?php foreach ($invoice_to_list as $val): ?>
               <option value="<?= htmlspecialchars($val) ?>" <?= ($invoice_existing && $invoice_existing['invoice_to'] == $val) ? 'selected' : '' ?>><?= htmlspecialchars($val) ?></option>
             <?php endforeach; ?>
             <option value="ITLainnya">Tambah baru...</option>
           </select>
-          <input type="text" name="it_lainnya" id="ITOther" class="mt-2 w-full border px-3 py-2 rounded hidden" placeholder="Tambah baru…" />
+          <div id="ITOtherWrapper" class="<?= ($invoice_existing && $invoice_existing['invoice_to'] === 'ITLainnya') ? '' : 'hidden' ?> mt-2">
+            <input type="text" name="it_lainnya" id="ITOther" 
+                   class="w-full border-2 border-yellow-400 bg-yellow-50 px-3 py-2 rounded focus:ring-2 focus:ring-yellow-400 focus:bg-white text-sm" 
+                   placeholder="Ketik nama penerima (Invoice To) baru…" />
+          </div>
         </div>
 
         <!-- Address -->
         <div>
-          <label class="block text-sm font-medium">Address</label>
-          <select name="address" id="ADSelect" class="mt-1 w-full border px-3 py-2 rounded toggle-input">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-medium text-gray-700">Address</label>
+            <!-- <button type="button" 
+                    onclick="enableNewOption('ADSelect', 'ADOther', 'ADLainnya')" 
+                    class="text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline inline-flex items-center gap-0.5"
+                    title="Ketik alamat baru secara manual">
+              <span class="material-symbols-outlined text-sm leading-none">add</span>
+              <span>Ketik Alamat Baru</span>
+            </button> -->
+          </div>
+          <select name="address" id="ADSelect" onchange="handleToggleOther(this, 'ADOther', 'ADLainnya')" class="mt-1 w-full border px-3 py-2 rounded toggle-input bg-white focus:ring focus:ring-yellow-300">
             <option value="">-- Pilih alamat --</option>
             <?php foreach ($address_list as $val): ?>
               <option value="<?= htmlspecialchars($val) ?>" <?= ($invoice_existing && $invoice_existing['address'] == $val) ? 'selected' : '' ?>><?= htmlspecialchars($val) ?></option>
             <?php endforeach; ?>
             <option value="ADLainnya">Tambah baru...</option>
           </select>
-          <input type="text" name="ad_lainnya" id="ADOther" class="mt-2 w-full border px-3 py-2 rounded hidden" placeholder="Tambah baru…" />
+          <div id="ADOtherWrapper" class="<?= ($invoice_existing && $invoice_existing['address'] === 'ADLainnya') ? '' : 'hidden' ?> mt-2">
+            <input type="text" name="ad_lainnya" id="ADOther" 
+                   class="w-full border-2 border-yellow-400 bg-yellow-50 px-3 py-2 rounded focus:ring-2 focus:ring-yellow-400 focus:bg-white text-sm" 
+                   placeholder="Ketik alamat baru…" />
+          </div>
         </div>
 
-        <!-- Sisa field -->
+        <!-- Containers & Container No -->
         <div>
           <label class="block text-sm font-medium">Containers</label>
           <input type="text" name="containers" class="w-full px-3 py-2 border rounded" placeholder="Kontainer..." value="<?= htmlspecialchars($invoice_existing['containers'] ?? $container['shipping_line'] ?? '') ?>" />
@@ -848,48 +1080,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <label class="block text-sm font-medium">Container No.</label>
           <input type="text" name="container_no" class="w-full px-3 py-2 border rounded" placeholder="Nomor kontainer..." value="<?= htmlspecialchars($invoice_existing['container_no'] ?? $container['container_number'] ?? '') ?>" />
         </div>
-        <div>
-          <label class="block text-sm font-medium">Invoice No.</label>
-          <input type="text" name="invoice_no" class="w-full px-3 py-2 border rounded" placeholder="Nomor Invoice..." value="<?= htmlspecialchars($invoice_existing['invoice_no'] ?? $auto_invoice_no) ?>">
-        </div>
 
-        <!-- Bank Name -->
+        <!-- Invoice No. dengan Tombol Reset di dalam input field -->
         <div>
-          <label class="block text-sm font-medium">Bank Name</label>
-          <select name="bank_name" id="BNSelect" class="mt-1 w-full border px-3 py-2 rounded">
-            <option value="">-- Pilih bank --</option>
-            <?php foreach ($bank_name_list as $val): ?>
-              <option value="<?= htmlspecialchars($val) ?>" <?= ($invoice_existing && $invoice_existing['bank_name'] == $val) ? 'selected' : '' ?>><?= htmlspecialchars($val) ?></option>
-            <?php endforeach; ?>
-            <option value="BNLainnya">Tambah baru...</option>
-          </select>
-          <input type="text" name="bn_lainnya" id="BNOther" class="mt-2 w-full border px-3 py-2 rounded hidden" placeholder="Tambah baru…" />
-        </div>
-
-        <!-- Account Name -->
-        <div>
-          <label class="block text-sm font-medium">Account Name</label>
-          <select name="account_name" id="ANSelect" class="mt-1 w-full border px-3 py-2 rounded">
-            <option value="">-- Pilih nama rekening --</option>
-            <?php if ($invoice_existing && !empty($invoice_existing['account_name']) && substr(trim($invoice_existing['account_name']), -7) !== 'Lainnya'): ?>
-              <option value="<?= htmlspecialchars($invoice_existing['account_name']) ?>" selected><?= htmlspecialchars($invoice_existing['account_name']) ?></option>
-            <?php endif; ?>
-            <option value="ANLainnya">Tambah baru...</option>
-          </select>
-          <input type="text" name="an_lainnya" id="ANOther" class="mt-2 w-full border px-3 py-2 rounded hidden" placeholder="Tambah baru…" />
-        </div>
-
-        <!-- Account Number -->
-        <div>
-          <label class="block text-sm font-medium">Account Number</label>
-          <select name="account_number" id="ANumSelect" class="mt-1 w-full border px-3 py-2 rounded">
-            <option value="">-- Pilih nomor rekening --</option>
-            <?php if ($invoice_existing && !empty($invoice_existing['account_number']) && substr(trim($invoice_existing['account_number']), -7) !== 'Lainnya'): ?>
-              <option value="<?= htmlspecialchars($invoice_existing['account_number']) ?>" selected><?= htmlspecialchars($invoice_existing['account_number']) ?></option>
-            <?php endif; ?>
-            <option value="ANumLainnya">Tambah baru...</option>
-          </select>
-          <input type="text" name="anum_lainnya" id="ANumOther" class="mt-2 w-full border px-3 py-2 rounded hidden" placeholder="Tambah baru…" />
+          <label class="block text-sm font-medium text-gray-700 mb-1">Invoice No.</label>
+          <div class="relative flex items-center">
+            <input type="text"
+              id="InvoiceNoInput"
+              name="invoice_no"
+              class="w-full pl-3 pr-28 py-2 border rounded focus:ring focus:ring-yellow-300 font-mono text-sm transition"
+              placeholder="Nomor Invoice..."
+              value="<?= htmlspecialchars($invoice_existing['invoice_no'] ?? $auto_invoice_no) ?>">
+            <button type="button"
+              id="btnResetInvoiceNo"
+              onclick="resetInvoiceNoSequence()"
+              class="absolute right-1.5 px-2 py-1 inline-flex items-center gap-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-400 hover:text-gray-900 border border-yellow-300 rounded transition shadow-xs cursor-pointer select-none"
+              title="Reset digit ke-3 nomor urut kembali ke 001">
+              <span class="material-symbols-outlined text-sm leading-none">restart_alt</span>
+              <span class="leading-none">Reset (001)</span>
+            </button>
+          </div>
         </div>
 
         <div>
@@ -907,6 +1117,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </main>
 
   <script>
+    // Handler toggle input Tambah Baru pada Invoice To & Address
+    function handleToggleOther(selectEl, otherId, lainnyaVal) {
+      if (!selectEl) return;
+      const otherEl = document.getElementById(otherId);
+      const wrapperEl = document.getElementById(otherId + "Wrapper");
+      if (!otherEl) return;
+
+      if (selectEl.value === lainnyaVal) {
+        if (wrapperEl) {
+          wrapperEl.classList.remove("hidden");
+          wrapperEl.style.display = "block";
+        }
+        otherEl.classList.remove("hidden");
+        otherEl.style.display = "block";
+        otherEl.required = true;
+        setTimeout(() => otherEl.focus(), 50);
+      } else {
+        if (wrapperEl) {
+          wrapperEl.classList.add("hidden");
+          wrapperEl.style.display = "none";
+        }
+        otherEl.classList.add("hidden");
+        otherEl.style.display = "none";
+        otherEl.required = false;
+        otherEl.value = "";
+      }
+    }
+
+    // Tombol helper (+ Ketik Baru) untuk memilih opsi Tambah baru & membuka input
+    function enableNewOption(selectId, otherId, lainnyaVal) {
+      const sel = document.getElementById(selectId);
+      if (sel) {
+        sel.value = lainnyaVal;
+        handleToggleOther(sel, otherId, lainnyaVal);
+      }
+    }
+
     const materialData = <?= json_encode($material_data) ?>;
 
     function fillOptions(selectId, options, defaultText, lainnyaVal, selectedVal = "") {
@@ -934,83 +1181,143 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
     }
 
-    // Saat pilih Bank → filter Account Name
-    document.getElementById("BNSelect").addEventListener("change", function() {
-      const bank = this.value;
-      if (bank && !bank.endsWith("Lainnya")) {
-        const names = materialData
-          .filter(d => d.bank_name === bank && d.account_name && !d.account_name.endsWith("Lainnya"))
-          .map(d => d.account_name);
-        fillOptions("ANSelect", names, "-- Pilih nama rekening --", "ANLainnya");
-        fillOptions("ANumSelect", [], "-- Pilih nomor rekening --", "ANumLainnya");
-      } else {
-        fillOptions("ANSelect", [], "-- Pilih nama rekening --", "ANLainnya");
-        fillOptions("ANumSelect", [], "-- Pilih nomor rekening --", "ANumLainnya");
-      }
-      const otherAcc = document.getElementById("ANOther");
-      if (otherAcc) otherAcc.classList.add("hidden");
-      const otherNum = document.getElementById("ANumOther");
-      if (otherNum) otherNum.classList.add("hidden");
-    });
+    // Sender Payments data map
+    const senderPayments = <?= json_encode($sender_payments) ?>;
 
-    // Saat pilih Account Name → filter Account Number
-    document.getElementById("ANSelect").addEventListener("change", function() {
-      const accName = this.value;
-      const bank = document.getElementById("BNSelect").value;
-      if (accName && !accName.endsWith("Lainnya") && bank && !bank.endsWith("Lainnya")) {
-        const nums = materialData
-          .filter(d => d.bank_name === bank && d.account_name === accName && d.account_number && !d.account_number.endsWith("Lainnya"))
-          .map(d => d.account_number);
-        fillOptions("ANumSelect", nums, "-- Pilih nomor rekening --", "ANumLainnya");
-      } else {
-        fillOptions("ANumSelect", [], "-- Pilih nomor rekening --", "ANumLainnya");
-      }
-      const otherNum = document.getElementById("ANumOther");
-      if (otherNum) otherNum.classList.add("hidden");
-    });
+    // Fungsi update tampilan dan hidden input Payment Info berdasarkan Pengirim (FROM)
+    function updateSenderPaymentInfo(senderName) {
+      const p = senderPayments[senderName] || {
+        bank_name: '',
+        account_name: '',
+        account_number: ''
+      };
+      const dBank = document.getElementById("displayPaymentBank");
+      const dName = document.getElementById("displayPaymentAccName");
+      const dNum = document.getElementById("displayPaymentAccNum");
+      const hBank = document.getElementById("hiddenPaymentBank");
+      const hName = document.getElementById("hiddenPaymentAccName");
+      const hNum = document.getElementById("hiddenPaymentAccNum");
 
-    // Toggle input tambahan (Lainnya)
-    document.querySelectorAll("select").forEach(select => {
-      select.addEventListener("change", e => {
-        const id = e.target.id.replace("Select", "Other");
-        const otherInput = document.getElementById(id);
-        if (otherInput) {
-          const isLainnya = e.target.value.endsWith("Lainnya");
-          otherInput.classList.toggle("hidden", !isLainnya);
-          if (isLainnya) {
-            otherInput.focus();
-          } else {
-            otherInput.value = "";
+      if (dBank) dBank.textContent = p.bank_name || "-";
+      if (dName) dName.textContent = p.account_name || "-";
+      if (dNum) dNum.textContent = p.account_number || "-";
+
+      if (hBank) hBank.value = p.bank_name || "";
+      if (hName) hName.value = p.account_name || "";
+      if (hNum) hNum.value = p.account_number || "";
+    }
+
+    // Fungsi Reset digit ke-3 nomor invoice kembali ke 001 di database & tampilan
+    async function resetInvoiceNoSequence() {
+      const ifSelect = document.getElementById("IFSelect");
+      const currentSender = (getCurrentFromValue() || "Abdulaziz Yahya Sagheer Darwesh").trim();
+      let senderId = 0;
+      let senderCode = getCurrentSenderCode();
+      if (ifSelect) {
+        const opt = ifSelect.querySelector(`option[value="${currentSender}"]`);
+        if (opt && opt.dataset.id) {
+          senderId = parseInt(opt.dataset.id);
+        }
+      }
+
+      // Dialog konfirmasi ke pengguna sesuai permintaan
+      const confirmMsg = `Apakah anda yakin reset no urut senders ${currentSender} menjadi 001?`;
+      if (!confirm(confirmMsg)) {
+        return;
+      }
+
+      const btnReset = document.getElementById("btnResetInvoiceNo");
+      const originalBtnHtml = btnReset ? btnReset.innerHTML : "";
+      if (btnReset) {
+        btnReset.disabled = true;
+        btnReset.innerHTML = `<span class="material-symbols-outlined text-sm leading-none animate-spin">refresh</span> <span class="leading-none">Mereset...</span>`;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("action", "reset_sender_sequence");
+        formData.append("sender_name", currentSender);
+        if (senderId > 0) {
+          formData.append("sender_id", senderId);
+        }
+
+        const res = await fetch(window.location.href, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Update cache nomor urut di JS
+          fromSequences[currentSender] = "001";
+          if (data.sender_code) {
+            senderCodes[currentSender] = data.sender_code;
+            senderCode = data.sender_code;
           }
-        }
-      });
-    });
 
-    // Inisialisasi awal opsi rekening jika sudah ada bank yang terpilih
-    (function initBankCascade() {
-      const bnSelect = document.getElementById("BNSelect");
-      if (!bnSelect) return;
-      const currentBank = bnSelect.value;
-      const savedAccName = <?= json_encode((!empty($invoice_existing['account_name']) && substr(trim($invoice_existing['account_name']), -7) !== 'Lainnya') ? trim($invoice_existing['account_name']) : '') ?>;
-      const savedAccNum = <?= json_encode((!empty($invoice_existing['account_number']) && substr(trim($invoice_existing['account_number']), -7) !== 'Lainnya') ? trim($invoice_existing['account_number']) : '') ?>;
-
-      if (currentBank && !currentBank.endsWith("Lainnya")) {
-        const names = materialData
-          .filter(d => d.bank_name === currentBank && d.account_name && !d.account_name.endsWith("Lainnya"))
-          .map(d => d.account_name);
-        if (names.length > 0) {
-          fillOptions("ANSelect", names, "-- Pilih nama rekening --", "ANLainnya", savedAccName);
-        }
-        if (savedAccName && !savedAccName.endsWith("Lainnya")) {
-          const nums = materialData
-            .filter(d => d.bank_name === currentBank && d.account_name === savedAccName && d.account_number && !d.account_number.endsWith("Lainnya"))
-            .map(d => d.account_number);
-          if (nums.length > 0) {
-            fillOptions("ANumSelect", nums, "-- Pilih nomor rekening --", "ANumLainnya", savedAccNum);
+          // Update dataset option pada IFSelect
+          if (ifSelect) {
+            const opt = ifSelect.querySelector(`option[value="${currentSender}"]`) || (senderId ? ifSelect.querySelector(`option[data-id="${senderId}"]`) : null);
+            if (opt) {
+              opt.dataset.lastseq = "0";
+              opt.dataset.nextseq = "001";
+            }
           }
+
+          // Update dataset baris pengirim di custom list
+          const sRow = document.getElementById(`senderRow_${data.sender_id || senderId}`);
+          if (sRow) {
+            sRow.dataset.lastseq = "0";
+            sRow.dataset.nextseq = "001";
+          }
+
+          // Update input modal edit pengirim jika ada
+          const editLastSeqInput = document.getElementById("edit_sender_last_seq");
+          if (editLastSeqInput) {
+            editLastSeqInput.value = "0";
+          }
+
+          // Update field Invoice No. menjadi digit ke-3 001
+          const invInput = document.getElementById("InvoiceNoInput") || document.querySelector("input[name='invoice_no']");
+          if (invInput) {
+            const val = invInput.value.trim();
+            if (!val) {
+              const prefix = containerNumber ? containerNumber + "/" : "";
+              invInput.value = prefix + senderCode + "/001";
+            } else {
+              const parts = val.split("/");
+              if (parts.length === 3) {
+                parts[1] = senderCode;
+                parts[2] = "001";
+                invInput.value = parts.join("/");
+              } else if (/\/\d+$/.test(val)) {
+                invInput.value = val.replace(/\/\d+$/, "/001");
+              } else {
+                invInput.value = val + "/001";
+              }
+            }
+
+            // Animasi feedback visual
+            invInput.classList.add("ring-2", "ring-yellow-400", "bg-yellow-50");
+            setTimeout(() => {
+              invInput.classList.remove("ring-2", "ring-yellow-400", "bg-yellow-50");
+            }, 600);
+          }
+
+          alert(`✅ No. urut pengirim ${currentSender} berhasil direset menjadi 001 di database.`);
+        } else {
+          alert(`❌ Gagal reset: ${data.message || 'Terjadi kesalahan sistem'}`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Terjadi kesalahan jaringan saat mencoba mereset nomor urut.");
+      } finally {
+        if (btnReset) {
+          btnReset.disabled = false;
+          btnReset.innerHTML = originalBtnHtml;
         }
       }
-    })();
+    }
 
     // Template Invoice selection
     const templateSelect = document.getElementById("TemplateSelect");
@@ -1364,6 +1671,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       // Hitung ulang nomor invoice (digit 2 dari kode pengirim, digit 3 dari no urut pengirim)
       recomputeInvoiceNumber(forceUpdate);
+
+      // Sinkronkan Payment Info (Bank Name, Account Name, Account Number)
+      updateSenderPaymentInfo(val);
     }
 
     // Tombol Edit di dropdown trigger: selalu muncul, bisa untuk edit data terpilih ataupun isi data baru
@@ -1378,10 +1688,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           return;
         } else {
           // Jika ada nilai tapi belum memiliki senderId di tabel invoice_senders
+          const pay = senderPayments[currentVal] || {};
           document.getElementById("edit_sender_id").value = "";
           document.getElementById("edit_sender_name").value = opt ? (opt.dataset.name || currentVal) : currentVal;
           document.getElementById("edit_sender_code").value = opt ? (opt.dataset.code || "AYS") : "AYS";
-          document.getElementById("senderModalTitle").textContent = "Edit Data Pengirim & Kode Invoice";
+          const lastSeqEl1 = document.getElementById("edit_sender_last_seq");
+          if (lastSeqEl1) lastSeqEl1.value = opt ? (opt.dataset.lastseq || "0") : "0";
+          document.getElementById("edit_sender_bank_name").value = opt ? (opt.dataset.bank || pay.bank_name || "") : (pay.bank_name || "");
+          document.getElementById("edit_sender_account_name").value = opt ? (opt.dataset.accname || pay.account_name || "") : (pay.account_name || "");
+          document.getElementById("edit_sender_account_number").value = opt ? (opt.dataset.accnum || pay.account_number || "") : (pay.account_number || "");
+          document.getElementById("senderModalTitle").textContent = "Edit Data Pengirim & Payment Info";
           document.getElementById("btnSwitchToAddSender").classList.remove("hidden");
           clearSenderAlert();
           closeCustomSenderDropdown();
@@ -1402,10 +1718,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         return;
       }
 
+      const sName = opt.dataset.name || opt.value || "";
+      const pay = senderPayments[sName] || {};
+
       document.getElementById("edit_sender_id").value = id;
-      document.getElementById("edit_sender_name").value = opt.dataset.name || opt.value || "";
+      document.getElementById("edit_sender_name").value = sName;
       document.getElementById("edit_sender_code").value = opt.dataset.code || "";
-      document.getElementById("senderModalTitle").textContent = "Edit Data Pengirim & Kode Invoice";
+      const lastSeqEl2 = document.getElementById("edit_sender_last_seq");
+      if (lastSeqEl2) lastSeqEl2.value = opt.dataset.lastseq || "0";
+      document.getElementById("edit_sender_bank_name").value = opt.dataset.bank || pay.bank_name || "";
+      document.getElementById("edit_sender_account_name").value = opt.dataset.accname || pay.account_name || "";
+      document.getElementById("edit_sender_account_number").value = opt.dataset.accnum || pay.account_number || "";
+      document.getElementById("senderModalTitle").textContent = "Edit Data Pengirim & Payment Info";
       document.getElementById("btnSwitchToAddSender").classList.remove("hidden");
       clearSenderAlert();
 
@@ -1417,7 +1741,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       document.getElementById("edit_sender_id").value = "";
       document.getElementById("edit_sender_name").value = "";
       document.getElementById("edit_sender_code").value = "";
-      document.getElementById("senderModalTitle").textContent = "Isi / Tambah Pengirim Baru & Kode Invoice";
+      const lastSeqEl3 = document.getElementById("edit_sender_last_seq");
+      if (lastSeqEl3) lastSeqEl3.value = "0";
+      document.getElementById("edit_sender_bank_name").value = "";
+      document.getElementById("edit_sender_account_name").value = "";
+      document.getElementById("edit_sender_account_number").value = "";
+      document.getElementById("senderModalTitle").textContent = "Isi / Tambah Pengirim Baru & Payment Info";
       document.getElementById("btnSwitchToAddSender").classList.add("hidden");
       clearSenderAlert();
 
@@ -1472,6 +1801,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           const s = data.sender;
           const ifSelect = document.getElementById("IFSelect");
 
+          // Update cache payment
+          senderPayments[s.name] = {
+            bank_name: s.bank_name || '',
+            account_name: s.account_name || '',
+            account_number: s.account_number || ''
+          };
+
           // Update atau tambahkan option di select
           let opt = ifSelect.querySelector(`option[data-id="${s.id}"]`);
           if (!opt) {
@@ -1482,6 +1818,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             opt.dataset.id = s.id;
             opt.dataset.name = s.name;
             opt.dataset.code = s.code;
+            opt.dataset.lastseq = s.last_sequence || 0;
+            opt.dataset.nextseq = s.next_seq || '001';
+            opt.dataset.bank = s.bank_name || '';
+            opt.dataset.accname = s.account_name || '';
+            opt.dataset.accnum = s.account_number || '';
             opt.textContent = `${s.name} (Kode: ${s.code})`;
           } else {
             opt = document.createElement("option");
@@ -1489,6 +1830,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             opt.dataset.id = s.id;
             opt.dataset.name = s.name;
             opt.dataset.code = s.code;
+            opt.dataset.lastseq = s.last_sequence || 0;
+            opt.dataset.nextseq = s.next_seq || '001';
+            opt.dataset.bank = s.bank_name || '';
+            opt.dataset.accname = s.account_name || '';
+            opt.dataset.accnum = s.account_number || '';
             opt.textContent = `${s.name} (Kode: ${s.code})`;
             ifSelect.appendChild(opt);
           }
@@ -1500,14 +1846,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (nameEl) nameEl.textContent = s.name;
             const codeEl = row.querySelector(".sender-code-display");
             if (codeEl) codeEl.textContent = "Kode: " + s.code;
+            row.dataset.name = s.name;
+            row.dataset.code = s.code;
+            row.dataset.lastseq = s.last_sequence || 0;
+            row.dataset.nextseq = s.next_seq || '001';
+            row.dataset.bank = s.bank_name || '';
+            row.dataset.accname = s.account_name || '';
+            row.dataset.accnum = s.account_number || '';
           } else {
             const list = document.getElementById("customSenderList");
             const addRow = list.lastElementChild;
             const newRow = document.createElement("div");
             newRow.className = "sender-item-row flex items-center justify-between px-3 py-2.5 hover:bg-yellow-50 cursor-pointer group transition";
             newRow.id = `senderRow_${s.id}`;
+            newRow.dataset.id = s.id;
             newRow.dataset.name = s.name;
-            newRow.onclick = function() { selectSenderOption(this.dataset.name); };
+            newRow.dataset.code = s.code;
+            newRow.dataset.lastseq = s.last_sequence || 0;
+            newRow.dataset.nextseq = s.next_seq || '001';
+            newRow.dataset.bank = s.bank_name || '';
+            newRow.dataset.accname = s.account_name || '';
+            newRow.dataset.accnum = s.account_number || '';
+            newRow.onclick = function() {
+              selectSenderOption(this.dataset.name);
+            };
             newRow.innerHTML = `
               <div class="flex items-center space-x-2 text-sm text-gray-800 flex-1 truncate pr-3">
                 <span class="material-symbols-outlined text-gray-400 group-hover:text-yellow-600 text-base flex-shrink-0">business</span>
@@ -1517,7 +1879,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               <button type="button" 
                       onclick="event.stopPropagation(); openEditSenderModalById('${s.id}')" 
                       class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 hover:bg-yellow-500 hover:text-white border border-yellow-300 rounded transition shadow-xs"
-                      title="Edit nama dan kode pengirim ini">
+                      title="Edit nama, kode, dan payment info pengirim ini">
                 <span class="material-symbols-outlined text-sm">edit</span>
                 <span>Edit</span>
               </button>
@@ -1570,6 +1932,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       ifSelectInit.value = "Abdulaziz Yahya Sagheer Darwesh";
     }
     updateSenderSelection();
+
+    // Inisialisasi awal input tambahan pada Invoice To & Address saat halaman dimuat
+    handleToggleOther(document.getElementById("ITSelect"), "ITOther", "ITLainnya");
+    handleToggleOther(document.getElementById("ADSelect"), "ADOther", "ADLainnya");
   </script>
 
   <!-- Modal Edit Template Invoice (Tanpa Kode Invoice karena sudah dipindah ke Pengirim) -->
@@ -1587,7 +1953,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       <form id="formEditTemplate" onsubmit="submitEditTemplate(event)" class="space-y-4">
         <input type="hidden" id="edit_tpl_id" name="tpl_id" />
-        
+
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Template <span class="text-red-500">*</span></label>
           <input type="text" id="edit_tpl_name" name="tpl_name" required class="w-full px-3 py-2 border rounded text-sm bg-white focus:ring focus:ring-yellow-300" placeholder="Contoh: Invoice Template PT ABC" />
@@ -1616,7 +1982,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
   </div>
 
-  <!-- Modal Edit / Isi Pengirim Invoice (FROM) & Kode Invoice -->
+  <!-- Modal Edit / Isi Pengirim Invoice (FROM) & Payment Info -->
   <div id="editSenderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-4">
     <div class="bg-white rounded-xl w-full max-w-lg p-6 relative shadow-2xl">
       <button type="button" onclick="closeEditSenderModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-700">
@@ -1624,14 +1990,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </button>
       <div class="flex items-center gap-2 mb-4">
         <span class="material-symbols-outlined text-yellow-500 text-2xl">domain</span>
-        <h2 class="text-base font-bold text-gray-800" id="senderModalTitle">Pengirim (FROM) & Kode Invoice</h2>
+        <h2 class="text-base font-bold text-gray-800" id="senderModalTitle">Pengirim (FROM) & Payment Info</h2>
       </div>
 
       <div id="editSenderAlert" class="hidden mb-4 p-3 rounded text-sm"></div>
 
       <form id="formEditSender" onsubmit="submitEditSender(event)" class="space-y-4">
         <input type="hidden" id="edit_sender_id" name="sender_id" />
-        
+        <input type="hidden" id="edit_sender_last_seq" name="last_sequence" />
+
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Pengirim (FROM) <span class="text-red-500">*</span></label>
           <input type="text" id="edit_sender_name" name="sender_name" required class="w-full px-3 py-2 border rounded text-sm bg-white focus:ring focus:ring-yellow-300" placeholder="Contoh: Abdulaziz Yahya Sagheer Darwesh" />
@@ -1641,6 +2008,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <label class="block text-xs font-semibold text-gray-700 mb-1">Kode Invoice <span class="text-red-500">*</span></label>
           <input type="text" id="edit_sender_code" name="sender_code" required class="w-full px-3 py-2 border rounded text-sm uppercase bg-white focus:ring focus:ring-yellow-300" placeholder="Contoh: AYS atau AGI" />
           <p class="text-[11px] text-gray-500 mt-1">Kode ini akan berada di tengah nomor invoice: <code><?= htmlspecialchars($container['number'] ?? '') ?>/[KODE]/XXX</code></p>
+        </div>
+
+        <!-- Section Payment Info di Modal Pengirim -->
+        <div class="p-3 bg-yellow-50/60 border border-yellow-200 rounded-lg space-y-3">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-yellow-900 uppercase tracking-wider">
+            <span class="material-symbols-outlined text-yellow-700 text-sm">payments</span>
+            <span>Payment Info (Rekening Pembayaran)</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Bank Name</label>
+            <input type="text" id="edit_sender_bank_name" name="bank_name" class="w-full px-3 py-2 border rounded text-sm bg-white focus:ring focus:ring-yellow-300" placeholder="Contoh: BRI, BCA, Mandiri" list="bankListSuggestions" />
+            <datalist id="bankListSuggestions">
+              <option value="BRI">
+              <option value="BCA">
+              <option value="Mandiri">
+              <option value="BNI">
+              <option value="BSI">
+            </datalist>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Account Name</label>
+            <input type="text" id="edit_sender_account_name" name="account_name" class="w-full px-3 py-2 border rounded text-sm bg-white focus:ring focus:ring-yellow-300" placeholder="Contoh: PT ALSHARIF GROUP INDONESIA" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Account Number</label>
+            <input type="text" id="edit_sender_account_number" name="account_number" class="w-full px-3 py-2 border rounded text-sm bg-white focus:ring focus:ring-yellow-300 font-mono" placeholder="Contoh: 016701002496566" />
+          </div>
         </div>
 
         <div class="flex items-center justify-between pt-2 border-t">

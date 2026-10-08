@@ -80,7 +80,7 @@ if ($template_file_pdf) {
 } else {
   // Background bawaan untuk invoice lama / tanpa template
   $pdf->AddPage();
-  $bg_image = 'assets/background-invoice2.png';
+  $bg_image = 'assets/blank.png';
   if (file_exists($bg_image)) {
     $pdf->Image($bg_image, 0, 0, 210, 297, '', '', '', false, 300, '', false, false, 0, false, false, -1);
   }

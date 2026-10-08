@@ -31,7 +31,7 @@ $row = $result->fetch_assoc();
 $container_number = $row['container_number'];
 
 // Lanjutkan update status
-$sql = "UPDATE containers SET status = 'verified', verified_by = ?, updated_at = NOW() WHERE id = ?";
+$sql = "UPDATE containers SET status = 'verified', verified_by = ?, verified_at = NOW(), updated_at = NOW() WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ii", $user_id, $id);
 
