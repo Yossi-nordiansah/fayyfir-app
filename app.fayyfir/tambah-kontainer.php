@@ -42,19 +42,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($container_number)) {
     $error_message = "Nomor Kontainer wajib diisi.";
   } else {
-    // Cek apakah nomor kontainer sudah ada
-    $check_exist = $conn->prepare("SELECT id FROM containers WHERE container_number = ? LIMIT 1");
-    $check_exist->bind_param("s", $container_number);
-    $check_exist->execute();
-    $check_exist->store_result();
+    // Pilihan A: Cek apakah ada kontainer dengan nomor ini yang masih aktif (belum berstatus 'lunas')
+    $check_active = $conn->prepare("SELECT id, status FROM containers WHERE container_number = ? AND status != 'lunas' LIMIT 1");
+    $check_active->bind_param("s", $container_number);
+    $check_active->execute();
+    $check_active->store_result();
 
-    if ($check_exist->num_rows > 0) {
-      $error_message = "Nomor Kontainer sudah pernah digunakan. Silakan gunakan nomor lain.";
-      $check_exist->close();
+    if ($check_active->num_rows > 0) {
+      $check_active->bind_result($active_id, $active_status);
+      $check_active->fetch();
+      $check_active->close();
+      $error_message = "Nomor Kontainer '" . htmlspecialchars($container_number) . "' saat ini masih aktif digunakan (Status: " . ucfirst($active_status) . "). Nomor kontainer hanya dapat digunakan kembali jika kontainer sebelumnya sudah berstatus Lunas.";
     } else {
-      $check_exist->close();
+      $check_active->close();
 
-      // Simpan ke database
+      // Simpan ke database (Nomor kontainer boleh digunakan kembali jika kontainer sebelumnya sudah lunas)
       $stmt = $conn->prepare(
         "INSERT INTO containers (container_number, region_name, fill_date, expedition, shipping_line, description, status, filled_by, created_by, product_id, selling_price) 
          VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)"
