@@ -247,6 +247,12 @@ $result = $conn->query($query);
                 <span class="material-symbols-outlined text-sm">chevron_right</span>
                 <span class="text-base">Fayyfir 2</span>
               </a>
+
+              <!-- Data Perusahaan -->
+              <a href="data-perusahaan" class="flex items-center space-x-2 text-indigo-300 hover:text-white px-2 py-1">
+                <span class="material-symbols-outlined text-sm">business</span>
+                <span class="text-base">Data Perusahaan</span>
+              </a>
             </div>
           </div>
         <?php endif; ?>

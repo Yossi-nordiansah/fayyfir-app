@@ -43,6 +43,11 @@ $_SESSION["role_id"] = $user["role_id"];
 $_SESSION["region"] = $user["region_name"];  
 $_SESSION["session_token"] = $token;  
   
+      if ($user["role_id"] == 5) {
+        header("Location: abdul-hadi/data-perusahaan");
+        exit();
+      }
+
       header("Location: index");  
       exit();
     }  
@@ -82,7 +87,9 @@ $_SESSION["session_token"] = $token;
       $_SESSION["session_token"] = $token;  
   
 // Redirect  
-if ($user["role_id"] == "1" && $user["region_name"] == "Gaharu") {  
+if ($user["role_id"] == 5) {
+    header("Location: abdul-hadi/data-perusahaan");
+} elseif ($user["role_id"] == "1" && $user["region_name"] == "Gaharu") {  
     header("Location: abdul-hadi/bahan-baku");  
 } else {  
     header("Location: index");  

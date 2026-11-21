@@ -81,6 +81,17 @@ if (isset($_SESSION["user_id"], $_SESSION["session_token"])) {
     $user_id = $_SESSION["user_id"];
     $session_token = $_SESSION["session_token"];
 
+    // Role restriction: admin_data_perusahaan (role_id 5) hanya boleh akses data-perusahaan & detail-perusahaan
+    if (isset($_SESSION["role_id"]) && (int)$_SESSION["role_id"] === 5) {
+        $uri_path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: $_SERVER['PHP_SELF'];
+        $current_file_base = basename($uri_path, '.php');
+        $allowed_pages = ['data-perusahaan', 'detail-perusahaan', 'login', 'logout'];
+        if (!in_array($current_file_base, $allowed_pages)) {
+            header("Location: data-perusahaan");
+            exit();
+        }
+    }
+
     $last_validation = $_SESSION["last_validation"] ?? 0;
     if (time() - $last_validation > 300) {
         if ($conn_active && !$conn_active->connect_error) {

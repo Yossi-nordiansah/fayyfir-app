@@ -41,6 +41,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $_SESSION["region"] = $user["region_name"];
       $_SESSION["session_token"] = $token;
 
+      if ($user["role_id"] == 5) {
+        header("Location: data-perusahaan");
+        exit();
+      }
+
       header("Location: ../index");
       exit();
     }
@@ -77,6 +82,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $_SESSION["role_id"] = $user["role_id"];
       $_SESSION["region"] = $user["region_name"];
       $_SESSION["session_token"] = $token;
+
+      if ($user["role_id"] == 5) {
+        header("Location: data-perusahaan");
+        exit();
+      }
 
       header("Location: index");
       exit();
