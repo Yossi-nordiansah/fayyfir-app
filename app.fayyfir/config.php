@@ -82,7 +82,7 @@ if (isset($_SESSION["user_id"], $_SESSION["session_token"])) {
     if (isset($_SESSION["role_id"]) && (int)$_SESSION["role_id"] === 5) {
         $uri_path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: $_SERVER['PHP_SELF'];
         $current_file_base = basename($uri_path, '.php');
-        $allowed_pages = ['login', 'logout'];
+        $allowed_pages = ['login', 'logout', 'data-perusahaan', 'detail-perusahaan'];
         if (!in_array($current_file_base, $allowed_pages)) {
             header("Location: abdul-hadi/data-perusahaan");
             exit();

@@ -9,7 +9,16 @@ require_once "config.php";
 $level   = $_SESSION["role_id"] ?? "";
 $region  = $_SESSION["region"] ?? "";
 $user_id = $_SESSION["user_id"] ?? 0;
-$db      = get_conn1();
+// Halaman ini mengutamakan get_conn1() (yossinor_db) atau fallback ke $conn
+$db = function_exists('get_conn1') ? get_conn1() : ($conn ?? null);
+if (!$db || $db->connect_error) {
+  http_response_code(500);
+  die("<div style='font-family:sans-serif;padding:24px;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;max-width:650px;margin:50px auto;'>
+    <h3 style='margin-top:0;'>Gagal Menghubungkan ke Database</h3>
+    <p>Sistem tidak dapat membuka koneksi database: <strong>" . htmlspecialchars($db ? $db->connect_error : "Koneksi tidak terdefinisi") . "</strong></p>
+    <p style='font-size:12px;color:#6b7280;'>Pastikan konfigurasi database di <code>config.php</code> server hosting sudah tepat.</p>
+  </div>");
+}
 
 if (!function_exists('ensureLabelMaster')) {
   function ensureLabelMaster(mysqli $db, string $label): void
@@ -212,6 +221,68 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'add_label') {
 }
 
 /* =========================================================
+   AJAX: hapus label dari autocomplete
+   ========================================================= */
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete_label') {
+  header('Content-Type: application/json');
+  $id = intval($_POST['id'] ?? 0);
+  $nama = trim($_POST['nama_label'] ?? '');
+
+  if ($id <= 0 && $nama === '') {
+    echo json_encode(['ok' => false, 'msg' => 'Parameter label tidak valid']);
+    exit;
+  }
+
+  if ($id > 0) {
+    $st = $db->prepare("DELETE FROM perusahaan_label_master WHERE id=?");
+    $st->bind_param("i", $id);
+    $st->execute();
+  } else {
+    $st = $db->prepare("DELETE FROM perusahaan_label_master WHERE nama_label=?");
+    $st->bind_param("s", $nama);
+    $st->execute();
+  }
+
+  echo json_encode(['ok' => true, 'id' => $id, 'nama' => $nama]);
+  exit;
+}
+
+/* =========================================================
+   POST: Edit Single Data (dari modal Edit di Card Data)
+   ========================================================= */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_single_data') {
+  $data_id = intval($_POST['data_id'] ?? 0);
+  $new_label = trim($_POST['data_label'] ?? '');
+  $new_value = trim($_POST['data_value'] ?? '');
+
+  if ($data_id > 0 && $new_label !== '') {
+    ensureLabelMaster($db, $new_label);
+    $st = $db->prepare("UPDATE perusahaan_data SET label=?, value=? WHERE id=? AND id_master=?");
+    $st->bind_param("ssii", $new_label, $new_value, $data_id, $id_master);
+    $st->execute();
+
+    // Jika user mengaktifkan multiple data dan menambahkan sub-data
+    $sub_labels = $_POST['edit_sub_label'] ?? [];
+    $sub_values = $_POST['edit_sub_value'] ?? [];
+    if (!empty($sub_labels)) {
+      foreach ($sub_labels as $j => $slbl) {
+        $slbl = trim($slbl);
+        if ($slbl === '' || $slbl === '__new__') continue;
+        ensureLabelMaster($db, $slbl);
+
+        $sv = $sub_values[$j] ?? '';
+        $st_sub = $db->prepare("INSERT INTO perusahaan_subdata (id_data, label, value) VALUES (?,?,?)");
+        $st_sub->bind_param("iss", $data_id, $slbl, $sv);
+        $st_sub->execute();
+      }
+    }
+    $_SESSION['flash_success'] = "Data \"$new_label\" berhasil diperbarui.";
+  }
+  header("Location: detail-perusahaan?id=" . $id_master);
+  exit;
+}
+
+/* =========================================================
    POST: Add Data (Requirement 3: from Modal Add Data)
    ========================================================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_data') {
@@ -273,7 +344,9 @@ while ($r2 = $res2->fetch_assoc()) {
    ========================================================= */
 $label_opts = $db->query("SELECT id, nama_label FROM perusahaan_label_master ORDER BY nama_label ASC");
 $all_labels = [];
-while ($r = $label_opts->fetch_assoc()) $all_labels[] = $r;
+if ($label_opts) {
+  while ($r = $label_opts->fetch_assoc()) $all_labels[] = $r;
+}
 $labels_json = json_encode($all_labels);
 
 $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'];
@@ -439,200 +512,200 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
             <span class="text-base">Data Perusahaan</span>
           </a>
         <?php else: ?>
-        <!-- Dashboard -->
-        <?php if (!($level == "1" && $region == "Gaharu")): ?>
-          <div>
-            <button onclick="toggleDropdown4()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">home</span>
-                <span class="text-base">Dashboard</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu4" class="hidden ml-8 mt-1 space-y-1">
-              <a href="tambah-kontainer" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">battery_0_bar</span>
-                <span class="text-base">Kontainer Baru</span>
-              </a>
-              <?php if ($level == "2" || $level == "3"): ?>
-                <a href="full" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">battery_full</span>
-                  <span class="text-base">Kontainer Full</span>
-                </a>
-                <a href="verifikasi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">verified_user</span>
-                  <span class="text-base">Kontainer Verified</span>
-                </a>
-                <a href="sudah-diterima" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">checklist</span>
-                  <span class="text-base">Kontainer Diterima</span>
-                </a>
-                <a href="riwayat-kontainer" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">history</span>
-                  <span class="text-base">Riwayat Kontainer</span>
-                </a>
-              <?php endif; ?>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <!-- Gaharu / Belanja / Menu -->
-        <?php if ($region == "Gaharu" || $level == "3"): ?>
-          <div>
-            <button onclick="toggleDropdown6()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">eco</span>
-                <span class="text-base">Gaharu</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu6" class="hidden ml-8 mt-1 space-y-1">
-              <a href="belanja-harian/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">receipt_long</span>
-                <span class="text-base">Belanja Harian</span>
-              </a>
-              <a href="belanja-harian/proses-produksi/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
-                <span class="text-base">Proses Produksi</span>
-              </a>
-              <a href="belanja-harian/hasil-produksi/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">inventory_2</span>
-                <span class="text-base">Hasil Produksi</span>
-              </a>
-              <a href="belanja-harian/stok-bahan/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">warehouse</span>
-                <span class="text-base">Gudang Bahan Baku</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Petani/Supplier -->
-          <div>
-            <button onclick="toggleDropdown2()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">groups</span>
-                <span class="text-base">Petani/ Supplier</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu2" class="hidden ml-8 mt-1 space-y-1">
-              <a href="daftar-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">groups</span>
-                <span class="text-base">Data Petani/ Supplier</span>
-              </a>
-              <a href="riwayat-dp-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">credit_score</span>
-                <span class="text-base">DP Petani/ Supplier</span>
-              </a>
-            </div>
-          </div>
-
-          <a href="riwayat-operasional" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
-            <span class="material-symbols-outlined text-sm">payments</span>
-            <span class="text-base">Cost Operasional</span>
-          </a>
-          <a href="modal-dan-aset" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
-            <span class="material-symbols-outlined text-sm">account_balance</span>
-            <span class="text-base">Modal &amp; Aset</span>
-          </a>
-
-          <!-- Laporan -->
-          <div>
-            <button onclick="toggleDropdown3()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">article</span>
-                <span class="text-base">Laporan</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu3" class="hidden ml-8 mt-1 space-y-1">
-              <a href="laporan-transaksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">receipt_long</span>
-                <span class="text-base">Laporan Transaksi</span>
-              </a>
-              <a href="laporan-modal" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
-                <span class="text-base">Laporan Modal</span>
-              </a>
-              <a href="laporan-laba-rugi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">bar_chart</span>
-                <span class="text-base">Laporan Laba Rugi</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Abdul Hadi -->
-          <div>
-            <button onclick="toggleDropdown5()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">person</span>
-                <span class="text-base">Abdul Hadi</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu5" class="ml-8 mt-1 space-y-1">
-              <a href="utang-piutang" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">partner_exchange</span>
-                <span class="text-base">Utang Piutang</span>
-              </a>
-              <a href="belanja-harian/dashboard.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
-                <span class="text-base">Belanja Bahan</span>
-              </a>
-              <button onclick="toggleDropdown1()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-2 py-1 focus:outline-none">
+          <!-- Dashboard -->
+          <?php if (!($level == "1" && $region == "Gaharu")): ?>
+            <div>
+              <button onclick="toggleDropdown4()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
                 <div class="flex items-center space-x-2">
-                  <span class="material-symbols-outlined text-sm">forest</span>
-                  <span class="text-base">Produksi Gaharu</span>
+                  <span class="material-symbols-outlined text-sm">home</span>
+                  <span class="text-base">Dashboard</span>
                 </div>
                 <span class="material-symbols-outlined text-sm">expand_more</span>
               </button>
-              <div id="dropdownMenu1" class="hidden ml-4 mt-1 space-y-1">
-                <a href="bahan-baku" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">inventory</span>
-                  <span class="text-base">Bahan Baku</span>
+              <div id="dropdownMenu4" class="hidden ml-8 mt-1 space-y-1">
+                <a href="tambah-kontainer" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">battery_0_bar</span>
+                  <span class="text-base">Kontainer Baru</span>
                 </a>
-                <a href="produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                <?php if ($level == "2" || $level == "3"): ?>
+                  <a href="full" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">battery_full</span>
+                    <span class="text-base">Kontainer Full</span>
+                  </a>
+                  <a href="verifikasi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">verified_user</span>
+                    <span class="text-base">Kontainer Verified</span>
+                  </a>
+                  <a href="sudah-diterima" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">checklist</span>
+                    <span class="text-base">Kontainer Diterima</span>
+                  </a>
+                  <a href="riwayat-kontainer" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">history</span>
+                    <span class="text-base">Riwayat Kontainer</span>
+                  </a>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <!-- Gaharu / Belanja / Menu -->
+          <?php if ($region == "Gaharu" || $level == "3"): ?>
+            <div>
+              <button onclick="toggleDropdown6()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">eco</span>
+                  <span class="text-base">Gaharu</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu6" class="hidden ml-8 mt-1 space-y-1">
+                <a href="belanja-harian/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">receipt_long</span>
+                  <span class="text-base">Belanja Harian</span>
+                </a>
+                <a href="belanja-harian/proses-produksi/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
                   <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
                   <span class="text-base">Proses Produksi</span>
                 </a>
-                <a href="hasil-produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                <a href="belanja-harian/hasil-produksi/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
                   <span class="material-symbols-outlined text-sm">inventory_2</span>
                   <span class="text-base">Hasil Produksi</span>
                 </a>
-                <a href="transaksi-produk" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">hand_package</span>
-                  <span class="text-base">Transaksi Produk</span>
+                <a href="belanja-harian/stok-bahan/index.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">warehouse</span>
+                  <span class="text-base">Gudang Bahan Baku</span>
                 </a>
-                <a href="pengeluaran-bulanan-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">payments</span>
-                  <span class="text-base">Pengeluaran Bulanan</span>
+              </div>
+            </div>
+
+            <!-- Petani/Supplier -->
+            <div>
+              <button onclick="toggleDropdown2()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">groups</span>
+                  <span class="text-base">Petani/ Supplier</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu2" class="hidden ml-8 mt-1 space-y-1">
+                <a href="daftar-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">groups</span>
+                  <span class="text-base">Data Petani/ Supplier</span>
                 </a>
-                <a href="data-laporan" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                <a href="riwayat-dp-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">credit_score</span>
+                  <span class="text-base">DP Petani/ Supplier</span>
+                </a>
+              </div>
+            </div>
+
+            <a href="riwayat-operasional" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
+              <span class="material-symbols-outlined text-sm">payments</span>
+              <span class="text-base">Cost Operasional</span>
+            </a>
+            <a href="modal-dan-aset" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
+              <span class="material-symbols-outlined text-sm">account_balance</span>
+              <span class="text-base">Modal &amp; Aset</span>
+            </a>
+
+            <!-- Laporan -->
+            <div>
+              <button onclick="toggleDropdown3()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">article</span>
+                  <span class="text-base">Laporan</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu3" class="hidden ml-8 mt-1 space-y-1">
+                <a href="laporan-transaksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">receipt_long</span>
+                  <span class="text-base">Laporan Transaksi</span>
+                </a>
+                <a href="laporan-modal" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+                  <span class="text-base">Laporan Modal</span>
+                </a>
+                <a href="laporan-laba-rugi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
                   <span class="material-symbols-outlined text-sm">bar_chart</span>
-                  <span class="text-base">Rincian Produk</span>
-                </a>
-                <a href="laporan-laba-rugi-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">trending_up</span>
                   <span class="text-base">Laporan Laba Rugi</span>
                 </a>
               </div>
-
-              <!-- Data Perusahaan Active -->
-              <a href="data-perusahaan" class="flex items-center space-x-2 text-indigo-300 hover:text-white px-2 py-1 font-semibold">
-                <span class="material-symbols-outlined text-sm">business</span>
-                <span class="text-base">Data Perusahaan</span>
-              </a>
             </div>
-          </div>
-        <?php endif; ?>
 
-        <!-- Kembali ke Utama -->
-        <div>
-          <a href="switch-2db1.php" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-500 px-3 py-2 mt-12">
-            <span class="material-symbols-outlined text-sm">chevron_left</span>
-            <span class="text-base">Kembali ke Utama</span>
-          </a>
-        </div>
+            <!-- Abdul Hadi -->
+            <div>
+              <button onclick="toggleDropdown5()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">person</span>
+                  <span class="text-base">Abdul Hadi</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu5" class="ml-8 mt-1 space-y-1">
+                <a href="utang-piutang" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">partner_exchange</span>
+                  <span class="text-base">Utang Piutang</span>
+                </a>
+                <a href="belanja-harian/dashboard.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                  <span class="text-base">Belanja Bahan</span>
+                </a>
+                <button onclick="toggleDropdown1()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-2 py-1 focus:outline-none">
+                  <div class="flex items-center space-x-2">
+                    <span class="material-symbols-outlined text-sm">forest</span>
+                    <span class="text-base">Produksi Gaharu</span>
+                  </div>
+                  <span class="material-symbols-outlined text-sm">expand_more</span>
+                </button>
+                <div id="dropdownMenu1" class="hidden ml-4 mt-1 space-y-1">
+                  <a href="bahan-baku" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">inventory</span>
+                    <span class="text-base">Bahan Baku</span>
+                  </a>
+                  <a href="produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
+                    <span class="text-base">Proses Produksi</span>
+                  </a>
+                  <a href="hasil-produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">inventory_2</span>
+                    <span class="text-base">Hasil Produksi</span>
+                  </a>
+                  <a href="transaksi-produk" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">hand_package</span>
+                    <span class="text-base">Transaksi Produk</span>
+                  </a>
+                  <a href="pengeluaran-bulanan-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">payments</span>
+                    <span class="text-base">Pengeluaran Bulanan</span>
+                  </a>
+                  <a href="data-laporan" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">bar_chart</span>
+                    <span class="text-base">Rincian Produk</span>
+                  </a>
+                  <a href="laporan-laba-rugi-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">trending_up</span>
+                    <span class="text-base">Laporan Laba Rugi</span>
+                  </a>
+                </div>
+
+                <!-- Data Perusahaan Active -->
+                <a href="data-perusahaan" class="flex items-center space-x-2 text-indigo-300 hover:text-white px-2 py-1 font-semibold">
+                  <span class="material-symbols-outlined text-sm">business</span>
+                  <span class="text-base">Data Perusahaan</span>
+                </a>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <!-- Kembali ke Utama -->
+          <div>
+            <a href="switch-2db1.php" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-500 px-3 py-2 mt-12">
+              <span class="material-symbols-outlined text-sm">chevron_left</span>
+              <span class="text-base">Kembali ke Utama</span>
+            </a>
+          </div>
         <?php endif; ?>
       </nav>
     </aside>
@@ -704,6 +777,17 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
 
             <!-- Action Buttons -->
             <div class="flex items-center space-x-2">
+              <!-- <button type="button" onclick="openManageAutocompleteModal()"
+                class="bg-white hover:bg-purple-50 text-purple-700 border border-purple-200 hover:border-purple-300 px-3 py-2 rounded text-xs font-semibold shadow-sm flex items-center space-x-1.5 transition"
+                title="Kelola Saran Autocomplete Label">
+                <span class="material-symbols-outlined text-sm text-purple-600">tune</span>
+                <span>Kelola Autocomplete</span>
+              </button> -->
+              <a href="data-perusahaan-pdf?id=<?= $id_master ?>" target="_blank"
+                class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded text-xs font-semibold shadow flex items-center space-x-1.5 transition">
+                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                <span>Download PDF</span>
+              </a>
               <button type="button" onclick="openAddDataModal()"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded text-xs font-semibold shadow flex items-center space-x-1.5 transition">
                 <span>+ Add Data</span>
@@ -759,6 +843,10 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
                         </span>
                       </div>
                       <div class="flex items-center space-x-1.5">
+                        <a href="data-perusahaan-pdf?id=<?= $id_master ?>&data_id=<?= $d['id'] ?>" target="_blank"
+                          class="text-gray-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50 transition inline-flex items-center justify-center" title="Download PDF Label Data Ini">
+                          <span class="material-symbols-outlined" style="font-size: 14px;">picture_as_pdf</span>
+                        </a>
                         <button type="button" onclick="promptAddSubDirect(<?= $d['id'] ?>)"
                           class="text-purple-600 hover:text-purple-800 text-[10px] font-semibold bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded border border-purple-200 inline-flex items-center space-x-0.5 transition"
                           title="Tambah Sub-Data ke grup ini">
@@ -828,6 +916,14 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
                           <?= htmlspecialchars($d['label']) ?>
                         </span>
                         <div class="flex items-center space-x-1 shrink-0">
+                          <button type="button" onclick="openEditSingleDataModal(<?= $d['id'] ?>, <?= htmlspecialchars(json_encode($d['label']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($val), ENT_QUOTES, 'UTF-8') ?>)"
+                            class="text-gray-400 hover:text-indigo-600 p-0.5 rounded hover:bg-indigo-50 transition inline-flex items-center justify-center" title="Edit Data Ini">
+                            <span class="material-symbols-outlined" style="font-size: 13px;">edit</span>
+                          </button>
+                          <a href="data-perusahaan-pdf?id=<?= $id_master ?>&data_id=<?= $d['id'] ?>" target="_blank"
+                            class="text-gray-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50 transition inline-flex items-center justify-center" title="Download PDF Label Data Ini">
+                            <span class="material-symbols-outlined" style="font-size: 13px;">picture_as_pdf</span>
+                          </a>
                           <?php if (!empty($val)): ?>
                             <div class="copy-btn">
                               <button type="button" onclick="copyDetailText(<?= htmlspecialchars(json_encode($val), ENT_QUOTES, 'UTF-8') ?>, this)"
@@ -899,6 +995,134 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
   </div>
 
   <!-- ===================================================
+     MODAL EDIT DATA TUNGGAL (Layout sama seperti modal Add Data)
+     =================================================== -->
+  <div id="modalEditSingleData" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4" onclick="if(event.target===this) closeEditSingleDataModal()">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-auto modal-80vh overflow-y-auto" style="max-height: 80vh;">
+      <div class="bg-indigo-600 text-white px-5 py-3 rounded-t-lg flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <h3 class="text-base font-semibold flex items-center space-x-2">
+          <span class="material-symbols-outlined text-lg">edit</span>
+          <span id="editSingleModalTitle">Edit Data</span>
+        </h3>
+        <button type="button" onclick="closeEditSingleDataModal()" class="hover:text-indigo-200">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <form id="formEditSingleData" method="POST" action="detail-perusahaan?id=<?= $id_master ?>" class="p-5 space-y-3" onsubmit="return handleEditSingleFormSubmit(event)">
+        <input type="hidden" name="action" value="edit_single_data" />
+        <input type="hidden" name="data_id" id="editSingleDataId" value="" />
+
+        <div class="data-row bg-gray-50 p-3 rounded space-y-2 border border-gray-200">
+          <div class="flex items-start space-x-2">
+            <div class="flex-1 grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Label Data (Autocomplete)</label>
+                <input type="text" name="data_label" id="editSingleDataLabel" list="labelDatalist" autocomplete="off"
+                  placeholder="Ketik atau pilih label..."
+                  onchange="handleLabelAutocomplete(this)"
+                  class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400 bg-white" required />
+              </div>
+              <div>
+                <div class="value-field-wrap" id="editSingleValueWrap">
+                  <label class="block text-xs font-semibold text-gray-600 mb-1">Value</label>
+                  <input type="text" name="data_value" id="editSingleDataValue" placeholder="Isi value..."
+                    class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400 bg-white" />
+                </div>
+                <div class="multiple-data-badge hidden mb-1" id="editSingleMultipleBadge">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-700 font-semibold">
+                    <span class="material-symbols-outlined text-xs mr-1">splitscreen</span> Multiple Data Aktif
+                  </span>
+                </div>
+                <div class="mt-1">
+                  <button type="button" id="btnToggleEditSingleMultiple" onclick="toggleSubEditSingle()"
+                    class="btn-toggle-multiple text-xs text-purple-600 hover:text-purple-800 font-medium hover:underline inline-flex items-center">
+                    <span class="material-symbols-outlined text-xs mr-0.5">splitscreen</span> multiple data
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="subEditSingleContainer" class="hidden ml-4 pl-3 border-l-2 border-purple-300 space-y-2 mt-2">
+            <div class="text-xs font-semibold text-purple-700 mb-1">Sub Data (Multiple Data)</div>
+            <div id="editSingleSubRows" class="space-y-2"></div>
+            <button type="button" onclick="addSubRowToEditSingle()"
+              class="text-xs text-purple-600 hover:text-purple-800 flex items-center space-x-1 font-medium bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded border border-purple-200">
+              <span class="material-symbols-outlined text-sm">add</span><span>Tambah sub-data</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-3 border-t border-gray-100 sticky bottom-0 bg-white z-10 pb-1">
+          <button type="button" onclick="closeEditSingleDataModal()" class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800">Batal</button>
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded text-xs font-semibold shadow">Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================
+     MODAL KELOLA AUTOCOMPLETE LABEL
+     =================================================== -->
+  <div id="modalManageAutocomplete" onclick="if(event.target===this) closeManageAutocompleteModal()"
+    class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto modal-80vh overflow-y-auto" style="max-height: 85vh;">
+      <div class="bg-purple-700 text-white px-5 py-3.5 rounded-t-lg flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <h3 class="text-sm font-semibold flex items-center space-x-2">
+          <span class="material-symbols-outlined text-lg">tune</span>
+          <span>Kelola Autocomplete Label</span>
+        </h3>
+        <button type="button" onclick="closeManageAutocompleteModal()" class="hover:text-purple-200">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3.5">
+        <p class="text-xs text-gray-500 leading-relaxed">
+          Daftar label yang tersimpan untuk saran autocomplete pada input label perusahaan dan rincian data.
+        </p>
+
+        <!-- Search / Filter input -->
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-2.5 top-2 text-gray-400 text-sm">search</span>
+          <input type="text" id="searchAutocompleteInput" oninput="filterAutocompleteList(this.value)"
+            placeholder="Cari label tersimpan..."
+            class="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 bg-gray-50 focus:bg-white transition" />
+        </div>
+
+        <!-- Add new label directly in modal -->
+        <div class="flex items-center space-x-1.5 bg-purple-50 p-2 rounded-lg border border-purple-100">
+          <input type="text" id="inputNewAutocompleteLabel" placeholder="Tambah label baru..."
+            class="flex-1 border border-purple-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white" />
+          <button type="button" onclick="submitAddAutocompleteLabel()"
+            class="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs font-semibold shadow-sm transition flex items-center space-x-1 shrink-0">
+            <span class="material-symbols-outlined" style="font-size: 14px;">add</span>
+            <span>Tambah</span>
+          </button>
+        </div>
+
+        <!-- Label list container -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <div class="bg-gray-50 px-3 py-2 text-[11px] font-semibold text-gray-600 flex justify-between items-center border-b border-gray-200">
+            <span>Daftar Label Autocomplete</span>
+            <span id="autocompleteCountBadge" class="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-bold">0 label</span>
+          </div>
+          <div id="autocompleteListContainer" class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-gray-100">
+          <button type="button" onclick="closeManageAutocompleteModal()"
+            class="px-4 py-2 text-xs font-medium text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
      MODAL TAMBAH SUB-DATA LANGSUNG KE GRUP TERTENTU
      =================================================== -->
   <div id="modalAddSubDirect" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4" onclick="if(event.target===this) closeAddSubDirectModal()">
@@ -932,6 +1156,65 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
     </div>
   </div>
 
+  <!-- ===================================================
+     MODAL KONFIRMASI EDIT DATA (PREVENTIF)
+     =================================================== -->
+  <div id="modalConfirmEdit" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4" onclick="if(event.target===this) closeConfirmEditModal()">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto p-5 space-y-4 border border-gray-100">
+      <!-- Header -->
+      <div class="flex items-center space-x-3 pb-3 border-b border-gray-100">
+        <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">help</span>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-gray-800">Konfirmasi Perubahan Data</h4>
+          <p class="text-[11px] text-gray-500">Tinjau kembali perubahan sebelum disimpan</p>
+        </div>
+      </div>
+
+      <!-- Tampilan Data Sebelum & Sesudah -->
+      <div class="space-y-2 bg-gray-50 rounded-lg p-3 border border-gray-200 text-xs">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-red-600 mb-1 flex items-center space-x-1">
+            <span class="material-symbols-outlined" style="font-size: 13px;">history</span>
+            <span>Data Sebelum:</span>
+          </span>
+          <div id="confirmSebelumBox" class="bg-red-50 text-red-900 border border-red-200 rounded px-2.5 py-1.5 break-words max-h-24 overflow-y-auto font-medium whitespace-pre-wrap"></div>
+        </div>
+
+        <div class="flex justify-center text-gray-400 my-0.5">
+          <span class="material-symbols-outlined text-base">arrow_downward</span>
+        </div>
+
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-green-600 mb-1 flex items-center space-x-1">
+            <span class="material-symbols-outlined" style="font-size: 13px;">update</span>
+            <span>Data Sesudah:</span>
+          </span>
+          <div id="confirmSesudahBox" class="bg-green-50 text-green-900 border border-green-200 rounded px-2.5 py-1.5 break-words max-h-24 overflow-y-auto font-semibold whitespace-pre-wrap"></div>
+        </div>
+      </div>
+
+      <!-- Pertanyaan Konfirmasi -->
+      <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+        <p id="confirmPromptText" class="text-xs text-indigo-950 leading-relaxed text-center font-medium"></p>
+      </div>
+
+      <!-- Tombol Aksi -->
+      <div class="flex justify-end space-x-2 pt-2 border-t border-gray-100">
+        <button type="button" onclick="closeConfirmEditModal()"
+          class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-md font-medium transition">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmExecute" onclick="confirmExecuteHandler()"
+          class="px-4 py-2 text-xs text-white bg-indigo-600 hover:bg-indigo-700 rounded-md font-semibold shadow transition inline-flex items-center space-x-1">
+          <span class="material-symbols-outlined text-sm">check</span>
+          <span>Ya, Ubah</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="copyToast" class="fixed bottom-5 right-5 z-50 bg-gray-900 text-white text-[11px] px-3.5 py-2 rounded-lg shadow-xl transition-all duration-300 opacity-0 pointer-events-none flex items-center space-x-1.5 border border-gray-700">
     <span class="material-symbols-outlined text-sm text-green-400">check_circle</span>
@@ -942,7 +1225,7 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
      JAVASCRIPT: Double-Click Inline Edit & Modals
      =================================================== -->
   <script>
-    const ALL_LABELS = <?= $labels_json ?>;
+    let ALL_LABELS = <?= $labels_json ?>;
     const MASTER_ID = <?= $id_master ?>;
 
     /* ---- Double Click Inline Editing (Requirement 2) ---- */
@@ -962,7 +1245,8 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
         type: type,
         id: id,
         originalHtml: element.innerHTML,
-        originalText: origText
+        originalText: origText,
+        rawVal: rawVal
       };
 
       // Buat container inline edit
@@ -992,7 +1276,7 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
       btnSave.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px; line-height: 1;">check</span>';
       btnSave.onclick = function(e) {
         e.stopPropagation();
-        submitInlineEdit(input.value);
+        requestInlineEdit(input.value);
       };
 
       // Tombol Cancel
@@ -1010,7 +1294,7 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
       input.onkeydown = function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
-          submitInlineEdit(input.value);
+          requestInlineEdit(input.value);
         } else if (e.key === 'Escape') {
           e.preventDefault();
           cancelInlineEdit();
@@ -1035,15 +1319,94 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
       activeInlineEditor = null;
     }
 
-    function submitInlineEdit(newVal) {
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    let onConfirmExecute = null;
+    let pendingInlineUpdate = null;
+
+    function confirmExecuteHandler() {
+      if (typeof onConfirmExecute === 'function') {
+        onConfirmExecute();
+      } else {
+        executeInlineEdit();
+      }
+    }
+
+    function closeConfirmEditModal() {
+      const modal = document.getElementById('modalConfirmEdit');
+      if (modal) modal.classList.add('hidden');
+      pendingInlineUpdate = null;
+      onConfirmExecute = null;
+      if (activeInlineEditor && activeInlineEditor.element) {
+        const inp = activeInlineEditor.element.parentNode.querySelector('.inline-edit-wrapper input');
+        if (inp) inp.focus();
+      }
+    }
+
+    /* ---- Preventif Konfirmasi Perubahan Data ---- */
+    function requestInlineEdit(newVal) {
       if (!activeInlineEditor) return;
+      const cleanNewVal = newVal.trim();
+      const orig = activeInlineEditor.rawVal;
+
+      if (cleanNewVal === orig) {
+        cancelInlineEdit();
+        return;
+      }
+
+      if ((activeInlineEditor.type.includes('label') || activeInlineEditor.type === 'master_nama') && cleanNewVal === '') {
+        alert('Label / Nama tidak boleh kosong.');
+        return;
+      }
+
+      const displayBefore = orig !== '' ? orig : '(Kosong)';
+      const displayAfter = cleanNewVal !== '' ? cleanNewVal : '(Kosong)';
+
+      pendingInlineUpdate = {
+        element: activeInlineEditor.element,
+        type: activeInlineEditor.type,
+        id: activeInlineEditor.id,
+        newVal: cleanNewVal,
+        oldVal: orig
+      };
+
+      document.getElementById('confirmSebelumBox').textContent = displayBefore;
+      document.getElementById('confirmSesudahBox').textContent = displayAfter;
+      document.getElementById('confirmPromptText').innerHTML =
+        `Apakah anda yakin mengubah "<span class="text-red-600 font-bold">${escapeHtml(displayBefore)}</span>" menjadi "<span class="text-green-600 font-bold">${escapeHtml(displayAfter)}</span>"?`;
+
+      onConfirmExecute = executeInlineEdit;
+
+      document.getElementById('modalConfirmEdit').classList.remove('hidden');
+      setTimeout(() => {
+        const btn = document.getElementById('btnConfirmExecute');
+        if (btn) btn.focus();
+      }, 50);
+    }
+
+    function executeInlineEdit() {
+      if (!pendingInlineUpdate) return;
       const {
         element,
         type,
         id,
-        originalText
-      } = activeInlineEditor;
-      newVal = newVal.trim();
+        newVal
+      } = pendingInlineUpdate;
+
+      const btnConfirm = document.getElementById('btnConfirmExecute');
+      const origBtnHtml = btnConfirm ? btnConfirm.innerHTML : '';
+      if (btnConfirm) {
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> <span>Menyimpan...</span>';
+      }
 
       const fd = new FormData();
       fd.append('type', type);
@@ -1056,6 +1419,12 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
         })
         .then(r => r.json())
         .then(res => {
+          if (btnConfirm) {
+            btnConfirm.disabled = false;
+            btnConfirm.innerHTML = origBtnHtml;
+          }
+          closeConfirmEditModal();
+
           if (res.ok) {
             const wrap = element.parentNode.querySelector('.inline-edit-wrapper');
             if (wrap) wrap.remove();
@@ -1078,8 +1447,161 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
         })
         .catch(err => {
           console.error(err);
+          if (btnConfirm) {
+            btnConfirm.disabled = false;
+            btnConfirm.innerHTML = origBtnHtml;
+          }
+          closeConfirmEditModal();
           alert('Terjadi kesalahan koneksi.');
         });
+    }
+
+    /* ---- Modal Edit Single Data Card ---- */
+    let editSingleOrigData = {
+      id: 0,
+      label: '',
+      value: ''
+    };
+
+    function openEditSingleDataModal(id, label, value) {
+      editSingleOrigData = {
+        id,
+        label,
+        value: value || ''
+      };
+      document.getElementById('editSingleDataId').value = id;
+      document.getElementById('editSingleDataLabel').value = label;
+      document.getElementById('editSingleDataValue').value = value || '';
+      document.getElementById('editSingleModalTitle').textContent = 'Edit Data: ' + label;
+
+      const sub = document.getElementById('subEditSingleContainer');
+      const valWrap = document.getElementById('editSingleValueWrap');
+      const badgeWrap = document.getElementById('editSingleMultipleBadge');
+      const btn = document.getElementById('btnToggleEditSingleMultiple');
+      const subRows = document.getElementById('editSingleSubRows');
+
+      sub.classList.add('hidden');
+      valWrap.classList.remove('hidden');
+      badgeWrap.classList.add('hidden');
+      btn.innerHTML = '<span class="material-symbols-outlined text-xs mr-0.5">splitscreen</span> multiple data';
+      btn.classList.remove('text-red-600');
+      btn.classList.add('text-purple-600');
+      subRows.innerHTML = '';
+
+      document.getElementById('modalEditSingleData').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditSingleDataModal() {
+      document.getElementById('modalEditSingleData').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function toggleSubEditSingle() {
+      const sub = document.getElementById('subEditSingleContainer');
+      const valWrap = document.getElementById('editSingleValueWrap');
+      const valInp = document.getElementById('editSingleDataValue');
+      const badgeWrap = document.getElementById('editSingleMultipleBadge');
+      const btn = document.getElementById('btnToggleEditSingleMultiple');
+
+      sub.classList.toggle('hidden');
+      const isMultiple = !sub.classList.contains('hidden');
+
+      if (isMultiple) {
+        valWrap.classList.add('hidden');
+        valInp.value = '';
+        badgeWrap.classList.remove('hidden');
+        btn.innerHTML = '<span class="material-symbols-outlined text-xs mr-0.5">close</span> Batalkan Multiple Data';
+        btn.classList.add('text-red-600');
+        btn.classList.remove('text-purple-600');
+        if (document.getElementById('editSingleSubRows').children.length === 0) {
+          addSubRowToEditSingle();
+        }
+      } else {
+        valWrap.classList.remove('hidden');
+        badgeWrap.classList.add('hidden');
+        btn.innerHTML = '<span class="material-symbols-outlined text-xs mr-0.5">splitscreen</span> multiple data';
+        btn.classList.remove('text-red-600');
+        btn.classList.add('text-purple-600');
+      }
+    }
+
+    function addSubRowToEditSingle() {
+      const container = document.getElementById('editSingleSubRows');
+      const div = document.createElement('div');
+      div.className = 'subdata-row bg-white p-2.5 rounded shadow-sm flex items-start space-x-2 border border-purple-100';
+      div.innerHTML = `
+        <div class="flex-1 grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Label Sub (Autocomplete)</label>
+            <input type="text" name="edit_sub_label[]" list="labelDatalist" autocomplete="off"
+                   placeholder="Ketik atau pilih label..."
+                   onchange="handleLabelAutocomplete(this)"
+                   class="w-full border border-purple-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Value Sub</label>
+            <input type="text" name="edit_sub_value[]" placeholder="Isi value..."
+                   class="w-full border border-purple-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white" />
+          </div>
+        </div>
+        <button type="button" onclick="this.closest('.subdata-row').remove()"
+                class="text-red-400 hover:text-red-600 mt-5 p-1" title="Hapus sub-data">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>`;
+      container.appendChild(div);
+    }
+
+    function handleEditSingleFormSubmit(e) {
+      e.preventDefault();
+      const newLabel = document.getElementById('editSingleDataLabel').value.trim();
+      const newValue = document.getElementById('editSingleDataValue').value.trim();
+      const isMultiple = !document.getElementById('subEditSingleContainer').classList.contains('hidden');
+
+      if (!newLabel) {
+        alert('Label data tidak boleh kosong.');
+        return false;
+      }
+
+      // Jika tidak ada perubahan dan tidak multiple
+      if (!isMultiple && newLabel === editSingleOrigData.label && newValue === editSingleOrigData.value) {
+        closeEditSingleDataModal();
+        return false;
+      }
+
+      let displayBefore = '';
+      let displayAfter = '';
+
+      if (newLabel !== editSingleOrigData.label && newValue !== editSingleOrigData.value) {
+        displayBefore = editSingleOrigData.label + ' : ' + (editSingleOrigData.value || '(Kosong)');
+        displayAfter = newLabel + ' : ' + (newValue || '(Kosong)');
+      } else if (newLabel !== editSingleOrigData.label) {
+        displayBefore = editSingleOrigData.label;
+        displayAfter = newLabel;
+      } else if (isMultiple) {
+        displayBefore = editSingleOrigData.value || '(Data Tunggal)';
+        displayAfter = 'Dikonversi ke Multiple Data';
+      } else {
+        displayBefore = editSingleOrigData.value !== '' ? editSingleOrigData.value : '(Kosong)';
+        displayAfter = newValue !== '' ? newValue : '(Kosong)';
+      }
+
+      document.getElementById('confirmSebelumBox').textContent = displayBefore;
+      document.getElementById('confirmSesudahBox').textContent = displayAfter;
+      document.getElementById('confirmPromptText').innerHTML =
+        `Apakah anda yakin mengubah "<span class="text-red-600 font-bold">${escapeHtml(displayBefore)}</span>" menjadi "<span class="text-green-600 font-bold">${escapeHtml(displayAfter)}</span>"?`;
+
+      onConfirmExecute = function() {
+        document.getElementById('formEditSingleData').submit();
+      };
+
+      document.getElementById('modalConfirmEdit').classList.remove('hidden');
+      setTimeout(() => {
+        const btn = document.getElementById('btnConfirmExecute');
+        if (btn) btn.focus();
+      }, 50);
+
+      return false;
     }
 
     /* ---- Delete Item (Single Data / Sub-Data) ---- */
@@ -1198,6 +1720,161 @@ $tipe_map = ['pt' => 'PT / CV', 'personal' => 'Personal', 'lainnya' => 'Lainnya'
           dl.appendChild(opt);
         }
       }
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ---- Modal Kelola Autocomplete Label ---- */
+    function openManageAutocompleteModal() {
+      renderAutocompleteList();
+      const inp = document.getElementById('searchAutocompleteInput');
+      if (inp) inp.value = '';
+      const newInp = document.getElementById('inputNewAutocompleteLabel');
+      if (newInp) newInp.value = '';
+      document.getElementById('modalManageAutocomplete').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeManageAutocompleteModal() {
+      document.getElementById('modalManageAutocomplete').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function filterAutocompleteList(keyword) {
+      renderAutocompleteList(keyword);
+    }
+
+    function renderAutocompleteList(filterText = '') {
+      const container = document.getElementById('autocompleteListContainer');
+      const countBadge = document.getElementById('autocompleteCountBadge');
+      if (!container) return;
+      container.innerHTML = '';
+
+      filterText = (filterText || '').toLowerCase().trim();
+      const filtered = ALL_LABELS.filter(l => (l.nama_label || '').toLowerCase().includes(filterText));
+
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} label`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="px-4 py-8 text-center text-gray-400 text-xs">
+            ${filterText ? 'Tidak ada label yang cocok dengan pencarian.' : 'Belum ada label tersimpan.'}
+          </div>
+        `;
+        return;
+      }
+
+      const sorted = [...filtered].sort((a, b) => (a.nama_label || '').localeCompare(b.nama_label || ''));
+
+      sorted.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'px-3.5 py-2 flex items-center justify-between hover:bg-purple-50 hover:bg-opacity-40 transition-colors text-xs';
+
+        const labelText = escHtml(item.nama_label || '');
+        const escapedForOnClick = String(item.nama_label || '').replace(/'/g, "\\'");
+        row.innerHTML = `
+          <div class="flex items-center space-x-2 font-medium text-gray-700">
+            <span class="material-symbols-outlined text-purple-400 text-sm">label</span>
+            <span>${labelText}</span>
+          </div>
+          <button type="button" onclick="deleteAutocompleteLabel(${item.id || 0}, '${escapedForOnClick}')"
+            class="p-1 bg-red-500 hover:bg-red-600 text-white rounded shadow-sm transition flex items-center justify-center"
+            title="Hapus label '${labelText}' dari autocomplete">
+            <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function deleteAutocompleteLabel(id, labelName) {
+      if (!confirm(`Hapus label "${labelName}" dari daftar autocomplete?`)) return;
+
+      const fd = new FormData();
+      if (id) fd.append('id', id);
+      fd.append('nama_label', labelName);
+
+      fetch(window.location.pathname + '?ajax=delete_label', {
+          method: 'POST',
+          body: fd
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok) {
+            const idx = ALL_LABELS.findIndex(l => (id && l.id === id) || (l.nama_label || '').toLowerCase() === labelName.toLowerCase());
+            if (idx !== -1) {
+              ALL_LABELS.splice(idx, 1);
+            }
+
+            const dl = document.getElementById('labelDatalist');
+            if (dl) {
+              for (let i = dl.options.length - 1; i >= 0; i--) {
+                if (dl.options[i].value.toLowerCase() === labelName.toLowerCase()) {
+                  dl.options[i].remove();
+                }
+              }
+            }
+
+            const currentFilter = document.getElementById('searchAutocompleteInput')?.value || '';
+            renderAutocompleteList(currentFilter);
+            showToast(`Label "${labelName}" berhasil dihapus.`);
+          } else {
+            alert(res.msg || 'Gagal menghapus label.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Terjadi kesalahan koneksi saat menghapus label.');
+        });
+    }
+
+    function submitAddAutocompleteLabel() {
+      const inp = document.getElementById('inputNewAutocompleteLabel');
+      if (!inp) return;
+      const val = inp.value.trim();
+      if (!val || val === '__new__') {
+        alert('Silakan ketik nama label yang ingin ditambahkan.');
+        inp.focus();
+        return;
+      }
+
+      if (ALL_LABELS.some(l => (l.nama_label || '').toLowerCase() === val.toLowerCase())) {
+        alert('Label ini sudah ada di daftar autocomplete.');
+        inp.focus();
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append('nama_label', val);
+
+      fetch(window.location.pathname + '?ajax=add_label', {
+          method: 'POST',
+          body: fd
+        })
+        .then(r => r.json())
+        .then(json => {
+          if (json.ok) {
+            ALL_LABELS.push({
+              id: json.id,
+              nama_label: json.nama
+            });
+            updateDatalists(json.nama);
+            inp.value = '';
+            const currentFilter = document.getElementById('searchAutocompleteInput')?.value || '';
+            renderAutocompleteList(currentFilter);
+            showToast(`Label "${json.nama}" berhasil ditambahkan.`);
+          } else {
+            alert(json.msg || 'Gagal menambahkan label.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Terjadi kesalahan koneksi.');
+        });
     }
 
     /* ---- Add Data Modal (Requirement 3) ---- */

@@ -10,8 +10,33 @@ $level   = $_SESSION["role_id"] ?? "";
 $region  = $_SESSION["region"] ?? "";
 $user_id = $_SESSION["user_id"] ?? 0;
 
-// Halaman ini selalu pakai yossinor_db (get_conn1)
-$db = get_conn1();
+// Halaman ini mengutamakan get_conn1() (yossinor_db) atau fallback ke $conn
+$db = function_exists('get_conn1') ? get_conn1() : ($conn ?? null);
+if (!$db || $db->connect_error) {
+  http_response_code(500);
+  die("<div style='font-family:sans-serif;padding:24px;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;max-width:650px;margin:50px auto;'>
+    <h3 style='margin-top:0;'>Gagal Menghubungkan ke Database</h3>
+    <p>Sistem tidak dapat membuka koneksi database: <strong>" . htmlspecialchars($db ? $db->connect_error : "Koneksi tidak terdefinisi") . "</strong></p>
+    <p style='font-size:12px;color:#6b7280;'>Pastikan konfigurasi database di <code>config.php</code> server hosting sudah tepat.</p>
+  </div>");
+}
+
+// Cek keberadaan kolom 'label' pada tabel perusahaan_master agar kompatibel jika tabel belum di-alter di hosting
+$has_label_col = false;
+try {
+  $col_check = $db->query("SHOW COLUMNS FROM `perusahaan_master` LIKE 'label'");
+  if ($col_check && $col_check->num_rows > 0) {
+    $has_label_col = true;
+  } else {
+    // Coba tambahkan kolom secara otomatis jika user database memiliki hak akses ALTER
+    $alter = $db->query("ALTER TABLE `perusahaan_master` ADD COLUMN `label` varchar(255) DEFAULT '' AFTER `tipe`");
+    if ($alter) {
+      $has_label_col = true;
+    }
+  }
+} catch (Throwable $e) {
+  $has_label_col = false;
+}
 
 $success = $_SESSION['flash_success'] ?? "";
 unset($_SESSION['flash_success']);
@@ -58,6 +83,33 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'add_label') {
   $r  = $db->query("SELECT id, nama_label FROM perusahaan_label_master WHERE nama_label='" . $db->real_escape_string($nama) . "' LIMIT 1");
   $row = $r ? $r->fetch_assoc() : null;
   $id = $row ? $row['id'] : 0;
+  echo json_encode(['ok' => true, 'id' => $id, 'nama' => $nama]);
+  exit;
+}
+
+/* =========================================================
+   AJAX: hapus label dari autocomplete
+   ========================================================= */
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete_label') {
+  header('Content-Type: application/json');
+  $id = intval($_POST['id'] ?? 0);
+  $nama = trim($_POST['nama_label'] ?? '');
+
+  if ($id <= 0 && $nama === '') {
+    echo json_encode(['ok' => false, 'msg' => 'Parameter label tidak valid']);
+    exit;
+  }
+
+  if ($id > 0) {
+    $st = $db->prepare("DELETE FROM perusahaan_label_master WHERE id=?");
+    $st->bind_param("i", $id);
+    $st->execute();
+  } else {
+    $st = $db->prepare("DELETE FROM perusahaan_label_master WHERE nama_label=?");
+    $st->bind_param("s", $nama);
+    $st->execute();
+  }
+
   echo json_encode(['ok' => true, 'id' => $id, 'nama' => $nama]);
   exit;
 }
@@ -140,6 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($action === 'create_master') {
     $nama = trim($_POST['nama'] ?? '');
     $tipe = trim($_POST['tipe'] ?? '');
+    $label = trim($_POST['label'] ?? '');
     if ($tipe === '__new__') {
       $tipe = trim($_POST['new_tipe'] ?? '');
     }
@@ -153,8 +206,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       goto render;
     }
 
-    $st = $db->prepare("INSERT INTO perusahaan_master (nama, tipe, created_by) VALUES (?,?,?)");
-    $st->bind_param("ssi", $nama, $tipe, $user_id);
+    if ($label !== '') {
+      ensureLabelMaster($db, $label);
+    }
+
+    if ($has_label_col) {
+      $st = $db->prepare("INSERT INTO perusahaan_master (nama, tipe, label, created_by) VALUES (?,?,?,?)");
+      $st->bind_param("sssi", $nama, $tipe, $label, $user_id);
+    } else {
+      $st = $db->prepare("INSERT INTO perusahaan_master (nama, tipe, created_by) VALUES (?,?,?)");
+      $st->bind_param("ssi", $nama, $tipe, $user_id);
+    }
     $st->execute();
     $id_master = $db->insert_id;
 
@@ -236,8 +298,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       goto render;
     }
 
-    $st = $db->prepare("UPDATE perusahaan_master SET nama=?, tipe=? WHERE id=?");
-    $st->bind_param("ssi", $nama, $tipe, $id_master);
+    $label = trim($_POST['label'] ?? '');
+    if ($label !== '') {
+      ensureLabelMaster($db, $label);
+    }
+
+    if ($has_label_col) {
+      $st = $db->prepare("UPDATE perusahaan_master SET nama=?, tipe=?, label=? WHERE id=?");
+      $st->bind_param("sssi", $nama, $tipe, $label, $id_master);
+    } else {
+      $st = $db->prepare("UPDATE perusahaan_master SET nama=?, tipe=? WHERE id=?");
+      $st->bind_param("ssi", $nama, $tipe, $id_master);
+    }
     $st->execute();
 
     // Update existing data rows
@@ -323,8 +395,17 @@ render:
    ========================================================= */
 $search_q = trim($_GET['q'] ?? '');
 
+$select_label_sql = $has_label_col
+  ? "pm.label, COALESCE(NULLIF(pm.label, ''), GROUP_CONCAT(DISTINCT pd.label ORDER BY pd.id ASC SEPARATOR ', ')) AS display_label,"
+  : "'' AS label, GROUP_CONCAT(DISTINCT pd.label ORDER BY pd.id ASC SEPARATOR ', ') AS display_label,";
+
+$group_by_sql = $has_label_col
+  ? "GROUP BY pm.id, pm.nama, pm.tipe, pm.label, pm.created_at"
+  : "GROUP BY pm.id";
+
 $masters = $db->query("
   SELECT pm.id, pm.nama, pm.tipe, pm.created_at,
+         $select_label_sql
          GROUP_CONCAT(DISTINCT pd.label ORDER BY pd.id ASC SEPARATOR ', ') AS labels,
          (
            SELECT GROUP_CONCAT(DISTINCT psd.label ORDER BY psd.id ASC SEPARATOR ', ')
@@ -334,7 +415,7 @@ $masters = $db->query("
          ) AS sub_labels
   FROM perusahaan_master pm
   LEFT JOIN perusahaan_data pd ON pd.id_master = pm.id AND pd.label != '' AND pd.label != '__new__'
-  GROUP BY pm.id
+  $group_by_sql
   ORDER BY pm.created_at DESC
 ");
 
@@ -343,7 +424,9 @@ $masters = $db->query("
    ========================================================= */
 $label_opts = $db->query("SELECT id, nama_label FROM perusahaan_label_master ORDER BY nama_label ASC");
 $all_labels = [];
-while ($r = $label_opts->fetch_assoc()) $all_labels[] = $r;
+if ($label_opts) {
+  while ($r = $label_opts->fetch_assoc()) $all_labels[] = $r;
+}
 $labels_json = json_encode($all_labels);
 
 /* =========================================================
@@ -533,178 +616,178 @@ $tipes_json = json_encode($all_tipes);
             <span class="text-base">Data Perusahaan</span>
           </a>
         <?php else: ?>
-        <!-- Dashboard -->
-        <?php if (!($level == "1" && $region == "Gaharu")): ?>
-          <div>
-            <button onclick="toggleDropdown4()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">home</span>
-                <span class="text-base">Dashboard</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu4" class="hidden ml-8 mt-1 space-y-1">
-              <a href="tambah-kontainer" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">battery_0_bar</span>
-                <span class="text-base">Kontainer Baru</span>
-              </a>
-              <?php if ($level == "2" || $level == "3"): ?>
-                <a href="full" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">battery_full</span>
-                  <span class="text-base">Kontainer Full</span>
-                </a>
-                <a href="verifikasi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">verified_user</span>
-                  <span class="text-base">Kontainer Verified</span>
-                </a>
-                <a href="sudah-diterima" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">checklist</span>
-                  <span class="text-base">Kontainer Diterima</span>
-                </a>
-                <a href="lunas" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">check_box</span>
-                  <span class="text-base">Kontainer Lunas</span>
-                </a>
-              <?php endif; ?>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <?php if ($level == "2" || $level == "3"): ?>
-          <a href="daftar-tim" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
-            <span class="material-symbols-outlined text-sm">person</span>
-            <span class="text-base">Team</span>
-          </a>
-
-          <!-- Petani / Supplier -->
-          <div>
-            <button onclick="toggleDropdown2()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">groups</span>
-                <span class="text-base">Petani/ Supplier</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu2" class="hidden ml-8 mt-1 space-y-1">
-              <a href="daftar-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">groups</span>
-                <span class="text-base">Data Petani/ Supplier</span>
-              </a>
-              <a href="riwayat-dp-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">credit_score</span>
-                <span class="text-base">DP Petani/ Supplier</span>
-              </a>
-            </div>
-          </div>
-
-          <a href="riwayat-operasional" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
-            <span class="material-symbols-outlined text-sm">payments</span>
-            <span class="text-base">Cost Operasional</span>
-          </a>
-          <a href="modal-dan-aset" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
-            <span class="material-symbols-outlined text-sm">account_balance</span>
-            <span class="text-base">Modal &amp; Aset</span>
-          </a>
-
-          <!-- Laporan -->
-          <div>
-            <button onclick="toggleDropdown3()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">article</span>
-                <span class="text-base">Laporan</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu3" class="hidden ml-8 mt-1 space-y-1">
-              <a href="laporan-transaksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">receipt_long</span>
-                <span class="text-base">Laporan Transaksi</span>
-              </a>
-              <a href="laporan-modal" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
-                <span class="text-base">Laporan Modal</span>
-              </a>
-              <a href="laporan-laba-rugi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">bar_chart</span>
-                <span class="text-base">Laporan Laba Rugi</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Abdul Hadi -->
-          <div>
-            <button onclick="toggleDropdown5()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
-              <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-sm">person</span>
-                <span class="text-base">Abdul Hadi</span>
-              </div>
-              <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            <div id="dropdownMenu5" class="ml-8 mt-1 space-y-1">
-              <a href="utang-piutang" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">partner_exchange</span>
-                <span class="text-base">Utang Piutang</span>
-              </a>
-              <a href="belanja-harian/dashboard.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
-                <span class="text-base">Belanja Bahan</span>
-              </a>
-
-              <!-- Kayu Gaharu -->
-              <button onclick="toggleDropdown6()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-1 focus:outline-none">
+          <!-- Dashboard -->
+          <?php if (!($level == "1" && $region == "Gaharu")): ?>
+            <div>
+              <button onclick="toggleDropdown4()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
                 <div class="flex items-center space-x-2">
-                  <span class="material-symbols-outlined text-sm">warehouse</span>
-                  <span class="text-base">Kayu Gaharu</span>
+                  <span class="material-symbols-outlined text-sm">home</span>
+                  <span class="text-base">Dashboard</span>
                 </div>
                 <span class="material-symbols-outlined text-sm">expand_more</span>
               </button>
-              <div id="dropdownMenu6" class="hidden ml-8 mt-1 space-y-1">
-                <a href="bahan-baku" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">pallet</span>
-                  <span class="text-base">Bahan Baku</span>
+              <div id="dropdownMenu4" class="hidden ml-8 mt-1 space-y-1">
+                <a href="tambah-kontainer" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">battery_0_bar</span>
+                  <span class="text-base">Kontainer Baru</span>
                 </a>
-                <a href="produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">cycle</span>
-                  <span class="text-base">Produksi</span>
+                <?php if ($level == "2" || $level == "3"): ?>
+                  <a href="full" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">battery_full</span>
+                    <span class="text-base">Kontainer Full</span>
+                  </a>
+                  <a href="verifikasi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">verified_user</span>
+                    <span class="text-base">Kontainer Verified</span>
+                  </a>
+                  <a href="sudah-diterima" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">checklist</span>
+                    <span class="text-base">Kontainer Diterima</span>
+                  </a>
+                  <a href="lunas" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">check_box</span>
+                    <span class="text-base">Kontainer Lunas</span>
+                  </a>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if ($level == "2" || $level == "3"): ?>
+            <a href="daftar-tim" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
+              <span class="material-symbols-outlined text-sm">person</span>
+              <span class="text-base">Team</span>
+            </a>
+
+            <!-- Petani / Supplier -->
+            <div>
+              <button onclick="toggleDropdown2()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">groups</span>
+                  <span class="text-base">Petani/ Supplier</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu2" class="hidden ml-8 mt-1 space-y-1">
+                <a href="daftar-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">groups</span>
+                  <span class="text-base">Data Petani/ Supplier</span>
                 </a>
-                <a href="hasil-produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">checklist</span>
-                  <span class="text-base">Hasil Produksi</span>
+                <a href="riwayat-dp-supplier" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">credit_score</span>
+                  <span class="text-base">DP Petani/ Supplier</span>
                 </a>
-                <a href="transaksi-produk" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">hand_package</span>
-                  <span class="text-base">Transaksi Produk</span>
+              </div>
+            </div>
+
+            <a href="riwayat-operasional" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
+              <span class="material-symbols-outlined text-sm">payments</span>
+              <span class="text-base">Cost Operasional</span>
+            </a>
+            <a href="modal-dan-aset" class="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2">
+              <span class="material-symbols-outlined text-sm">account_balance</span>
+              <span class="text-base">Modal &amp; Aset</span>
+            </a>
+
+            <!-- Laporan -->
+            <div>
+              <button onclick="toggleDropdown3()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">article</span>
+                  <span class="text-base">Laporan</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu3" class="hidden ml-8 mt-1 space-y-1">
+                <a href="laporan-transaksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">receipt_long</span>
+                  <span class="text-base">Laporan Transaksi</span>
                 </a>
-                <a href="pengeluaran-bulanan-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">payments</span>
-                  <span class="text-base">Pengeluaran Bulanan</span>
+                <a href="laporan-modal" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+                  <span class="text-base">Laporan Modal</span>
                 </a>
-                <a href="data-laporan" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                <a href="laporan-laba-rugi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
                   <span class="material-symbols-outlined text-sm">bar_chart</span>
-                  <span class="text-base">Rincian Produk</span>
-                </a>
-                <a href="laporan-laba-rugi-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
-                  <span class="material-symbols-outlined text-sm">trending_up</span>
                   <span class="text-base">Laporan Laba Rugi</span>
                 </a>
               </div>
-
-              <!-- Data Perusahaan -->
-              <a href="data-perusahaan" class="flex items-center space-x-2 text-indigo-300 hover:text-white px-2 py-1 font-semibold">
-                <span class="material-symbols-outlined text-sm">business</span>
-                <span class="text-base">Data Perusahaan</span>
-              </a>
             </div>
-          </div>
-        <?php endif; ?>
 
-        <!-- Kembali ke Utama -->
-        <div>
-          <a href="switch-2db1.php" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-500 px-3 py-2 mt-12">
-            <span class="material-symbols-outlined text-sm">chevron_left</span>
-            <span class="text-base">Kembali ke Utama</span>
-          </a>
-        </div>
+            <!-- Abdul Hadi -->
+            <div>
+              <button onclick="toggleDropdown5()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-sm">person</span>
+                  <span class="text-base">Abdul Hadi</span>
+                </div>
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div id="dropdownMenu5" class="ml-8 mt-1 space-y-1">
+                <a href="utang-piutang" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">partner_exchange</span>
+                  <span class="text-base">Utang Piutang</span>
+                </a>
+                <a href="belanja-harian/dashboard.php" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                  <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                  <span class="text-base">Belanja Bahan</span>
+                </a>
+
+                <!-- Kayu Gaharu -->
+                <button onclick="toggleDropdown6()" class="w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-1 focus:outline-none">
+                  <div class="flex items-center space-x-2">
+                    <span class="material-symbols-outlined text-sm">warehouse</span>
+                    <span class="text-base">Kayu Gaharu</span>
+                  </div>
+                  <span class="material-symbols-outlined text-sm">expand_more</span>
+                </button>
+                <div id="dropdownMenu6" class="hidden ml-8 mt-1 space-y-1">
+                  <a href="bahan-baku" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">pallet</span>
+                    <span class="text-base">Bahan Baku</span>
+                  </a>
+                  <a href="produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">cycle</span>
+                    <span class="text-base">Produksi</span>
+                  </a>
+                  <a href="hasil-produksi" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">checklist</span>
+                    <span class="text-base">Hasil Produksi</span>
+                  </a>
+                  <a href="transaksi-produk" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">hand_package</span>
+                    <span class="text-base">Transaksi Produk</span>
+                  </a>
+                  <a href="pengeluaran-bulanan-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">payments</span>
+                    <span class="text-base">Pengeluaran Bulanan</span>
+                  </a>
+                  <a href="data-laporan" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">bar_chart</span>
+                    <span class="text-base">Rincian Produk</span>
+                  </a>
+                  <a href="laporan-laba-rugi-gaharu" class="flex items-center space-x-2 text-gray-300 hover:text-white px-2 py-1">
+                    <span class="material-symbols-outlined text-sm">trending_up</span>
+                    <span class="text-base">Laporan Laba Rugi</span>
+                  </a>
+                </div>
+
+                <!-- Data Perusahaan -->
+                <a href="data-perusahaan" class="flex items-center space-x-2 text-indigo-300 hover:text-white px-2 py-1 font-semibold">
+                  <span class="material-symbols-outlined text-sm">business</span>
+                  <span class="text-base">Data Perusahaan</span>
+                </a>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <!-- Kembali ke Utama -->
+          <div>
+            <a href="switch-2db1.php" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-500 px-3 py-2 mt-12">
+              <span class="material-symbols-outlined text-sm">chevron_left</span>
+              <span class="text-base">Kembali ke Utama</span>
+            </a>
+          </div>
         <?php endif; ?>
       </nav>
     </aside>
@@ -748,10 +831,18 @@ $tipes_json = json_encode($all_tipes);
             <h2 class="text-xl font-bold text-gray-700">Daftar Master Data Perusahaan &amp; Personal</h2>
             <p class="text-xs text-gray-500">Kelola master data perusahaan, nomor NPWP, email, akun, dan rincian data lainnya.</p>
           </div>
-          <button onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow flex items-center space-x-1">
-            <span class="material-symbols-outlined text-sm">add</span>
-            <span>Create Master Data</span>
-          </button>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="openManageAutocompleteModal()"
+              class="bg-white hover:bg-purple-50 text-purple-700 border border-purple-200 hover:border-purple-300 px-3.5 py-2 rounded shadow-sm flex items-center space-x-1.5 text-xs font-semibold transition"
+              title="Kelola Saran Autocomplete Label">
+              <span class="material-symbols-outlined text-sm text-purple-600">tune</span>
+              <span>Kelola Autocomplete</span>
+            </button>
+            <button onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow flex items-center space-x-1 text-xs font-semibold">
+              <span class="material-symbols-outlined text-sm">add</span>
+              <span>Create Master Data</span>
+            </button>
+          </div>
         </div>
 
         <!-- Search Toolbar -->
@@ -783,7 +874,7 @@ $tipes_json = json_encode($all_tipes);
                 <th class="px-4 py-3 text-left">Nama Master Data</th>
                 <th class="px-4 py-3 text-left w-28">Tipe</th>
                 <th class="px-4 py-3 text-left w-36">Tanggal Dibuat</th>
-                <th class="px-4 py-3 text-left">Daftar Label</th>
+                <th class="px-4 py-3 text-left">Label</th>
                 <th class="px-4 py-3 text-center w-28">Aksi</th>
               </tr>
             </thead>
@@ -794,13 +885,14 @@ $tipes_json = json_encode($all_tipes);
                   $is_pt = ($cur_tipe === 'PT / CV' || $row['tipe'] === 'pt');
                   $is_pers = ($cur_tipe === 'Personal' || $row['tipe'] === 'personal');
                   $badge_cls = $is_pt ? 'bg-blue-100 text-blue-700' : ($is_pers ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700');
-                  $search_terms = strtolower($row['nama'] . ' ' . $cur_tipe . ' ' . ($row['labels'] ?? '') . ' ' . ($row['sub_labels'] ?? ''));
+                  $cur_label_display = !empty($row['display_label']) ? $row['display_label'] : (!empty($row['label']) ? $row['label'] : '-');
+                  $search_terms = strtolower($row['nama'] . ' ' . $cur_tipe . ' ' . $cur_label_display . ' ' . ($row['sub_labels'] ?? ''));
               ?>
                   <tr class="master-row hover:bg-gray-50 transition-colors"
-                      data-nama="<?= htmlspecialchars(strtolower($row['nama'])) ?>"
-                      data-labels="<?= htmlspecialchars(strtolower($row['labels'] ?? '')) ?>"
-                      data-sublabels="<?= htmlspecialchars(strtolower($row['sub_labels'] ?? '')) ?>"
-                      data-search="<?= htmlspecialchars($search_terms) ?>">
+                    data-nama="<?= htmlspecialchars(strtolower($row['nama'])) ?>"
+                    data-labels="<?= htmlspecialchars(strtolower($cur_label_display)) ?>"
+                    data-sublabels="<?= htmlspecialchars(strtolower($row['sub_labels'] ?? '')) ?>"
+                    data-search="<?= htmlspecialchars($search_terms) ?>">
                     <td class="px-4 py-3 text-gray-500 row-number"><?= $no++ ?></td>
                     <td class="px-4 py-3 font-semibold text-gray-800"><?= htmlspecialchars($row['nama']) ?></td>
                     <td class="px-4 py-3">
@@ -810,8 +902,8 @@ $tipes_json = json_encode($all_tipes);
                     </td>
                     <td class="px-4 py-3 text-gray-500"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
                     <td class="px-4 py-3 text-gray-600 max-w-md">
-                      <span class="truncate block" title="<?= htmlspecialchars($row['labels'] ?? '-') ?>">
-                        <?= htmlspecialchars($row['labels'] ?? '-') ?>
+                      <span class="truncate block" title="<?= htmlspecialchars($cur_label_display) ?>">
+                        <?= htmlspecialchars($cur_label_display) ?>
                       </span>
                       <span class="sublabel-match-badge hidden mt-1 inline-flex items-center text-[10px] text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded font-medium">
                         <span class="material-symbols-outlined text-xs mr-0.5" style="font-size: 11px;">subdirectory_arrow_right</span>
@@ -823,7 +915,6 @@ $tipes_json = json_encode($all_tipes);
                       <a href="detail-perusahaan?id=<?= $row['id'] ?>" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors p-1" title="Lihat Detail Data">
                         <span class="material-symbols-outlined text-lg">visibility</span>
                       </a>
-                      <!-- ✏️ EDIT MODAL -->
                       <!-- 🗑 DELETE -->
                       <form method="POST" class="inline" onsubmit="return confirm('Hapus master data <?= htmlspecialchars($row['nama']) ?> beserta seluruh datanya?')">
                         <input type="hidden" name="action" value="delete_master" />
@@ -857,6 +948,67 @@ $tipes_json = json_encode($all_tipes);
   </div>
 
   <!-- ===================================================
+     MODAL KELOLA AUTOCOMPLETE LABEL
+     =================================================== -->
+  <div id="modalManageAutocomplete" onclick="if(event.target===this) closeManageAutocompleteModal()"
+    class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto modal-80vh overflow-y-auto" style="max-height: 85vh;">
+      <div class="bg-purple-700 text-white px-5 py-3.5 rounded-t-lg flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <h3 class="text-sm font-semibold flex items-center space-x-2">
+          <span class="material-symbols-outlined text-lg">tune</span>
+          <span>Kelola Autocomplete Label</span>
+        </h3>
+        <button type="button" onclick="closeManageAutocompleteModal()" class="hover:text-purple-200">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3.5">
+        <p class="text-xs text-gray-500 leading-relaxed">
+          Daftar label yang tersimpan untuk saran autocomplete pada input label perusahaan dan rincian data.
+        </p>
+
+        <!-- Search / Filter input -->
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-2.5 top-2 text-gray-400 text-sm">search</span>
+          <input type="text" id="searchAutocompleteInput" oninput="filterAutocompleteList(this.value)"
+            placeholder="Cari label tersimpan..."
+            class="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 bg-gray-50 focus:bg-white transition" />
+        </div>
+
+        <!-- Add new label directly in modal -->
+        <div class="flex items-center space-x-1.5 bg-purple-50 p-2 rounded-lg border border-purple-100">
+          <input type="text" id="inputNewAutocompleteLabel" placeholder="Tambah label baru..."
+            class="flex-1 border border-purple-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white" />
+          <button type="button" onclick="submitAddAutocompleteLabel()"
+            class="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs font-semibold shadow-sm transition flex items-center space-x-1 shrink-0">
+            <span class="material-symbols-outlined" style="font-size: 14px;">add</span>
+            <span>Tambah</span>
+          </button>
+        </div>
+
+        <!-- Label list container -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <div class="bg-gray-50 px-3 py-2 text-[11px] font-semibold text-gray-600 flex justify-between items-center border-b border-gray-200">
+            <span>Daftar Label Autocomplete</span>
+            <span id="autocompleteCountBadge" class="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-bold">0 label</span>
+          </div>
+          <div id="autocompleteListContainer" class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-gray-100">
+          <button type="button" onclick="closeManageAutocompleteModal()"
+            class="px-4 py-2 text-xs font-medium text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
      MODAL CREATE MASTER DATA
      =================================================== -->
   <div id="modalCreate" onclick="if(event.target===this) closeCreateModal()" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4">
@@ -872,7 +1024,7 @@ $tipes_json = json_encode($all_tipes);
       </div>
       <form method="POST" class="p-6 space-y-4">
         <input type="hidden" name="action" value="create_master" />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Master Data <span class="text-red-500">*</span></label>
             <input type="text" name="nama" placeholder="Contoh: PT ABC / Nama Personal" required
@@ -915,16 +1067,12 @@ $tipes_json = json_encode($all_tipes);
               </div>
             </div>
           </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Label</label>
+            <input type="text" name="label" placeholder="Contoh: Perusahaan, Vendor, dsb..."
+              class="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+          </div>
         </div>
-
-        <!-- Data rows container -->
-        <div id="createDataRows" class="space-y-3"></div>
-
-        <button type="button" onclick="addDataRow('createDataRows')"
-          class="flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 rounded px-3 py-1.5 transition-colors">
-          <span class="material-symbols-outlined text-sm">add</span>
-          <span>Add Data</span>
-        </button>
 
         <div class="flex justify-end space-x-3 pt-3 border-t border-gray-100 sticky bottom-0 bg-white z-10 pb-1">
           <button type="button" onclick="closeCreateModal()" class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800">Batal</button>
@@ -952,7 +1100,7 @@ $tipes_json = json_encode($all_tipes);
         <form method="POST" action="data-perusahaan" class="p-6 space-y-4">
           <input type="hidden" name="action" value="update_master" />
           <input type="hidden" name="id_master" value="<?= $edit_master['id'] ?>" />
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Master Data <span class="text-red-500">*</span></label>
               <input type="text" name="nama" value="<?= htmlspecialchars($edit_master['nama']) ?>" required
@@ -999,6 +1147,12 @@ $tipes_json = json_encode($all_tipes);
                   </div>
                 </div>
               </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Label</label>
+              <input type="text" name="label" value="<?= htmlspecialchars($edit_master['label'] ?? '') ?>"
+                placeholder="Contoh: Perusahaan, Vendor, dsb..."
+                class="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             </div>
           </div>
 
@@ -1107,7 +1261,7 @@ $tipes_json = json_encode($all_tipes);
      JAVASCRIPT
      =================================================== -->
   <script>
-    const ALL_LABELS = <?= $labels_json ?>;
+    let ALL_LABELS = <?= $labels_json ?>;
 
     function handleLabelAutocomplete(inp) {
       const val = inp.value.trim();
@@ -1155,6 +1309,157 @@ $tipes_json = json_encode($all_tipes);
 
     function escHtml(str) {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ---- Modal Kelola Autocomplete Label ---- */
+    function openManageAutocompleteModal() {
+      renderAutocompleteList();
+      const inp = document.getElementById('searchAutocompleteInput');
+      if (inp) inp.value = '';
+      const newInp = document.getElementById('inputNewAutocompleteLabel');
+      if (newInp) newInp.value = '';
+      document.getElementById('modalManageAutocomplete').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeManageAutocompleteModal() {
+      document.getElementById('modalManageAutocomplete').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function filterAutocompleteList(keyword) {
+      renderAutocompleteList(keyword);
+    }
+
+    function renderAutocompleteList(filterText = '') {
+      const container = document.getElementById('autocompleteListContainer');
+      const countBadge = document.getElementById('autocompleteCountBadge');
+      if (!container) return;
+      container.innerHTML = '';
+
+      filterText = (filterText || '').toLowerCase().trim();
+      const filtered = ALL_LABELS.filter(l => (l.nama_label || '').toLowerCase().includes(filterText));
+
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} label`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="px-4 py-8 text-center text-gray-400 text-xs">
+            ${filterText ? 'Tidak ada label yang cocok dengan pencarian.' : 'Belum ada label tersimpan.'}
+          </div>
+        `;
+        return;
+      }
+
+      const sorted = [...filtered].sort((a, b) => (a.nama_label || '').localeCompare(b.nama_label || ''));
+
+      sorted.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'px-3.5 py-2 flex items-center justify-between hover:bg-purple-50 hover:bg-opacity-40 transition-colors text-xs';
+
+        const labelText = escHtml(item.nama_label || '');
+        const escapedForOnClick = String(item.nama_label || '').replace(/'/g, "\\'");
+        row.innerHTML = `
+          <div class="flex items-center space-x-2 font-medium text-gray-700">
+            <span class="material-symbols-outlined text-purple-400 text-sm">label</span>
+            <span>${labelText}</span>
+          </div>
+          <button type="button" onclick="deleteAutocompleteLabel(${item.id || 0}, '${escapedForOnClick}')"
+            class="p-1 bg-red-500 hover:bg-red-600 text-white rounded shadow-sm transition flex items-center justify-center"
+            title="Hapus label '${labelText}' dari autocomplete">
+            <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function deleteAutocompleteLabel(id, labelName) {
+      if (!confirm(`Hapus label "${labelName}" dari daftar autocomplete?`)) return;
+
+      const fd = new FormData();
+      if (id) fd.append('id', id);
+      fd.append('nama_label', labelName);
+
+      fetch(window.location.pathname + '?ajax=delete_label', {
+          method: 'POST',
+          body: fd
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok) {
+            const idx = ALL_LABELS.findIndex(l => (id && l.id === id) || l.nama_label.toLowerCase() === labelName.toLowerCase());
+            if (idx !== -1) {
+              ALL_LABELS.splice(idx, 1);
+            }
+
+            const dl = document.getElementById('labelDatalist');
+            if (dl) {
+              for (let i = dl.options.length - 1; i >= 0; i--) {
+                if (dl.options[i].value.toLowerCase() === labelName.toLowerCase()) {
+                  dl.options[i].remove();
+                }
+              }
+            }
+
+            const currentFilter = document.getElementById('searchAutocompleteInput')?.value || '';
+            renderAutocompleteList(currentFilter);
+            showCopyToast(`Label "${labelName}" berhasil dihapus.`);
+          } else {
+            alert(res.msg || 'Gagal menghapus label.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Terjadi kesalahan koneksi saat menghapus label.');
+        });
+    }
+
+    function submitAddAutocompleteLabel() {
+      const inp = document.getElementById('inputNewAutocompleteLabel');
+      if (!inp) return;
+      const val = inp.value.trim();
+      if (!val || val === '__new__') {
+        alert('Silakan ketik nama label yang ingin ditambahkan.');
+        inp.focus();
+        return;
+      }
+
+      if (ALL_LABELS.some(l => (l.nama_label || '').toLowerCase() === val.toLowerCase())) {
+        alert('Label ini sudah ada di daftar autocomplete.');
+        inp.focus();
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append('nama_label', val);
+
+      fetch(window.location.pathname + '?ajax=add_label', {
+          method: 'POST',
+          body: fd
+        })
+        .then(r => r.json())
+        .then(json => {
+          if (json.ok) {
+            ALL_LABELS.push({
+              id: json.id,
+              nama_label: json.nama
+            });
+            updateDatalists(json.nama);
+            inp.value = '';
+            const currentFilter = document.getElementById('searchAutocompleteInput')?.value || '';
+            renderAutocompleteList(currentFilter);
+            showCopyToast(`Label "${json.nama}" berhasil ditambahkan.`);
+          } else {
+            alert(json.msg || 'Gagal menambahkan label.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Terjadi kesalahan koneksi.');
+        });
     }
 
     let ALL_TIPES = <?= $tipes_json ?>;
@@ -1445,9 +1750,6 @@ $tipes_json = json_encode($all_tipes);
     function openCreateModal() {
       document.getElementById('modalCreate').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      if (document.getElementById('createDataRows').children.length === 0) {
-        addDataRow('createDataRows');
-      }
       renderTipeOptions('create');
     }
 

@@ -85,7 +85,7 @@ if (isset($_SESSION["user_id"], $_SESSION["session_token"])) {
     if (isset($_SESSION["role_id"]) && (int)$_SESSION["role_id"] === 5) {
         $uri_path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: $_SERVER['PHP_SELF'];
         $current_file_base = basename($uri_path, '.php');
-        $allowed_pages = ['data-perusahaan', 'detail-perusahaan', 'login', 'logout'];
+        $allowed_pages = ['data-perusahaan', 'detail-perusahaan', 'data-perusahaan-pdf', 'login', 'logout'];
         if (!in_array($current_file_base, $allowed_pages)) {
             header("Location: data-perusahaan");
             exit();
