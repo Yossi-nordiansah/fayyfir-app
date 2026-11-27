@@ -79,7 +79,7 @@ $query = "
   FROM containers c
   LEFT JOIN products p ON c.product_id = p.id
   WHERE c.status = 'verified'
-  ORDER BY c.number ASC
+  ORDER BY CAST(c.number AS UNSIGNED) ASC, c.number ASC
 ";
 
 $result = $conn->query($query);
@@ -201,8 +201,8 @@ if ($expenses_res) {
               <span class="material-symbols-outlined text-yellow-400 text-4xl">inventory_2</span>
               <div>
                 <h2 class="text-sm text-gray-500"><?= htmlspecialchars($row["container_number"]) ?></h2>
-                <p class="text-2xl font-bold text-gray-500"><?= htmlspecialchars($row["number"]) ?></p>
-                <h2 class="text-sm text-gray-500">Produk: <?= htmlspecialchars($row["product_name"] ?? "-") ?> | Area: <?= htmlspecialchars($row["region_name"] ?? "-") ?></h2>
+                <p class="text-2xl font-bold text-gray-500"><?= htmlspecialchars($row["number"] ?? "-") ?></p>
+                <h2 class="text-sm text-gray-500">Produk: <?= htmlspecialchars($row["product_name"] ?? "-") ?> | Area: <?= htmlspecialchars($row["region_name"] ?? "-") ?> | <?= htmlspecialchars(!empty($row["expedition"]) ? $row["expedition"] : "-") ?></h2>
               </div>
             </div>
           </a>
@@ -221,7 +221,7 @@ if ($expenses_res) {
                 <button type="submit" name="revert_status" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded" title="Kembalikan status ke Full (Batal Verifikasi)">Batal Verif</button>
               </form>
               <!-- Tombol Nomor -->
-              <button onclick="openNomorModal(<?= $row['id'] ?>, '<?= htmlspecialchars($row['number']) ?>')" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded">Nomor</button>
+              <button onclick='openNomorModal(<?= (int)$row["id"] ?>, <?= json_encode((string)($row["number"] ?? "")) ?>)' class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded">Nomor</button>
               <!-- Tombol Tandai Lunas -->
               <form method="POST" onsubmit="return confirm('Apakah Anda yakin kontainer tersebut telah diterima?');" class="inline">
                 <input type="hidden" name="container_id" value="<?= $row["id"] ?>">
@@ -257,10 +257,11 @@ if ($expenses_res) {
   <!-- Modal Nomor -->
   <div id="modalNomor" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-lg p-6 w-full max-w-sm relative">
-      <h2 class="text-lg font-semibold mb-4">Isi Nomor</h2>
+      <h2 class="text-lg font-semibold mb-4">Isi / Edit Nomor Urut</h2>
       <form method="POST">
         <input type="hidden" name="container_id" id="modalContainerId">
-        <input type="text" name="number" id="modalContainerNumber" class="w-full border px-3 py-2 rounded mb-4" required>
+        <label class="block text-xs text-gray-500 mb-1">Nomor Urut / Kode (bisa huruf & angka)</label>
+        <input type="text" name="number" id="modalContainerNumber" placeholder="Contoh: 12, KTR-01, dll" class="w-full border px-3 py-2 rounded mb-4" required>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeNomorModal()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Batal</button>
           <button type="submit" name="update_number" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Simpan</button>
